@@ -1,0 +1,56 @@
+@font-face {
+  font-family: 'nevica-custom-icon';
+  src: url('../fonts/nevica-custom-icon.eot?526164');
+  src: url('../fonts/nevica-custom-icon.eot?526164#iefix') format('embedded-opentype'),
+       url('../fonts/nevica-custom-icon.woff2?526164') format('woff2'),
+       url('../fonts/nevica-custom-icon.woff?526164') format('woff'),
+       url('../fonts/nevica-custom-icon.ttf?526164') format('truetype'),
+       url('../fonts/nevica-custom-icon.svg?526164#nevica-custom-icon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'nevica-custom-icon';
+    src: url('../fonts/nevica-custom-icon.svg?526164#nevica-custom-icon') format('svg');
+  }
+}
+*/
+ 
+ [class^="nevica-custom-icon-"]:before, [class*=" nevica-custom-icon-"]:before {
+  font-family: "nevica-custom-icon";
+     font-style: normal;
+     font-weight: normal;
+     speak: none;
+     display: inline-block;
+     text-decoration: inherit;
+     width: 1em;
+     margin-right: .2em;
+     text-align: center;
+     font-variant: normal;
+     text-transform: none;
+     line-height: 1em;
+     -webkit-font-smoothing: antialiased;
+     -moz-osx-font-smoothing: grayscale;
+}
+ 
+.nevica-custom-icon-anchor:before { content: '\e800'; } /* '' */
+.nevica-custom-icon-appointment:before { content: '\e801'; } /* '' */
+.nevica-custom-icon-arrow:before { content: '\e802'; } /* '' */
+.nevica-custom-icon-helm:before { content: '\e803'; } /* '' */
+.nevica-custom-icon-icon1:before { content: '\e804'; } /* '' */
+.nevica-custom-icon-icon2:before { content: '\e805'; } /* '' */
+.nevica-custom-icon-icon3:before { content: '\e806'; } /* '' */
+.nevica-custom-icon-icon4:before { content: '\e807'; } /* '' */
+.nevica-custom-icon-icon5:before { content: '\e808'; } /* '' */
+.nevica-custom-icon-icon6:before { content: '\e809'; } /* '' */
+.nevica-custom-icon-icon7:before { content: '\e80a'; } /* '' */
+.nevica-custom-icon-icon8:before { content: '\e80b'; } /* '' */
+.nevica-custom-icon-icon9:before { content: '\e80c'; } /* '' */
+.nevica-custom-icon-icon10:before { content: '\e80d'; } /* '' */
+.nevica-custom-icon-logo:before { content: '\e80e'; } /* '' */
+.nevica-custom-icon-phone:before { content: '\e80f'; } /* '' */
+.nevica-custom-icon-tick:before { content: '\e810'; } /* '' */

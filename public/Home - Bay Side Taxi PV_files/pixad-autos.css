@@ -1,0 +1,955 @@
+ @import url(//fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic);
+ 
+ .pixad-autos {
+	font-family: 'PT Sans', sans-serif, Arial,sans-serif;
+ }
+ 
+ .pixad-autos .clearfix {
+	display: block;
+ }
+ 
+ .pixad-checkbox {
+    position: absolute;
+	cursor: pointer;
+	opacity: 0;
+ }
+ 
+ .pixad-checkbox + label span {
+    display: inline-block;
+    width: 19px;
+    height: 19px;
+    margin: -1px 4px 0 0;
+    vertical-align: middle;
+    background: url(../img/check_radio_sheet.png) left top no-repeat;
+    cursor: pointer;
+ }
+ 
+ .pixad-checkbox:checked + label span {
+    background: url(../img/check_radio_sheet.png) -19px top no-repeat;
+ }
+ 
+ .pixad-autos a {
+	border-bottom: 0 none;
+	-webkit-transition: background-color .2s ease, border .2s ease, color .2s ease, opacity .2s ease-in-out;
+	   -moz-transition: background-color .2s ease, border .2s ease, color .2s ease, opacity .2s ease-in-out;
+	    -ms-transition: background-color .2s ease, border .2s ease, color .2s ease, opacity .2s ease-in-out;
+	     -o-transition: background-color .2s ease, border .2s ease, color .2s ease, opacity .2s ease-in-out;
+	        transition: background-color .2s ease, border .2s ease, color .2s ease, opacity .2s ease-in-out;
+ }
+ 
+ .pixad-autos a:hover {
+	background-color: transparent;
+ }
+ 
+ .pixad-autos h3 {
+	font-family: 'PT Sans', sans-serif, Arial,sans-serif;
+	font-size: 24px;
+	font-weight: normal;
+	border-bottom: 1px solid #dddcdc;
+	margin-bottom: 30px;
+ }
+ 
+ .pixad-autos h3 span {
+	border-bottom: 3px solid #3bafda;
+	position: relative;
+	bottom: 2px;
+ }
+ 
+ .pixad-autos h6,
+ .pixad-autos h6 a {
+	font-family: 'PT Sans', sans-serif, Arial,sans-serif;
+	font-size: 19px !important;
+	text-decoration: none;
+	margin-bottom: 10px;
+	margin: 0;
+ }
+ 
+ .pixad-autos h6 a:hover,
+ .pixad-autos h6 a:focus {
+	text-decoration: none;
+	outline: none;
+ }
+ 
+ .pixad-autos button,
+ .pixad-panel button {
+	text-transform: capitalize;
+ }
+ 
+ .pixad-autos ul {
+	padding: 0 !important;
+	margin: 0 !important;
+ }
+ 
+ .pixad-autos ul li {
+	list-style: none;
+	padding: 0;
+ }
+ 
+ .pixad-autos label span.required {
+	color: red;
+ }
+ 
+ .pixad-autos textarea {
+	font-family: 'PT Sans', sans-serif, Arial,sans-serif;
+	font-size: 13px;
+ }
+ 
+ .pixad-autos input.error,
+ .pixad-autos select.error,
+ .pixad-autos textarea.error {
+	border-color: red;
+ }
+ 
+ .pixad-autos .images-wrapper {
+	padding: 25px 10px;
+	border: 1px solid #dddcdc;
+	margin-bottom: 30px;
+ }
+ 
+ .pixad-autos .images-wrapper.error {
+	border-color: red;
+ }
+ 
+ .text-align-center {
+	text-align: center;
+ }
+ 
+ #pixad-step1, 
+ #pixad-step2, 
+ #pixad-step3,
+ #pixad-step4
+  #pixad-step5 {
+	margin-bottom: 50px;
+ }
+ 
+ #add_pixad .col-md-3.col-sm-3 {
+	margin-bottom: 10px;
+ }
+ 
+/*####################################
+ * Bootstrap Alert Boxes
+ *####################################*/
+ .pixad-autos .alert.alert-danger,
+ .pixad-autos .alert.alert-success,
+ .pixad-autos .alert.alert-warning.alert-dismissable,
+ .pixad-autos .alert.alert-danger,
+ .pixad-autos .alert.alert-success,
+ .pixad-autos .alert.alert-warning.alert-dismissable {
+	font-size: 14px;
+ }
+ 
+/*####################################
+ * CARS TOP FILTER
+ *####################################*/
+ .autos-top-filter {
+	border-bottom: 1px solid #dddcdc;
+	border-top: 1px solid #dddcdc;
+	margin-bottom: 25px;
+	padding-top: 4px;
+	width: 100%;
+ }
+ 
+ .autos-top-filter a {
+	font-size: 14px;
+	vertical-align: -webkit-baseline-middle;
+ }
+ 
+ .autos-top-filter a:hover {
+	background-color: transparent;
+ }
+ 
+ .autos-top-filter .pull-left a {
+	vertical-align: text-bottom;
+	text-decoration: none;
+	margin-right: 20px;
+ }
+ 
+ .autos-top-filter .pull-right a {
+	color: #7f858b;
+ }
+ 
+ .autos-top-filter .pull-right a:hover {
+	color: #F5AE2D;
+ }
+ 
+ .autos-top-filter .pull-right a:nth-child(1) {
+	margin-right: 10px;
+ }
+
+/*####################################
+ * CAR CLASSIFIEDS LOOP PAGE STYLING
+ *####################################*/
+ .pixad-autos.loop .btn-details {
+	font-family: 'Open Sans', san-serif;
+	font-size: 13px;
+	text-decoration: none;
+	background-color: #7f858b;
+	padding: 5px 10px;
+	color: #fbfafa;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+ }
+ 
+ .pixad-autos.loop .btn-details:hover {
+	background-color: #3bafda;
+	color: #fff;
+ }
+ 
+ .owl-autoousel .warranty {
+	text-align: center;
+	position: absolute;
+	background-color: #000;
+	bottom: 3px;
+	right: 4px;
+	padding: 5px 10px;
+	opacity: .5;
+	color: #fff;
+ }
+ 
+ .pixad-autos.loop .warranty,
+ .pixad-autos.page .warranty {
+	text-align: center;
+	position: absolute;
+	background-color: #000;
+	bottom: 0;
+	right: 15px;
+	padding: 5px 10px;
+	opacity: .5;
+	color: #fff;
+ }
+ 
+ .pixad-autos.loop .auto-thumbnail img {
+	max-width: 100%;
+	height: auto;
+	box-shadow: none;
+	padding: 0;
+	margin: 0;
+ }
+ 
+ .pixad-autos.loop .auto-thumbnail .no-image {
+	border: 1px solid #dddcdc;
+ }
+ 
+ .pixad-autos.loop article .title-price-container h6 {
+	margin-top: 0;
+	margin-bottom: 0;
+	float: left;
+	width: 70%;
+ }
+ 
+ .pixad-autos.loop article .title-price-container span.price {
+	font-size: 18px;
+	float: right;
+ }
+ 
+ .pixad-autos.loop article .auto-info ul {
+	/*margin-top: 20px;*/
+	clear: both;
+ }
+ 
+ .pixad-autos.loop article .auto-info li {
+	background: none !important;
+	padding: 0 !important;
+	margin-left: 0 !important;
+	margin-bottom: 5px;
+	border-bottom: 0 none !important;
+	list-style: none !important;
+ }
+ 
+ .pixad-autos.loop article .auto-info span.price {
+	background-color: #F5AE2D;
+	line-height: 1;
+	padding: 5px;
+	color: #ffffff;
+	float: right;
+ }
+ 
+ .pixad-autos.loop article .aditional-info {
+	margin-top: 15px;
+	padding: 5px;
+ }
+ 
+ .pixad-autos.loop article .aditional-info ul li {
+	width: auto;
+	height: 35px;
+	margin: 0;
+	display: inline-block;
+	padding: 0 !important;
+	background: none !important;
+	border-bottom: 0 none !important;
+ }
+ 
+ .pixad-autos.loop article .aditional-info ul li  span {
+	font-size: 14px;
+	font-weight: normal;
+	padding: 5px 10px;
+	margin-right: 10px;
+	background-color: #ececec;
+	border: 1px solid #dbdbdb;
+	cursor: pointer;
+	color: #a0a0a0;
+	-webkit-transition: background-color .2s ease, border .2s ease, color .2s ease, opacity .2s ease-in-out;
+	   -moz-transition: background-color .2s ease, border .2s ease, color .2s ease, opacity .2s ease-in-out;
+	    -ms-transition: background-color .2s ease, border .2s ease, color .2s ease, opacity .2s ease-in-out;
+	     -o-transition: background-color .2s ease, border .2s ease, color .2s ease, opacity .2s ease-in-out;
+	        transition: background-color .2s ease, border .2s ease, color .2s ease, opacity .2s ease-in-out;
+ }
+ 
+ .pixad-autos.loop article .aditional-info span:hover {
+	background-color: #fff;
+	color: #a0a0a0;
+ }
+ 
+ /* Pagination */
+ #pixad-pagination .page-numbers {
+	font-size: 14px;
+	text-decoration: none;
+	background-color: #ececec;
+	border: 1px solid #dbdbdb;
+	padding: 5px 10px;
+	color: #a0a0a0;
+ }
+ 
+ #pixad-pagination .page-numbers.current,
+ #pixad-pagination .page-numbers:hover {
+	background-color: #fff;
+ }
+ 
+/*####################################
+ * CARS CLASSIFIEDS LOOP | LIST STYLE
+ *####################################*/
+ .pixad-autos.loop .autos-list article {
+	border-bottom: 1px dashed #dddcdc;
+	padding-top: 15px !important;
+	padding-bottom: 0 !important;
+	clear: both;
+ }
+ 
+ .pixad-autos.loop .autos-list article:hover {
+	background-color: #f9f8ee;
+ }
+ 
+ .pixad-autos.loop .autos-list article .auto-thumbnail span.price {
+	display: none;
+ }
+ 
+ .pixad-autos.loop .autos-list article .auto-info {
+	font-size: 14px;
+	float: left;
+ }
+ 
+ .pixad-autos.loop .autos-list article .auto-info span {
+	font-weight: normal;
+ }
+ 
+ @media screen and (max-width: 767px) {
+    .pixad-autos.loop .autos-list article .auto-info {
+		margin-top: 20px;
+		width: 100%;
+	}
+ }
+ 
+/*####################################
+ * CARS CLASSIFIEDS LOOP | GRID STYLE
+ *####################################*/
+ .pixad-autos.loop .autos-grid article {
+	display: inline-block;
+	margin-bottom: 10px;
+	max-width: 30%;
+ }
+ 
+ .pixad-autos.loop .autos-grid article:last-child {
+	margin-right: 0;
+ }
+ 
+ .pixad-autos.loop .autos-grid article .auto-thumbnail {
+	width: 100%;
+ }
+ 
+ .pixad-autos.loop .autos-grid article .auto-info {
+	max-width: 100%;
+	clear: both;
+ }
+ 
+ .pixad-autos.loop .autos-grid article .auto-info ul {
+	clear: both;
+	display: none;
+ }
+ 
+ .pixad-autos.loop .autos-grid article .auto-info {
+	display: none;
+ }
+ 
+ .pixad-autos.loop .autos-grid article .auto-thumbnail span.price {
+	background-color: #F5AE2D;
+	position: absolute;
+	line-height: 1;
+	padding: 5px;
+	color: #ffffff;
+	display: block;
+	top: 0;
+ }
+ 
+ .pixad-autos.loop .autos-grid article .aditional-info {
+	display: none;
+ }
+ 
+/*####################################
+ * SINGLE CAR PAGE
+ *####################################*/
+ #pixad-autos-single .panel {
+	border: 1px solid #e3e3e3;
+ }
+ 
+ #pixad-autos-single .panel #pixad-autos-tabs li a {
+	border: none;
+	border-radius: 0;
+	background-color: #f1f2f2;
+	border-top: 3px solid #f1f2f2;
+ }
+ 
+ #pixad-autos-single .panel #pixad-autos-tabs li.active a {
+	border-top: 3px solid #ec971f;
+	background-color: #fff;
+ }
+ 
+ #pixad-autos-single h3 {
+	font-size: 22px;
+	margin: 20px 0;
+ }
+ 
+ #pixad-autos-single .pixad-autos-main-image img {
+	width: 100%;
+ }
+ 
+ #pixad-autos-single .pixad-autos-main-image .pixad-autos-main-image-price {
+	background-color: #F5AE2D;
+	padding: 5px 20px;
+	position: absolute;
+	color: #fff;
+	top: 0;
+	right: 15px;
+ }
+ 
+ #pixad-autos-single .pixad-thumbs {
+	display: inline-block;
+	margin-top: 10px;
+	max-width: 100%;
+ }
+ 
+ #pixad-autos-single .pixad-thumbs a {
+	cursor: webkit-zoom-in;
+	cursor: moz-zoom-in;
+	cursor: zoom-in;
+ }
+ 
+ #pixad-autos-single .pixad-thumbs img {
+	margin-right: 10px;
+	margin-bottom: 10px;
+	max-width: 100%;
+	height: auto;
+ }
+ 
+ #pixad-autos-single .pixad-thumbs a {
+	padding: 0;
+	margin-right: 10px;
+ }
+ 
+ #pixad-autos-single .pixad-thumbs a:focus {
+	outline: none;
+ }
+ 
+ #pixad-autos-single .pixad-thumbs a:last-child {
+	margin-right: 0;
+ }
+ 
+ #contact-seller a {
+	text-decoration: none;
+	cursor: pointer;
+ }
+ 
+/*####################################
+ * Single Page Tabs
+ *####################################*/
+ #pixad-autos-tabs li a {
+	font-size: 15px;
+	text-decoration: none;
+ }
+ 
+ #pixad-autos-tabs li a:focus {
+	outline: none;
+ }
+ 
+ #pixad-autos-tabs-content {
+	display: block !important;
+ }
+ 
+ #pixad-autos-tabs-content .cell {
+	overflow: hidden;
+	color: #798FA1;
+	padding: 7px 15px 8px;
+	line-height: 18px;
+ }
+
+ #pixad-autos-single #auto-description p {
+	line-height: 2;
+ }
+
+ #pixad-autos-tabs-content .cell:nth-child(2n+2) {
+	background-color: #efefef;
+ }
+
+ #pixad-autos-tabs-content .cell .left {
+	font-family: 'PT Sans', sans-serif, Arial,sans-serif;
+	font-size: 14px;
+	font-weight: 700;
+	font-weight: bold;
+	color: #293848;
+	float: left;
+	width: 250px;
+ }
+ 
+ #pixad-autos-tabs-content .cell .right {
+	font-size: 14px;
+	font-weight: normal;
+ }
+
+ #pixad-autos-tabs-content input[type="checkbox"] {
+	margin-left: 0;
+ }
+
+ #pixad-autos-tabs-content .checkbox {
+	margin-bottom: 0;
+ }
+
+ #pixad-autos-tabs-content #auto-description {
+	font-family: 'PT Sans', sans-serif, Arial,sans-serif;
+	font-weight: normal;
+	padding: 10px 20px;
+ }
+
+ #pixad-autos-tabs-content textarea.form-control {
+	height: auto;
+	display: block;
+	width: 100%;
+	padding: 9px 12px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #555555;
+	background-color: #ffffff;
+	background-image: none;
+	border: 1px solid #dddddd;
+	border-radius: 0px;
+	-webkit-transition: border-color ease-in-out .15s;
+	-o-transition: border-color ease-in-out .15s;
+	transition: border-color ease-in-out .15s;
+ }
+
+ #pixad-autos-tabs-content textarea.form-control:focus {
+	border-color: #75a5e4;
+	outline: 0;
+ }
+ 
+ #pixad-autos-tabs-content .form-control-static {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	margin-bottom: 0;
+ }
+ 
+ #pixad-autos-tabs-content .text-muted {
+	color: #999999;
+ }
+ 
+/*####################################
+ * MY CLASSIFIEDS PAGE
+ *####################################*/
+ .pixad-action-links ul {
+	margin-bottom: 20px;
+ }
+ 
+ .pixad-action-links ul li {
+	background-color: #7f858b;
+	display: inline-flex;
+	margin-right: 10px;
+	padding: 5px 10px;
+ }
+ 
+ .pixad-action-links ul li a {
+	font-size: 14px;
+	line-height: 1;
+	color: #fff;
+ }
+ 
+ .pixad-action-links ul li a:hover {
+	text-decoration: none;
+ }
+ 
+ .pixad-action-links ul li a:focus {
+	outline: none;
+ }
+
+/*####################################
+ * ADD NEW CLASSIFIED PAGE
+ *####################################*/
+ .pixad-autos.loop,
+ #add-pixad-wrapper:after {
+	content: "";
+	clear: both;
+	display: table;
+	width: 100%;
+ }
+ 
+ #add-pixad-wrapper #wp-auto-description-wrap {
+	border: 1px solid #E6E6E6;
+	padding: 10px;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+ }
+ 
+ #add-pixad-wrapper textarea {
+	height: 100px;
+ }
+ 
+ .pixad-autos .button,
+ .widget_jp_widget_search_autos .button,
+ .widget_jp_widget_my_profile .button {
+	padding: 0.428571429rem 0.714285714rem !important;
+	font-size: 12px !important;
+	font-size: 0.785714286rem;
+	line-height: 1.428571429;
+	font-weight: normal;
+	text-transform: capitalize;
+	color: #7c7c7c !important;
+	background-color: #e6e6e6;
+	background-repeat: repeat-x;
+	background-image: -moz-linear-gradient(top, #f4f4f4, #e6e6e6);
+	background-image: -ms-linear-gradient(top, #f4f4f4, #e6e6e6);
+	background-image: -webkit-linear-gradient(top, #f4f4f4, #e6e6e6);
+	background-image: -o-linear-gradient(top, #f4f4f4, #e6e6e6);
+	background-image: linear-gradient(top, #f4f4f4, #e6e6e6);
+	border: 1px solid #d2d2d2;
+	border-radius: 3px;
+	box-shadow: 0 1px 2px rgba(64, 64, 64, 0.1);
+ }
+ 
+ .pixad-autos .button:hover,
+ .widget_jp_widget_search_autos .button:hover,
+ .widget_jp_widget_my_profile .button:hover,
+ .pixad-autos .button:focus,
+ .widget_jp_widget_search_autos .button:focus,
+ .widget_jp_widget_my_profile .button:focus {
+	color: #5e5e5e !important;
+	background-color: #ebebeb;
+	background-repeat: repeat-x;
+	background-image: -moz-linear-gradient(top, #f9f9f9, #ebebeb);
+	background-image: -ms-linear-gradient(top, #f9f9f9, #ebebeb);
+	background-image: -webkit-linear-gradient(top, #f9f9f9, #ebebeb);
+	background-image: -o-linear-gradient(top, #f9f9f9, #ebebeb);
+	background-image: linear-gradient(top, #f9f9f9, #ebebeb);
+ }
+ 
+ .pixad-autos .button:active,
+ .widget_jp_widget_search_autos .button:active,
+ .widget_jp_widget_my_profile .button:active {
+	color: #757575 !important;
+	background-color: #e1e1e1;
+	background-repeat: repeat-x;
+	background-image: -moz-linear-gradient(top, #ebebeb, #e1e1e1);
+	background-image: -ms-linear-gradient(top, #ebebeb, #e1e1e1);
+	background-image: -webkit-linear-gradient(top, #ebebeb, #e1e1e1);
+	background-image: -o-linear-gradient(top, #ebebeb, #e1e1e1);
+	background-image: linear-gradient(top, #ebebeb, #e1e1e1);
+	box-shadow: inset 0 0 8px 2px #c6c6c6, 0 1px 0 0 #f4f4f4;
+	border-color: transparent;
+ }
+ 
+
+/********************************
+ * SELECT MEMEBRSHIP PAGE STYLING
+ ********************************/ 
+ #pixad-select-membership .pixad-panel-title {
+	font-size: 16px;
+ }
+
+
+ 
+/***********************
+ * JPro Panel
+ ***********************/
+ .pixad-panel {
+	position: relative;
+	margin-bottom: 20px;
+	background-color: #ffffff;
+	border-radius: 2px;
+ }
+ 
+ .pixad-panel-heading {
+	position: relative;
+	height: 40px;
+	line-height: 36px;
+	background: #fafafa;
+	color: #666666;
+	font-size: 15px;
+	font-weight: 600;
+	padding: 0 8px;
+	border: 1px solid #e7e7e7;
+	border-top-right-radius: 1px;
+	border-top-left-radius: 1px;
+ }
+ 
+ .pixad-panel-title {
+	padding-left: 6px;
+	margin-top: 0;
+	margin-bottom: 0;
+ }
+ 
+ .pixad-panel-heading + .pixad-panel-body {
+	border-top: 0;
+ }
+ 
+ .pixad-panel-body {
+	position: relative;
+	padding: 15px;
+	border: 1px solid #e7e7e7;
+ }
+ 
+ .pixad-form-group:before, .pixad-form-group:after,
+ .pixad-panel-body:before, .pixad-panel-body:after {
+	clear: both;
+	content: " ";
+	display: table;
+ }
+ 
+ .pixad-form-group {
+	font-size: 14px;
+	margin-bottom: 15px;
+ }
+ 
+ .pixad-form-horizontal .pixad-form-group {
+	margin-left: -11px;
+	margin-right: -11px;
+	width: 100%;
+ }
+ 
+ .pixad-form-horizontal .pixad-control-label,
+ .pixad-control-label {
+	font-size: 14px;
+	font-weight: 600;
+	text-align: right;
+	margin-bottom: 0;
+	padding-top: 10px;
+ }
+ 
+ .pixad-form-control {
+	font-family: 'PT Sans', sans-serif, Arial,sans-serif;
+	font-size: 14px;
+	display: block;
+	width: 100%;
+	height: 39px !important;
+	padding: 9px 12px !important;
+	line-height: 1.5 !important;
+	color: #555555;
+	background-color: #ffffff;
+	background-image: none;
+	border: 1px solid #dddddd;
+	border-radius: 0px;
+	-webkit-transition: border-color ease-in-out .15s;
+	-o-transition: border-color ease-in-out .15s;
+	transition: border-color ease-in-out .15s;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+ }
+ 
+ .pixad-form-control:focus {
+	border-color: #3bafda;
+	outline: 0;
+ }
+ 
+ .pixad-panel .fa-question-circle {
+	color: #444;
+	-webkit-transition: ease-in-out .10s;
+	-o-transition: ease-in-out .10s;
+	transition: ease-in-out .10s;
+ }
+ 
+ .pixad-panel .fa-question-circle:hover {
+	color: #75a5e4;
+ }
+ 
+ .pixad-panel .tooltip {
+	position: absolute;
+	z-index: 1070;
+	display: block;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	line-height: 1.4;
+	visibility: visible;
+	filter: alpha(opacity=0);
+	opacity: 0;
+ }
+
+ .pixad-panel .tooltip.in {
+	filter: alpha(opacity=90);
+	opacity: .9;
+ }
+
+ .pixad-panel .tooltip.top {
+	padding: 5px 0;
+	margin-top: -3px;
+ }
+ 
+ .pixad-panel .tooltip-inner {
+	max-width: 200px;
+	padding: 3px 8px;
+	color: #fff;
+	text-align: center;
+	text-decoration: none;
+	background-color: #000;
+	border-radius: 4px;
+ }
+ 
+ .pixad-panel .tooltip-arrow {
+	position: absolute;
+	width: 0;
+	height: 0;
+	border-color: transparent;
+	border-style: solid;
+ }
+ 
+ .pixad-panel .tooltip.top .tooltip-arrow {
+	bottom: 0;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px 5px 0;
+	border-top-color: #000;
+ }
+ 
+ .pixad-table {
+	width: 100%;
+	max-width: 100%;
+	margin-bottom: 0;
+	background-color: transparent;
+	border-collapse: collapse;
+	border-spacing: 0;
+ }
+ .pixad-table > caption + thead > tr:first-child > th, 
+ .pixad-table > colgroup + thead > tr:first-child > th, 
+ .pixad-table > thead:first-child > tr:first-child > th, 
+ .pixad-table > caption + thead > tr:first-child > td, 
+ .pixad-table > colgroup + thead > tr:first-child > td, 
+ .pixad-table > thead:first-child > tr:first-child > td {
+	font-size: 14px;
+	text-align: center;
+	border-top: 0;
+ }
+ 
+ .pixad-table > thead > tr > td.pixad-primary, 
+ .pixad-table > tbody > tr > td.pixad-primary, 
+ .pixad-table > tfoot > tr > td.pixad-primary, 
+ .pixad-table > thead > tr > th.pixad-primary, 
+ .pixad-table > tbody > tr > th.pixad-primary, 
+ .pixad-table > tfoot > tr > th.pixad-primary, 
+ .pixad-table > thead > tr.pixad-primary > td, 
+ .pixad-table > tbody > tr.pixad-primary > td, 
+ .pixad-table > tfoot > tr.pixad-primary > td, 
+ .pixad-table > thead > tr.pixad-primary > th, 
+ .table > tbody > tr.pixad-primary > th, 
+ .pixad-table > tfoot > tr.pixad-primary > th {
+	color: #1f57a1;
+	border-color: #97bbeb;
+	background-color: #caddf5;
+ }
+ 
+ .pixad-table > thead > tr > th {
+	vertical-align: bottom;
+	border-bottom: 2px solid #eeeeee;
+ }
+ 
+ .pixad-table > thead > tr > th, 
+ .pixad-table > tbody > tr > th, 
+ .pixad-table > tfoot > tr > th, 
+ .pixad-table > thead > tr > td, 
+ .pixad-table > tbody > tr > td, 
+ .pixad-table > tfoot > tr > td {
+	padding: 9px;
+	line-height: 1.5;
+	vertical-align: middle;
+	border-top: 1px solid #eeeeee;
+ }
+ 
+ .pixad-table tbody > tr > td {
+	font-size: 14px;
+ }
+ 
+ .pixad-table tbody > tr:first-child > td {
+	border-top: 0;
+ }
+ 
+ .pixad-table tbody > tr > td {
+	text-align: center;
+ }
+ 
+ /* #pixad-step-2 */
+ #pixad-step-2 .pixad-form-group {
+	
+ }
+ 
+/*********************
+ * Widgets
+ *********************/
+ .widget.widget_jp_widget_search_autos .pixad-panel-title,
+ .widget.widget_jp_widget_my_profile .pixad-panel-title  {
+	font-family: 'PT Sans', sans-serif, Arial,sans-serif;
+	font-size: 16px;
+ }
+ 
+ .widget.widget_jp_widget_my_profile ul li {
+	line-height: 2;
+	list-style: none;
+	border-bottom: 1px dashed #d7d7d7;
+ }
+ 
+ .widget.widget_jp_widget_search_autos a,
+ .widget.widget_jp_widget_my_profile a {
+	color: #666;
+ }
+
+ .hours_price_title_item{
+	 display: flex;
+	 vertical-align: top;
+	 padding-bottom: 5px;
+	 padding: 5px 0px 5px 0px;
+	 border-bottom: 1px dotted #ddd;
+ }
+ .hours_price_title_item input[type=checkbox]{
+	 margin-left: 5px;
+	 top: 3px;
+	 position: relative;
+ }
+ .hours_price_title_item label.pixad_price_hour{
+	 float: right;
+	 padding-left: 5%;
+	 font-weight: 500;
+	 font-size: 11px;
+	 text-transform: uppercase;
+	 display: inline-block;
+	 vertical-align: top;
+	 text-align: left;
+ }
+ .hours_price_title_item span{
+	 display: inline-block;
+	 vertical-align: top;
+	 font-weight: 500;
+	 font-size: 12px;
+	 padding-top: 3px;
+ }
+ .hours_price_title_item span.pixad_tire{
+	 margin: 0 5px;
+ }
+ .hours_price_title_item span.pixad_auto_price_in_hour{
+	 float: right;
+ }

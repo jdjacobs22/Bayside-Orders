@@ -1,0 +1,487 @@
+[23:42:32.933] Server  ERROR   Error: ENOENT: no such file or directory, open '/Users/jim/Code/WorkOrder/work-order-app/.next/dev/server/app/page/build-manifest.json'
+[23:42:32.980] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[23:42:32.982] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[23:43:50.832] Server  ERROR   Error: ENOENT: no such file or directory, open '/Users/jim/Code/WorkOrder/work-order-app/.next/dev/server/app/page/build-manifest.json'
+[23:43:50.835] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[23:43:50.837] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[23:45:34.950] Server  ERROR   Error: ENOENT: no such file or directory, open '/Users/jim/Code/WorkOrder/work-order-app/.next/dev/server/app/page/build-manifest.json'
+[23:45:34.955] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[23:45:34.957] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:25.031] Server  ERROR   Error: ENOENT: no such file or directory, open '/Users/jim/Code/WorkOrder/work-order-app/.next/dev/server/app/page/build-manifest.json'
+[37:00:25.039] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:25.040] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:25.411] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:25.415] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:25.419] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:25.423] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:34.713] Server  ERROR   Error: ENOENT: no such file or directory, open '/Users/jim/Code/WorkOrder/work-order-app/.next/dev/server/app/page/build-manifest.json'
+[37:00:34.721] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:34.724] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:34.968] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:34.972] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:34.976] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:00:34.980] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:20:17.375] Server  ERROR   Error: ENOENT: no such file or directory, open '/Users/jim/Code/WorkOrder/work-order-app/.next/dev/server/app/page/build-manifest.json'
+[37:20:17.380] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:20:17.382] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:20:17.702] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:20:17.706] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:20:17.711] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[37:20:17.715] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[38:46:25.546] Server  ERROR   Error: ENOENT: no such file or directory, open '/Users/jim/Code/WorkOrder/work-order-app/.next/dev/server/app/page/build-manifest.json'
+[38:46:25.552] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[38:46:25.554] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[38:46:25.917] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[38:46:25.923] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[38:46:25.929] Server  ERROR    ⨯ TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file
+[38:46:25.933] Server  ERROR   TurbopackInternalError: Failed to write page endpoint /_error
+
+Caused by:
+- Expected file content for file
+
+Debug info:
+- Execution of get_written_endpoint_with_issues_operation failed
+- Execution of endpoint_write_to_disk failed
+- Execution of <PageEndpoint as Endpoint>::output failed
+- Failed to write page endpoint /_error
+- Execution of PageEndpoint::output failed
+- Execution of PageEndpoint::internal_ssr_chunk failed
+- Execution of PageEndpoint::internal_ssr_chunk_module failed
+- Execution of create_page_ssr_entry_module failed
+- Execution of file_content_rope failed
+- Expected file content for file

@@ -1,0 +1,193 @@
+/*!
+Theme Name:         Nevica
+Text Domain:	    nevica
+Theme URI:          https://nevica.tm-colors.info/
+Description:        Nevica is modern, convenient and highly thought-out rental WordPress theme with fascinating design.
+Version:            1.4.3
+Author:             Templines
+Author URI:         https://themeforest.net/user/templines/portfolio
+License:            GPL v2
+License URI:        http://www.gnu.org/licenses/gpl-2.0.html
+Tags:               one-column, two-columns, three-columns , four-columns, left-sidebar, right-sidebar, custom-background, custom-colors, custom-header, custom-menu, editor-style, featured-image-header, featured-images, flexible-header, full-width-template, post-formats, sticky-post, theme-options, translation-ready
+*/
+
+.fl-list .fl-list-ul li.fl-list-li-style-two, .fl-mega-menu ul li.menu-item-depth-0 > a, .single-page-wrapper strong,.footer-widget-area .widget .widget--title,.fl-page-heading .content_header .header-title,.fl-vc-custom-title-container .vc-default-title,.services-boat-slider-wrap .services-boat-slider .services-slider-slide .entry-slide-content .title{
+	font-family: 'Montserrat', sans-serif;
+}
+h1,h2,h3{
+	font-family: 'Montserrat', sans-serif!important;
+}
+.fl--logo-container img{
+	max-width:155px!important;
+}
+.over{
+	position: absolute!important;
+    background: white;
+    left: 55%;
+    top: 20%;
+}
+@media screen and (max-width:768px){
+	.over{
+		position: relative!important;
+		left:0%;
+		top:0;
+	}
+}
+.relative{
+	position:relative;
+}
+.rounded img{
+	border-radius:0px 0px 0px 140px;
+}
+.form p{
+	margin:0!important;
+}
+.header-phone-number a{
+	font-family:'Montserrat';
+	font-size: 16px!important;
+}
+
+.vc_toggle_title{
+	background:#f4f4f4!important;
+	padding: 1px 30px!important;
+}
+.vc_toggle_title h2{
+	font-size: 16px!important;
+}
+.vc_toggle_content{
+	border-left: 3px solid black;
+}
+.vc_toggle_title .vc_toggle_icon{
+	left:5px!important;
+}
+.sidebar p, .sidebar input{
+	margin-bottom:0;
+}
+.sidebar label{
+	width:100%;
+}
+.sidebar input[type="submit"]{
+	background:#30A8D5;
+	color:white;
+	text-transform:inherit;
+}
+.sidebar textarea{
+	height:100px;
+}
+button{
+	font-family:'Montserrat';
+}
+@media screen and (max-width:768px){
+	div#n2-ss-2 .n2-font-d684ceac65c45e265a99769cac1cc18e-hover {
+		font-size: 280.75%!important;
+	}
+	div#n2-ss-2 .n-uc-19001ef738de1-inner{
+		padding-top:55px!important;
+	}
+	.fl-vc-vehicle-search{
+		margin-top:0!important;
+	}
+	.fl--mobile-menu li a{
+		font-family:lato!important;
+	}
+}
+.right-header-content{
+	display:none
+}
+.services-slider-slide .slide-image img{
+	height:200px!important;
+	width:100%;
+	object-fit:cover;
+	object-position:center;
+}
+.content-centered .bg-position-center-center{
+	position:relative;
+    border-radius:10px!important;
+    overflow:hidden!important;
+}
+.content-centered .bg-position-center-center .wpb_wrapper{
+	position: absolute;
+    left: 0;
+    top: 0;
+    width:100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+   flex-direction:column;
+}
+#takeeasy,#barlleta{
+	cursor:pointer;
+}
+#takeeasycontent,#barlletacontent,#ewtcontent,#tecontent,#pgcontent{
+	position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+	display:none;
+}
+
+#takeeasycontent .vc_col-sm-12, #barlletacontent .vc_col-sm-12, #ewtcontent .vc_col-sm-12, #tecontent .vc_col-sm-12, #pgcontent .vc_col-sm-12{
+	max-width: 500px;
+    background: white;
+    padding: 1rem;
+    margin:1rem;
+    box-shadow: 0px 0px 33px -17px black;
+}
+#takeeasycontent #closeTakeEasy, #barlletacontent #closeBarlleta, #ewtcontent #closeewt, #tecontent #closete, #pgcontent #closepg{
+	position: absolute;
+    right: -10px;
+    top: -10px;
+    background: red;
+    color: white;
+    padding: .5rem;
+    border-radius: 50%;
+    display: flex;
+    width: 30px;
+    height: 30px;
+    line-height: 10px;
+    justify-content: center;
+    border: 1px solid white;
+    cursor: pointer;
+    font-size: 1.3rem;
+}
+#takeeasycontent .wpb_raw_code{
+	margin:0!important;
+}
+#takeeasycontent ul,#barlletacontent ul,#ewtcontent ul,#tecontent ul,#pgcontent ul{
+	padding-left:1rem!important;
+}
+#takeeasycontent ul li, #barlletacontent ul li,#ewtcontent ul li,#tecontent ul li,#pgcontent ul li{
+	list-style:disc!important;
+}
+.what-includes:hover{
+	color:#30a8d5!important;
+}
+.main-menu-link img{
+	margin-right:5px!important;	
+}
+.gallery img{
+	height:200px!important;
+    object-fit:cover;
+    object-position:center;
+}
+.gallery .vc_column-inner{
+	padding:5px!important;
+}
+#media_image-7{
+	background: white;
+    padding:0 10px;
+    width:150px;
+    border-radius: 15px;
+    overflow:hidden;
+}
+.fl-page-heading{
+	padding-top:160px!important;
+    padding-bottom:85px!important;
+}

@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean
+  role          Role      @default(user)
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model WorkOrder {
+  id        Int      @id @default(autoincrement()) @map("orden_numero")
+  createdAt DateTime @default(now())
+
+  // Fields
+  nombre          String
+  fecha           DateTime
+  horaSalida      String   @map("hora_salida")
+  destino         String
+  puntoEncuentro  String   @map("punto_encuentro")
+  pasajeros       Int
+  detallesNotas   String?  @map("detalles_notas") // Details/Notes
+  
+  // Expenses/Checkbox items (Assuming Boolean for inclusion, or could be cost if detailed)
+  // Based on "Gasto Varios", these might be line items. Let's make them boolean flags for now or nullable strings if specific details needed.
+  // Re-reading: "Combustible, Hielo, Auga/Bebidas, Gasto Varios" 
+  // Often these are costs in a work order. Let's assume they are costs (Float) or simply "included" (Boolean). 
+  // Given "Costo Total" is at the end, these are likely components of the cost.
+  // Let's use Float for costs, defaulting to 0 if not present.
+  
+  combustible     Float?   @default(0)
+  hielo           Float?   @default(0)
+  aguaBebidas     Float?   @default(0) @map("agua_bebidas")
+  gastoVarios     Float?   @default(0) @map("gasto_varios")
+  
+  // Payments
+  pagoCapitana    Float?   @default(0) @map("pago_capitana")
+  pagoMarinero    Float?   @default(0) @map("pago_marinero")
+  
+  costoTotal      Float    @map("costo_total")
+  deposito        Float    @default(0)
+  saldoCliente    Float    @map("saldo_cliente") 
+
+  receipts        Receipt[]
+
+  @@map("work_order")
+}
+
+model Receipt {
+  id          String   @id @default(cuid())
+  url         String
+  createdAt   DateTime @default(now())
+  workOrderId Int
+  workOrder   WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@map("receipt")
+}
+
+enum Role {
+  admin
+  captain
+  user
+}
