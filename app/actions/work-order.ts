@@ -2,10 +2,32 @@
 
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
+import { uploadPhotoToR2 } from "@/lib/r2-client";
+
+// ... existing createWorkOrder ...
+// We can keep createWorkOrder for "saving" a new order if we want to support both flows, 
+// OR createWorkOrder becomes "updateWorkOrder" effectively if we always start with draft.
+// But the user might want a "Save" button that conceptually "creates" it if they fill it out.
+// However, with Draft flow, we likely just UPDATE data into the existing ID.
+// So createWorkOrder might become obsolete or handle the first Save.
+// Let's add createDraft and keep createWorkOrder for now unless we refactor completely.
+
+export async function createDraftWorkOrder() {
+  try {
+    const order = await prisma.workOrder.create({
+      data: {
+        // All fields optional or default
+      },
+    });
+    return { success: true, data: order };
+  } catch (error: any) {
+    console.error("Error creating draft:", error);
+    return { success: false, error: error.message };
+  }
+}
 
 export async function createWorkOrder(data: any) {
+// ...
   try {
     const order = await prisma.workOrder.create({
       data: {
@@ -22,6 +44,8 @@ export async function createWorkOrder(data: any) {
         gastoVarios: Number(data.gastoVariosCost) || 0,
         pagoCapitana: Number(data.pagoCapitana) || 0,
         pagoMarinero: Number(data.pagoMarinero) || 0,
+        precioAcordado: Number(data.precioAcordado) || 0,
+        horasAcordadas: Number(data.horasAcordadas) || 0,
         costoTotal: Number(data.costoTotal),
         deposito: Number(data.deposito),
         saldoCliente: Number(data.saldoCliente),
@@ -49,6 +73,11 @@ export async function getWorkOrders() {
 
 export async function getWorkOrder(id: number) {
     try {
+        // Validate that id is a valid number
+        if (!id || isNaN(id) || !Number.isInteger(id)) {
+            return { success: false, error: "ID de orden inválido" };
+        }
+        
         const order = await prisma.workOrder.findUnique({
             where: { id },
             include: { receipts: true }
@@ -69,17 +98,49 @@ export async function updateWorkOrder(id: number, data: any) {
         
         // Let's assume data matches schema shape roughly. 
         // We need to parse dates ensuring they are valid Date objects if present.
-        const updateData: any = { ...data };
-        if (updateData.fecha) updateData.fecha = new Date(updateData.fecha);
+        // Explicitly map fields to match schema, similar to createWorkOrder
+        // This prevents passing UI-only fields like 'combustibleCost' to Prisma which causes errors.
+        const updatePayload: any = {
+            nombre: data.nombre,
+            fecha: (data.fecha && typeof data.fecha === 'string' && data.fecha.trim() !== '') ? new Date(data.fecha) : (data.fecha === '' ? null : undefined),
+            horaSalida: data.horaSalida,
+            destino: data.destino,
+            puntoEncuentro: data.puntoEncuentro,
+            pasajeros: data.pasajeros ? Math.floor(Number(data.pasajeros)) : null,
+            detallesNotas: data.detallesNotas,
+            combustible: Number(data.combustibleCost) || 0,
+            hielo: Number(data.hieloCost) || 0,
+            aguaBebidas: Number(data.aguaBebidasCost) || 0,
+            gastoVarios: Number(data.gastoVariosCost) || 0,
+            pagoCapitana: Number(data.pagoCapitana) || 0,
+            pagoMarinero: Number(data.pagoMarinero) || 0,
+            precioAcordado: Number(data.precioAcordado) || 0,
+            horasAcordadas: Number(data.horasAcordadas) || 0,
+            costoTotal: Number(data.costoTotal),
+            deposito: Number(data.deposito),
+            saldoCliente: Number(data.saldoCliente),
+        };
+
+        // Remove undefined keys if any (though mapped above shouldn't be undefined if data has them)
+        // Actually, for 'update', we might only want to update changed fields, but the form sends everything.
+        // The above mapping handles "if present in data, map it". 
+        // Note: For optional fields like `fecha`, logic above handles empty string -> null.
 
         const order = await prisma.workOrder.update({
             where: { id },
-            data: updateData
+            data: updatePayload
         });
-        revalidatePath(`/captain/order/${id}`);
-        revalidatePath(`/admin/order/${id}`);
+        
+        try {
+            revalidatePath(`/captain/order/${id}`);
+            revalidatePath(`/admin/order/${id}`);
+        } catch (err) {
+            console.error("Revalidation error (non-fatal):", err);
+        }
+
         return { success: true, data: order };
     } catch (e: any) {
+        console.error("Update Order Error:", e);
         return { success: false, error: e.message };
     }
 }
@@ -88,35 +149,62 @@ export async function uploadReceipt(formData: FormData) {
     try {
         const file = formData.get("file") as File;
         const orderId = Number(formData.get("orderId"));
+        const gastoType = formData.get("gastoType") as string | null;
         
-        if (!file || !orderId) return { success: false, error: "Missing file or order ID" };
+        if (!file || !orderId) {
+            console.error("Upload receipt: Missing file or order ID", { hasFile: !!file, orderId });
+            return { success: false, error: "Missing file or order ID" };
+        }
 
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
+        // Validate file size (50MB limit to match Next.js config)
+        const maxSize = 50 * 1024 * 1024; // 50MB
+        if (file.size > maxSize) {
+            console.error("Upload receipt: File too large", { size: file.size, maxSize });
+            return { success: false, error: `File too large. Maximum size is ${Math.round(maxSize / 1024 / 1024)}MB` };
+        }
 
-        // Ensure public/uploads exists
-        const uploadDir = join(process.cwd(), "public/uploads");
-        await mkdir(uploadDir, { recursive: true });
+        console.log("Upload receipt: Starting upload", { 
+            fileName: file.name, 
+            fileSize: file.size, 
+            fileType: file.type,
+            orderId,
+            gastoType 
+        });
 
-        const filename = `${orderId}-${Date.now()}-${file.name.replace(/\s/g, '_')}`;
-        const filepath = join(uploadDir, filename);
+        // Upload to R2
+        const uploadResult = await uploadPhotoToR2({
+            file,
+            workOrderId: orderId,
+            gastoType: gastoType || undefined,
+        });
 
-        await writeFile(filepath, buffer);
-        
-        const url = `/uploads/${filename}`;
+        if (!uploadResult.success || !uploadResult.url) {
+            console.error("Upload receipt: R2 upload failed", { error: uploadResult.error });
+            return { success: false, error: uploadResult.error || "Failed to upload to R2" };
+        }
 
+        console.log("Upload receipt: R2 upload successful", { url: uploadResult.url });
+
+        // Create receipt record in database
         const receipt = await prisma.receipt.create({
             data: {
-                url,
-                workOrderId: orderId
+                url: uploadResult.url,
+                workOrderId: orderId,
+                gastoType: gastoType || null,
+                fileName: uploadResult.fileName || null,
+                fileSize: uploadResult.fileSize || null,
+                mimeType: uploadResult.mimeType || null,
             }
         });
 
+        console.log("Upload receipt: Database record created", { receiptId: receipt.id });
+
         revalidatePath(`/captain/order/${orderId}`);
+        revalidatePath(`/admin/order/${orderId}`);
         return { success: true, data: receipt };
 
     } catch (e: any) {
-        console.error("Upload error:", e);
-        return { success: false, error: e.message };
+        console.error("Upload receipt: Unexpected error", e);
+        return { success: false, error: e.message || "An unexpected error occurred during upload" };
     }
 }

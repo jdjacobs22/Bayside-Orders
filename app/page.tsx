@@ -23,28 +23,43 @@ export default function LandingPage() {
 
   const handleSignIn = async () => {
     console.log("Attempting sign in with", email);
+    console.log("Current origin:", typeof window !== "undefined" ? window.location.origin : "server");
     try {
-        await authClient.signIn.email({
+        const result = await authClient.signIn.email({
             email,
             password,
-            fetchOptions: {
-                onSuccess: (ctx) => {
-                    const user = ctx.data.user as any;
-                    if (user.role === "admin") {
-                        router.push("/admin");
-                    } else {
-                        router.push("/captain");
-                    }
-                    router.refresh();
-                },
-                onError: (ctx) => {
-                    alert("Login Failed: " + ctx.error.message);
-                }
-            }
         });
+
+        console.log("Sign-in result:", result);
+
+        // Check for errors in the result
+        if (result?.error) {
+            console.error("Sign-in error:", result.error);
+            alert("Login Failed: " + result.error.message);
+            return;
+        }
+
+        // Sign-in successful - get user role from result or use a default redirect
+        const user = result?.data?.user as any;
+        const userRole = user?.role;
+        
+        console.log("Sign-in successful, user role:", userRole);
+        
+        // Use window.location.href to force full page reload with new session cookie
+        // This ensures the middleware can properly read the session
+        if (userRole === "admin") {
+            window.location.href = "/admin";
+        } else if (userRole === "captain") {
+            window.location.href = "/captain";
+        } else {
+            // Fallback: redirect to captain by default, middleware will handle role check
+            window.location.href = "/captain";
+        }
     } catch (err: any) {
         console.error("Unexpected error in signIn", err);
-        alert("Unexpected error: " + err.message);
+        // Check if error has a message property (better-auth may throw errors)
+        const errorMessage = err?.error?.message || err?.message || "Please try again";
+        alert("Login Failed: " + errorMessage);
     }
   };
 

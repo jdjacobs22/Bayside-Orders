@@ -16,5 +16,14 @@ export const auth = betterAuth({
           }
       }
   },
+  trustedOrigins: [
+    "http://localhost:3000", 
+    "http://10.0.0.10:8765", // Local server address
+    ...(process.env.CLOUDFLARE_TUNNEL_URL ? [process.env.CLOUDFLARE_TUNNEL_URL] : []), // Cloudflare tunnel URL (e.g., https://something.trycloudflare.com)
+  ],
+  advanced: {
+    cookiePrefix: "better-auth",
+    generateId: undefined, // Use default
+  },
   // Add other plugins or providers here as needed
 });
