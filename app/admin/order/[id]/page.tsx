@@ -2,9 +2,9 @@
 
 import WorkOrderForm from "@/components/WorkOrderForm";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { useState } from "react";
 import { deleteWorkOrder } from "@/app/actions/work-order";
+import AdminHeader from "@/components/AdminHeader";
 
 export default function AdminOrderView() {
   const params = useParams();
@@ -16,16 +16,13 @@ export default function AdminOrderView() {
   // Validate the ID
   if (!id || isNaN(orderId)) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-lg shadow-md text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
-          <p className="text-gray-700 mb-4">ID de orden inválido</p>
-          <Link
-            href="/admin/list"
-            className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-          >
-            Volver a la lista
-          </Link>
+      <div className="min-h-screen bg-gray-50">
+        <AdminHeader title="Error" backHref="/admin/list" backLabel="Back to List" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white p-8 rounded-lg shadow-md text-center">
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+            <p className="text-gray-700 mb-4">ID de orden inválido</p>
+          </div>
         </div>
       </div>
     );
@@ -54,14 +51,12 @@ export default function AdminOrderView() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white p-4 shadow mb-4">
-        <div className="flex justify-between items-start">
-          <div>
-            <Link href="/admin/list" className="text-blue-600 font-bold">
-              &larr; Back to List
-            </Link>
-            <h1 className="text-2xl font-bold mt-2">Edit Order #{orderId}</h1>
-          </div>
+      <AdminHeader
+        title={`Edit Order #${orderId}`}
+        backHref="/admin/list"
+        backLabel="Back to List"
+        showBackButton={true}
+        rightActions={
           <button
             onClick={handleDelete}
             disabled={deleting}
@@ -69,10 +64,12 @@ export default function AdminOrderView() {
           >
             {deleting ? "Deleting..." : "Delete Order"}
           </button>
+        }
+      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white p-6 rounded shadow">
+          <WorkOrderForm mode="admin-edit" orderId={orderId} />
         </div>
-      </div>
-      <div className="bg-white p-6 rounded shadow mx-4">
-        <WorkOrderForm mode="admin-edit" orderId={orderId} />
       </div>
     </div>
   );

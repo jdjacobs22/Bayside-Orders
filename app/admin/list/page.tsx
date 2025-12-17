@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getWorkOrders, deleteWorkOrder } from "@/app/actions/work-order";
+import AdminHeader from "@/components/AdminHeader";
 
 export default function AdminOrderList() {
   const router = useRouter();
@@ -47,21 +48,17 @@ export default function AdminOrderList() {
   if (loading) return <div className="p-8">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="mb-6 flex justify-between">
-        <div>
-          <Link href="/admin" className="text-blue-600 hover:underline">
-            &larr; Dashboard
+    <div className="min-h-screen bg-gray-100">
+      <AdminHeader title="All Work Orders" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6 flex justify-end">
+          <Link
+            href="/admin/create"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Create New
           </Link>
-          <h1 className="text-2xl font-bold mt-2">All Work Orders</h1>
         </div>
-        <Link
-          href="/admin/create"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Create New
-        </Link>
-      </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
@@ -133,6 +130,7 @@ export default function AdminOrderList() {
             ))}
           </tbody>
         </table>
+      </div>
       </div>
     </div>
   );

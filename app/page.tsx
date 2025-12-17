@@ -10,65 +10,74 @@ export default function LandingPage() {
   const router = useRouter();
   const { data: session } = authClient.useSession();
 
+  // Clear form fields on mount (e.g., after sign-out redirect)
+  useEffect(() => {
+    setEmail("");
+    setPassword("");
+  }, []);
+
   useEffect(() => {
     if (session) {
-        if ((session.user as any).role === "admin") {
-            router.push("/admin");
-        } else {
-            router.push("/captain");
-        }
+      if ((session.user as any).role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/captain");
+      }
     }
   }, [session, router]);
 
-
   const handleSignIn = async () => {
     console.log("Attempting sign in with", email);
-    console.log("Current origin:", typeof window !== "undefined" ? window.location.origin : "server");
+    console.log(
+      "Current origin:",
+      typeof window !== "undefined" ? window.location.origin : "server"
+    );
     try {
-        const result = await authClient.signIn.email({
-            email,
-            password,
-        });
+      const result = await authClient.signIn.email({
+        email,
+        password,
+      });
 
-        console.log("Sign-in result:", result);
+      console.log("Sign-in result:", result);
 
-        // Check for errors in the result
-        if (result?.error) {
-            console.error("Sign-in error:", result.error);
-            alert("Login Failed: " + result.error.message);
-            return;
-        }
+      // Check for errors in the result
+      if (result?.error) {
+        console.error("Sign-in error:", result.error);
+        alert("Login Failed: " + result.error.message);
+        return;
+      }
 
-        // Sign-in successful - get user role from result or use a default redirect
-        const user = result?.data?.user as any;
-        const userRole = user?.role;
-        
-        console.log("Sign-in successful, user role:", userRole);
-        
-        // Use window.location.href to force full page reload with new session cookie
-        // This ensures the middleware can properly read the session
-        if (userRole === "admin") {
-            window.location.href = "/admin";
-        } else if (userRole === "captain") {
-            window.location.href = "/captain";
-        } else {
-            // Fallback: redirect to captain by default, middleware will handle role check
-            window.location.href = "/captain";
-        }
+      // Sign-in successful - get user role from result or use a default redirect
+      const user = result?.data?.user as any;
+      const userRole = user?.role;
+
+      console.log("Sign-in successful, user role:", userRole);
+
+      // Use window.location.href to force full page reload with new session cookie
+      // This ensures the middleware can properly read the session
+      if (userRole === "admin") {
+        window.location.href = "/admin";
+      } else if (userRole === "captain") {
+        window.location.href = "/captain";
+      } else {
+        // Fallback: redirect to captain by default, middleware will handle role check
+        window.location.href = "/captain";
+      }
     } catch (err: any) {
-        console.error("Unexpected error in signIn", err);
-        // Check if error has a message property (better-auth may throw errors)
-        const errorMessage = err?.error?.message || err?.message || "Please try again";
-        alert("Login Failed: " + errorMessage);
+      console.error("Unexpected error in signIn", err);
+      // Check if error has a message property (better-auth may throw errors)
+      const errorMessage =
+        err?.error?.message || err?.message || "Please try again";
+      alert("Login Failed: " + errorMessage);
     }
   };
 
   const handleSignUp = async () => {
-      await authClient.signUp.email({
-          email,
-          password,
-          name: "Test User", 
-      });
+    await authClient.signUp.email({
+      email,
+      password,
+      name: "Test User",
+    });
   };
 
   return (
@@ -84,7 +93,10 @@ export default function LandingPage() {
         </div>
         <div className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Email address
             </label>
             <div className="mt-1">
@@ -93,6 +105,7 @@ export default function LandingPage() {
                 name="email"
                 type="email"
                 required
+                autoComplete="off"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border"
@@ -100,7 +113,10 @@ export default function LandingPage() {
             </div>
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
               Password
             </label>
             <div className="mt-1">
@@ -109,6 +125,7 @@ export default function LandingPage() {
                 name="password"
                 type="password"
                 required
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border"
@@ -122,7 +139,7 @@ export default function LandingPage() {
             >
               Sign in
             </button>
-             <button
+            <button
               onClick={handleSignUp}
               className="flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >

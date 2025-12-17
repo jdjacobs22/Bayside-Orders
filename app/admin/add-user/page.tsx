@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createUser } from "@/app/actions/createUser";
+import AdminHeader from "@/components/AdminHeader";
 
 export default function AdminCreateUser() {
     const router = useRouter();
@@ -28,9 +29,10 @@ export default function AdminCreateUser() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gray-100">
+            <AdminHeader title="Add New User" />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-center">
             <div className="bg-white rounded-lg shadow-md p-8 w-full max-w-md">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">Add New User</h1>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -95,6 +97,7 @@ export default function AdminCreateUser() {
                         </button>
                     </div>
                 </form>
+            </div>
             </div>
         </div>
     );

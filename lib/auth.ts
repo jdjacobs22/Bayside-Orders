@@ -17,7 +17,8 @@ export const auth = betterAuth({
       }
   },
   trustedOrigins: [
-    "http://localhost:3000", 
+    "http://localhost:3000",
+    "http://localhost:8765", // Local development on port 8765
     "http://10.0.0.10:8765", // Local server address
     ...(process.env.CLOUDFLARE_TUNNEL_URL ? [process.env.CLOUDFLARE_TUNNEL_URL] : []), // Cloudflare tunnel URL (e.g., https://something.trycloudflare.com)
   ],

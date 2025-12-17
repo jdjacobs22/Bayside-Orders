@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import AdminHeader from "@/components/AdminHeader";
 
 export default function AdminSearchOrder() {
   const [orderId, setOrderId] = useState("");
@@ -11,21 +11,14 @@ export default function AdminSearchOrder() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (orderId) {
-        // reuse the captain view logic or create a specific admin view?
-        // Plan says "View a form by order number". 
-        // Admin likely wants to edit it too. 
-        // We can reuse the same route structure or specific admin/order/[id].
-        // Let's create admin/order/[id] for consistency.
         router.push(`/admin/order/${orderId}`);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="mb-6">
-        <Link href="/admin" className="text-blue-600 hover:underline">&larr; Back to Dashboard</Link>
-        <h1 className="text-2xl font-bold mt-2">Find Work Order</h1>
-      </div>
+    <div className="min-h-screen bg-gray-100">
+      <AdminHeader title="Find Work Order" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
       <div className="bg-white p-6 rounded shadow max-w-md">
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -48,6 +41,7 @@ export default function AdminSearchOrder() {
                 Search
             </button>
         </form>
+      </div>
       </div>
     </div>
   );
