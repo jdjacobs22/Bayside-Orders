@@ -23,6 +23,8 @@ export default function WorkOrderForm({
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [receipts, setReceipts] = useState<any[]>([]);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -124,39 +126,26 @@ export default function WorkOrderForm({
     } else {
       if (!orderId) {
         alert("Falta ID de Orden");
+        setLoading(false);
         return;
       }
       result = await updateWorkOrder(orderId, submissionData);
     }
 
     if (result.success) {
-      alert(mode === "admin-create" ? "Orden Creada!" : "Orden Actualizada!");
       if (mode === "admin-create") {
-        setFormData({
-          nombre: "",
-          fecha: "",
-          horaSalida: "",
-          destino: "",
-          puntoEncuentro: "",
-          pasajeros: 0,
-          detallesNotas: "",
-          combustibleCost: 0,
-          hieloCost: 0,
-          aguaBebidasCost: 0,
-          gastoVariosCost: 0,
-          pagoCapitana: 0,
-          pagoMarinero: 0,
-          deposito: 0,
-          precioAcordado: 0,
-          horasAcordadas: 0,
-        } as any);
-        router.push("/admin/list");
-      } else if (mode === "captain-edit") {
-        // Captain Flow: Only sign out here, after explicit "Guardar"
-        await authClient.signOut();
-        router.push("/");
+        // Show success dialog with order number
+        setCreatedOrderId(result.data?.id || null);
+        setShowSuccessDialog(true);
       } else {
-        router.push("/admin/list");
+        alert("Orden Actualizada!");
+        if (mode === "captain-edit") {
+          // Captain Flow: Only sign out here, after explicit "Guardar"
+          await authClient.signOut();
+          router.push("/");
+        } else {
+          router.push("/admin/list");
+        }
       }
     } else {
       alert("Error: " + result.error);
@@ -343,6 +332,22 @@ export default function WorkOrderForm({
     setPreviewUrl(null);
     setCurrentGastoType(null);
     // User stays on form, can click camera button again
+  };
+
+  const handleCancel = () => {
+    if (
+      confirm(
+        "¿Estás seguro de que deseas cancelar? Los datos no guardados se perderán."
+      )
+    ) {
+      router.push("/admin/list");
+    }
+  };
+
+  const handleSuccessDialogClose = () => {
+    setShowSuccessDialog(false);
+    setCreatedOrderId(null);
+    router.push("/admin/list");
   };
 
   // Get receipts grouped by gasto type
@@ -1043,18 +1048,70 @@ export default function WorkOrderForm({
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-green-600 text-white p-4 rounded-lg font-bold text-xl hover:bg-green-700 mt-6 shadow-lg mb-8 uppercase tracking-wide"
-        >
-          {loading
-            ? "Guardando..."
-            : mode === "admin-create"
-              ? "Crear Orden"
-              : "Guardar & Cerrar"}
-        </button>
+        <div className="flex gap-4 mt-6 mb-8">
+          {mode === "admin-create" && (
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={loading}
+              className="flex-1 bg-gray-500 text-white p-4 rounded-lg font-bold text-xl hover:bg-gray-600 shadow-lg uppercase tracking-wide disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              Cancelar
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`${
+              mode === "admin-create" ? "flex-1" : "w-full"
+            } bg-green-600 text-white p-4 rounded-lg font-bold text-xl hover:bg-green-700 shadow-lg uppercase tracking-wide disabled:bg-green-400 disabled:cursor-not-allowed`}
+          >
+            {loading
+              ? "Guardando..."
+              : mode === "admin-create"
+                ? "Crear Orden"
+                : "Guardar & Cerrar"}
+          </button>
+        </div>
       </form>
+
+      {/* Success Dialog for Order Creation */}
+      {showSuccessDialog && createdOrderId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                <svg
+                  className="h-6 w-6 text-green-600"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                ¡Orden Creada Exitosamente!
+              </h3>
+              <p className="text-lg text-gray-600 mb-1">
+                La orden ha sido creada con el número:
+              </p>
+              <p className="text-4xl font-bold text-blue-600 mb-6">
+                #{createdOrderId}
+              </p>
+              <button
+                onClick={handleSuccessDialogClose}
+                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors"
+              >
+                Continuar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

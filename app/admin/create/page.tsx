@@ -1,30 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { createDraftWorkOrder } from "@/app/actions/work-order";
+import Link from "next/link";
+import WorkOrderForm from "@/components/WorkOrderForm";
 
 export default function AdminCreateOrder() {
-  const router = useRouter();
-
-  useEffect(() => {
-     const init = async () => {
-         const res = await createDraftWorkOrder();
-         if (res.success && res.data) {
-             router.replace(`/admin/order/${res.data.id}`);
-         } else {
-             alert("Error initializing order: " + res.error);
-         }
-     };
-     init();
-  }, [router]);
-
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl font-bold text-gray-600 flex flex-col items-center gap-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            Initializing New Order...
-        </div>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="mb-6">
+        <Link href="/admin" className="text-blue-600 hover:underline">
+          &larr; Dashboard
+        </Link>
+        <h1 className="text-2xl font-bold mt-2">Create New Work Order</h1>
+      </div>
+      <div className="bg-white p-6 rounded shadow">
+        <WorkOrderForm mode="admin-create" />
+      </div>
     </div>
   );
 }
