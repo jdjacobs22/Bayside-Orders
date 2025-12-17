@@ -164,7 +164,7 @@ export default function WorkOrderForm({
    * Target: ~1MB or less for fast mobile uploads
    */
   const compressImage = async (file: File): Promise<File> => {
-    // Skip compression for non-image files (like PDFs)
+    // Skip compression for non-image files
     if (!file.type.startsWith("image/")) {
       return file;
     }
@@ -173,8 +173,14 @@ export default function WorkOrderForm({
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       const img = new Image();
+      
+      // Create blob URL and store it for cleanup
+      const blobUrl = URL.createObjectURL(file);
 
       img.onload = () => {
+        // Revoke blob URL immediately after image loads to free memory
+        URL.revokeObjectURL(blobUrl);
+        
         // Calculate new dimensions - max 1920px on longest side
         const maxDimension = 1920;
         let { width, height } = img;
@@ -219,12 +225,14 @@ export default function WorkOrderForm({
       };
 
       img.onerror = () => {
+        // Revoke blob URL on error as well to prevent memory leak
+        URL.revokeObjectURL(blobUrl);
         console.error("Failed to load image for compression");
         resolve(file); // Return original on error
       };
 
       // Load the image from the file
-      img.src = URL.createObjectURL(file);
+      img.src = blobUrl;
     });
   };
 

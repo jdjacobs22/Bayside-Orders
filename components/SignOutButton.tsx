@@ -54,8 +54,9 @@ export default function SignOutButton() {
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       // Force a hard redirect to sign-in page using replace (no history)
+      // Add query parameter to signal sign-out so sign-in page can clear fields
       // This prevents the landing page useEffect from redirecting back
-      window.location.replace("/");
+      window.location.replace("/?signout=true");
     } catch (e: any) {
       console.error("Sign out error", e);
       // Even on error, clear everything aggressively and redirect
@@ -76,7 +77,7 @@ export default function SignOutButton() {
         // Ignore
       }
       // Force redirect even on error - use replace to prevent back navigation
-      window.location.replace("/");
+      window.location.replace("/?signout=true");
     }
   };
 
@@ -84,7 +85,7 @@ export default function SignOutButton() {
     <button
       onClick={handleSignOut}
       disabled={isSigningOut}
-      className={`bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded ${isSigningOut ? "opacity-50 cursor-not-allowed" : ""}`}
+      className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9 px-4 bg-destructive text-destructive-foreground hover:bg-destructive/90"
     >
       {isSigningOut ? "Signing Out..." : "Sign Out"}
     </button>

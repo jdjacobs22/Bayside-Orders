@@ -54,20 +54,19 @@ export async function uploadPhotoToR2({
       );
     }
 
-    // Validate file type - only accept images and PDFs
+    // Validate file type - only accept images
     const allowedTypes = [
       "image/jpeg",
       "image/jpg",
       "image/png",
       "image/gif",
       "image/webp",
-      "application/pdf",
     ];
     const fileType = file.type || "application/octet-stream";
 
     if (!allowedTypes.includes(fileType)) {
       throw new Error(
-        `File type ${fileType} not allowed. Only images (JPEG, PNG, GIF, WebP) and PDF files are supported.`
+        `File type ${fileType} not allowed. Only images (JPEG, PNG, GIF, WebP) are supported.`
       );
     }
 
@@ -75,21 +74,27 @@ export async function uploadPhotoToR2({
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2, 9);
 
-    // Determine file extension from MIME type if not in filename
-    let fileExtension: string;
-    if (file.name && file.name.includes(".")) {
-      fileExtension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    } else {
-      // Fallback to extension based on MIME type
-      const mimeToExt: Record<string, string> = {
-        "image/jpeg": "jpg",
-        "image/jpg": "jpg",
-        "image/png": "png",
-        "image/gif": "gif",
-        "image/webp": "webp",
-        "application/pdf": "pdf",
-      };
-      fileExtension = mimeToExt[fileType] || "jpg";
+    // Determine file extension based on MIME type (prioritize MIME type over filename extension)
+    const mimeToExt: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/jpg": "jpg",
+      "image/png": "png",
+      "image/gif": "gif",
+      "image/webp": "webp",
+    };
+
+    // Always use MIME type to determine extension for accuracy
+    let fileExtension = mimeToExt[fileType] || "jpg";
+
+    // If MIME type not recognized and filename has extension, use that as fallback
+    if (fileExtension === "jpg" && file.name && file.name.includes(".")) {
+      const fileNameExt = file.name.split(".").pop()?.toLowerCase();
+      if (
+        fileNameExt &&
+        ["jpg", "jpeg", "png", "gif", "webp"].includes(fileNameExt)
+      ) {
+        fileExtension = fileNameExt;
+      }
     }
 
     const fileName = `work-orders/${workOrderId}/${gastoType || "general"}-${timestamp}-${randomId}.${fileExtension}`;

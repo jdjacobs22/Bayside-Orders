@@ -1,20 +1,64 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { LogIn } from "lucide-react";
 
 export default function LandingPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
   const { data: session } = authClient.useSession();
 
-  // Clear form fields on mount (e.g., after sign-out redirect)
+  // Clear form fields on mount, especially after sign-out
   useEffect(() => {
+    const isSignOut = searchParams.get("signout") === "true";
+
+    // Clear state
     setEmail("");
     setPassword("");
-  }, []);
+
+    // Clear input values directly to override browser autofill
+    const clearInputs = () => {
+      if (emailInputRef.current) {
+        emailInputRef.current.value = "";
+      }
+      if (passwordInputRef.current) {
+        passwordInputRef.current.value = "";
+      }
+    };
+
+    // Clear immediately and multiple times to override browser autofill
+    clearInputs();
+    const timeout1 = setTimeout(clearInputs, 50);
+    const timeout2 = setTimeout(clearInputs, 200);
+    const timeout3 = setTimeout(clearInputs, 500);
+
+    // Remove signout query parameter from URL without reload
+    if (isSignOut) {
+      router.replace("/", { scroll: false });
+    }
+
+    return () => {
+      clearTimeout(timeout1);
+      clearTimeout(timeout2);
+      clearTimeout(timeout3);
+    };
+  }, [searchParams, router]);
 
   useEffect(() => {
     if (session) {
@@ -72,35 +116,31 @@ export default function LandingPage() {
     }
   };
 
-  const handleSignUp = async () => {
-    await authClient.signUp.email({
-      email,
-      password,
-      name: "Test User",
-    });
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await handleSignIn();
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-6 shadow-md">
-        <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            BAYSIDEPV Work Order
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Sign in to access the dashboard
-          </p>
-        </div>
-        <div className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email address
-            </label>
-            <div className="mt-1">
-              <input
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 p-4">
+      <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur">
+        <CardHeader className="space-y-1 text-center pb-6">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+            <LogIn className="h-8 w-8 text-primary" />
+          </div>
+          <CardTitle className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+            BAYSIDE PV
+          </CardTitle>
+          <CardDescription className="text-base mt-2">
+            Work Order Management System
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email address</Label>
+              <Input
+                ref={emailInputRef}
                 id="email"
                 name="email"
                 type="email"
@@ -108,46 +148,36 @@ export default function LandingPage() {
                 autoComplete="off"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border"
+                placeholder="name@example.com"
+                className="h-11"
               />
             </div>
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <div className="mt-1">
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                ref={passwordInputRef}
                 id="password"
                 name="password"
                 type="password"
                 required
-                autoComplete="new-password"
+                autoComplete="off"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-md border-gray-300 py-2 px-3 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border"
+                placeholder="Enter your password"
+                className="h-11"
               />
             </div>
-          </div>
-          <div className="flex gap-4">
-            <button
-              onClick={handleSignIn}
-              className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            <Button
+              type="submit"
+              className="w-full h-11 text-base font-semibold mt-6"
+              size="lg"
             >
-              Sign in
-            </button>
-            <button
-              onClick={handleSignUp}
-              className="flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              Sign Up
-            </button>
-          </div>
-        </div>
-      </div>
+              <LogIn className="mr-2 h-4 w-4" />
+              Sign In
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }
