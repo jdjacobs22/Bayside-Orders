@@ -340,14 +340,14 @@ export default function WorkOrderForm({
         "¿Estás seguro de que deseas cancelar? Los datos no guardados se perderán."
       )
     ) {
-      router.push("/admin/list");
+      router.push("/admin");
     }
   };
 
   const handleSuccessDialogClose = () => {
     setShowSuccessDialog(false);
     setCreatedOrderId(null);
-    router.push("/admin/list");
+    router.push("/admin");
   };
 
   // Get receipts grouped by gasto type
