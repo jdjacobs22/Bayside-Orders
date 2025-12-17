@@ -967,6 +967,8 @@ export const WorkOrderScalarFieldEnum = {
   gastoVarios: 'gastoVarios',
   pagoCapitana: 'pagoCapitana',
   pagoMarinero: 'pagoMarinero',
+  precioAcordado: 'precioAcordado',
+  horasAcordadas: 'horasAcordadas',
   costoTotal: 'costoTotal',
   deposito: 'deposito',
   saldoCliente: 'saldoCliente'
@@ -979,7 +981,11 @@ export const ReceiptScalarFieldEnum = {
   id: 'id',
   url: 'url',
   createdAt: 'createdAt',
-  workOrderId: 'workOrderId'
+  workOrderId: 'workOrderId',
+  gastoType: 'gastoType',
+  fileName: 'fileName',
+  fileSize: 'fileSize',
+  mimeType: 'mimeType'
 } as const
 
 export type ReceiptScalarFieldEnum = (typeof ReceiptScalarFieldEnum)[keyof typeof ReceiptScalarFieldEnum]

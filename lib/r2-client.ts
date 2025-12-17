@@ -37,43 +37,61 @@ export async function uploadPhotoToR2({
 }: UploadPhotoParams): Promise<UploadPhotoResult> {
   try {
     // Validate environment variables
-    if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY || !process.env.R2_BUCKET_NAME) {
-      throw new Error("R2 environment variables not configured. Please check .env.local");
+    if (
+      !process.env.R2_ACCOUNT_ID ||
+      !process.env.R2_ACCESS_KEY_ID ||
+      !process.env.R2_SECRET_ACCESS_KEY ||
+      !process.env.R2_BUCKET_NAME
+    ) {
+      throw new Error(
+        "R2 environment variables not configured. Please check .env.local"
+      );
     }
 
     if (!process.env.R2_PUBLIC_URL) {
-      throw new Error("R2_PUBLIC_URL environment variable not configured. Please set it in .env.local");
+      throw new Error(
+        "R2_PUBLIC_URL environment variable not configured. Please set it in .env.local"
+      );
     }
 
     // Validate file type - only accept images and PDFs
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
-    const fileType = file.type || 'application/octet-stream';
-    
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "application/pdf",
+    ];
+    const fileType = file.type || "application/octet-stream";
+
     if (!allowedTypes.includes(fileType)) {
-      throw new Error(`File type ${fileType} not allowed. Only images (JPEG, PNG, GIF, WebP) and PDF files are supported.`);
+      throw new Error(
+        `File type ${fileType} not allowed. Only images (JPEG, PNG, GIF, WebP) and PDF files are supported.`
+      );
     }
 
     // Generate unique filename
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2, 9);
-    
+
     // Determine file extension from MIME type if not in filename
     let fileExtension: string;
-    if (file.name && file.name.includes('.')) {
+    if (file.name && file.name.includes(".")) {
       fileExtension = file.name.split(".").pop()?.toLowerCase() || "jpg";
     } else {
       // Fallback to extension based on MIME type
       const mimeToExt: Record<string, string> = {
-        'image/jpeg': 'jpg',
-        'image/jpg': 'jpg',
-        'image/png': 'png',
-        'image/gif': 'gif',
-        'image/webp': 'webp',
-        'application/pdf': 'pdf',
+        "image/jpeg": "jpg",
+        "image/jpg": "jpg",
+        "image/png": "png",
+        "image/gif": "gif",
+        "image/webp": "webp",
+        "application/pdf": "pdf",
       };
-      fileExtension = mimeToExt[fileType] || 'jpg';
+      fileExtension = mimeToExt[fileType] || "jpg";
     }
-    
+
     const fileName = `work-orders/${workOrderId}/${gastoType || "general"}-${timestamp}-${randomId}.${fileExtension}`;
 
     // Convert File to Buffer
@@ -90,11 +108,23 @@ export async function uploadPhotoToR2({
 
     await r2Client.send(command);
 
-    // Construct public URL - ensure R2_PUBLIC_URL doesn't have trailing slash
-    const baseUrl = process.env.R2_PUBLIC_URL.replace(/\/$/, '');
+    // Construct public URL - clean up R2_PUBLIC_URL (remove leading colons, trailing slashes)
+    let baseUrl = process.env.R2_PUBLIC_URL.trim();
+    // Remove leading colons (common typo: ":https://...")
+    baseUrl = baseUrl.replace(/^:+/g, "");
+    // Remove trailing slashes
+    baseUrl = baseUrl.replace(/\/+$/, "");
+    // Ensure it starts with http:// or https://
+    if (!baseUrl.match(/^https?:\/\//)) {
+      throw new Error(
+        `Invalid R2_PUBLIC_URL format. Must start with http:// or https://. Got: ${process.env.R2_PUBLIC_URL}`
+      );
+    }
     const publicUrl = `${baseUrl}/${fileName}`;
 
-    console.log(`Successfully uploaded file to R2: ${fileName}, URL: ${publicUrl}`);
+    console.log(
+      `Successfully uploaded file to R2: ${fileName}, URL: ${publicUrl}`
+    );
 
     return {
       success: true,

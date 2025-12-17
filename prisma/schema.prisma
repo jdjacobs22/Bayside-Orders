@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id            String    @id
+  id            String    @id @default(cuid())
   name          String
   email         String
   emailVerified Boolean
@@ -73,12 +73,12 @@ model WorkOrder {
   createdAt DateTime @default(now())
 
   // Fields
-  nombre          String
-  fecha           DateTime
-  horaSalida      String   @map("hora_salida")
-  destino         String
-  puntoEncuentro  String   @map("punto_encuentro")
-  pasajeros       Int
+  nombre          String?
+  fecha           DateTime?
+  horaSalida      String?   @map("hora_salida")
+  destino         String?
+  puntoEncuentro  String?   @map("punto_encuentro")
+  pasajeros       Int?
   detallesNotas   String?  @map("detalles_notas") // Details/Notes
   
   // Expenses/Checkbox items (Assuming Boolean for inclusion, or could be cost if detailed)
@@ -97,9 +97,13 @@ model WorkOrder {
   pagoCapitana    Float?   @default(0) @map("pago_capitana")
   pagoMarinero    Float?   @default(0) @map("pago_marinero")
   
-  costoTotal      Float    @map("costo_total")
+  // New Admin fields
+  precioAcordado  Float?   @default(0) @map("precio_acordado")
+  horasAcordadas  Float?   @default(0) @map("horas_acordadas")
+  
+  costoTotal      Float    @default(0) @map("costo_total")
   deposito        Float    @default(0)
-  saldoCliente    Float    @map("saldo_cliente") 
+  saldoCliente    Float    @default(0) @map("saldo_cliente") 
 
   receipts        Receipt[]
 
@@ -112,6 +116,14 @@ model Receipt {
   createdAt   DateTime @default(now())
   workOrderId Int
   workOrder   WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  
+  // Gasto type tracking
+  gastoType   String?  // "combustible" | "hielo" | "aguaBebidas" | "gastoVarios"
+  
+  // Metadata for R2 storage
+  fileName    String?
+  fileSize    Int?
+  mimeType    String?
 
   @@map("receipt")
 }

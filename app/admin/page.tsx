@@ -32,6 +32,12 @@ export default function AdminDashboard() {
             <h2 className="text-xl font-semibold mb-2 text-purple-800">Find Order by #</h2>
             <p className="text-gray-600">Quickly lookup a specific work order by its unique ID.</p>
         </Link>
+
+        {/* Card 4: Add User */}
+        <Link href="/admin/add-user" className="block p-6 bg-white rounded-lg shadow hover:shadow-lg transition cursor-pointer border-t-4 border-purple-500">
+            <h2 className="text-xl font-semibold mb-2 text-purple-800">Add User</h2>
+            <p className="text-gray-600">Add a new user to the system.</p>
+        </Link>
       </div>
     </div>
   );

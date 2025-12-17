@@ -28,10 +28,12 @@ export type AggregateReceipt = {
 
 export type ReceiptAvgAggregateOutputType = {
   workOrderId: number | null
+  fileSize: number | null
 }
 
 export type ReceiptSumAggregateOutputType = {
   workOrderId: number | null
+  fileSize: number | null
 }
 
 export type ReceiptMinAggregateOutputType = {
@@ -39,6 +41,10 @@ export type ReceiptMinAggregateOutputType = {
   url: string | null
   createdAt: Date | null
   workOrderId: number | null
+  gastoType: string | null
+  fileName: string | null
+  fileSize: number | null
+  mimeType: string | null
 }
 
 export type ReceiptMaxAggregateOutputType = {
@@ -46,6 +52,10 @@ export type ReceiptMaxAggregateOutputType = {
   url: string | null
   createdAt: Date | null
   workOrderId: number | null
+  gastoType: string | null
+  fileName: string | null
+  fileSize: number | null
+  mimeType: string | null
 }
 
 export type ReceiptCountAggregateOutputType = {
@@ -53,16 +63,22 @@ export type ReceiptCountAggregateOutputType = {
   url: number
   createdAt: number
   workOrderId: number
+  gastoType: number
+  fileName: number
+  fileSize: number
+  mimeType: number
   _all: number
 }
 
 
 export type ReceiptAvgAggregateInputType = {
   workOrderId?: true
+  fileSize?: true
 }
 
 export type ReceiptSumAggregateInputType = {
   workOrderId?: true
+  fileSize?: true
 }
 
 export type ReceiptMinAggregateInputType = {
@@ -70,6 +86,10 @@ export type ReceiptMinAggregateInputType = {
   url?: true
   createdAt?: true
   workOrderId?: true
+  gastoType?: true
+  fileName?: true
+  fileSize?: true
+  mimeType?: true
 }
 
 export type ReceiptMaxAggregateInputType = {
@@ -77,6 +97,10 @@ export type ReceiptMaxAggregateInputType = {
   url?: true
   createdAt?: true
   workOrderId?: true
+  gastoType?: true
+  fileName?: true
+  fileSize?: true
+  mimeType?: true
 }
 
 export type ReceiptCountAggregateInputType = {
@@ -84,6 +108,10 @@ export type ReceiptCountAggregateInputType = {
   url?: true
   createdAt?: true
   workOrderId?: true
+  gastoType?: true
+  fileName?: true
+  fileSize?: true
+  mimeType?: true
   _all?: true
 }
 
@@ -178,6 +206,10 @@ export type ReceiptGroupByOutputType = {
   url: string
   createdAt: Date
   workOrderId: number
+  gastoType: string | null
+  fileName: string | null
+  fileSize: number | null
+  mimeType: string | null
   _count: ReceiptCountAggregateOutputType | null
   _avg: ReceiptAvgAggregateOutputType | null
   _sum: ReceiptSumAggregateOutputType | null
@@ -208,6 +240,10 @@ export type ReceiptWhereInput = {
   url?: Prisma.StringFilter<"Receipt"> | string
   createdAt?: Prisma.DateTimeFilter<"Receipt"> | Date | string
   workOrderId?: Prisma.IntFilter<"Receipt"> | number
+  gastoType?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  fileName?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  fileSize?: Prisma.IntNullableFilter<"Receipt"> | number | null
+  mimeType?: Prisma.StringNullableFilter<"Receipt"> | string | null
   workOrder?: Prisma.XOR<Prisma.WorkOrderScalarRelationFilter, Prisma.WorkOrderWhereInput>
 }
 
@@ -216,6 +252,10 @@ export type ReceiptOrderByWithRelationInput = {
   url?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workOrderId?: Prisma.SortOrder
+  gastoType?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileName?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileSize?: Prisma.SortOrderInput | Prisma.SortOrder
+  mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
   workOrder?: Prisma.WorkOrderOrderByWithRelationInput
 }
 
@@ -227,6 +267,10 @@ export type ReceiptWhereUniqueInput = Prisma.AtLeast<{
   url?: Prisma.StringFilter<"Receipt"> | string
   createdAt?: Prisma.DateTimeFilter<"Receipt"> | Date | string
   workOrderId?: Prisma.IntFilter<"Receipt"> | number
+  gastoType?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  fileName?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  fileSize?: Prisma.IntNullableFilter<"Receipt"> | number | null
+  mimeType?: Prisma.StringNullableFilter<"Receipt"> | string | null
   workOrder?: Prisma.XOR<Prisma.WorkOrderScalarRelationFilter, Prisma.WorkOrderWhereInput>
 }, "id">
 
@@ -235,6 +279,10 @@ export type ReceiptOrderByWithAggregationInput = {
   url?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workOrderId?: Prisma.SortOrder
+  gastoType?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileName?: Prisma.SortOrderInput | Prisma.SortOrder
+  fileSize?: Prisma.SortOrderInput | Prisma.SortOrder
+  mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ReceiptCountOrderByAggregateInput
   _avg?: Prisma.ReceiptAvgOrderByAggregateInput
   _max?: Prisma.ReceiptMaxOrderByAggregateInput
@@ -250,12 +298,20 @@ export type ReceiptScalarWhereWithAggregatesInput = {
   url?: Prisma.StringWithAggregatesFilter<"Receipt"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Receipt"> | Date | string
   workOrderId?: Prisma.IntWithAggregatesFilter<"Receipt"> | number
+  gastoType?: Prisma.StringNullableWithAggregatesFilter<"Receipt"> | string | null
+  fileName?: Prisma.StringNullableWithAggregatesFilter<"Receipt"> | string | null
+  fileSize?: Prisma.IntNullableWithAggregatesFilter<"Receipt"> | number | null
+  mimeType?: Prisma.StringNullableWithAggregatesFilter<"Receipt"> | string | null
 }
 
 export type ReceiptCreateInput = {
   id?: string
   url: string
   createdAt?: Date | string
+  gastoType?: string | null
+  fileName?: string | null
+  fileSize?: number | null
+  mimeType?: string | null
   workOrder: Prisma.WorkOrderCreateNestedOneWithoutReceiptsInput
 }
 
@@ -264,12 +320,20 @@ export type ReceiptUncheckedCreateInput = {
   url: string
   createdAt?: Date | string
   workOrderId: number
+  gastoType?: string | null
+  fileName?: string | null
+  fileSize?: number | null
+  mimeType?: string | null
 }
 
 export type ReceiptUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gastoType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workOrder?: Prisma.WorkOrderUpdateOneRequiredWithoutReceiptsNestedInput
 }
 
@@ -278,6 +342,10 @@ export type ReceiptUncheckedUpdateInput = {
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  gastoType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReceiptCreateManyInput = {
@@ -285,12 +353,20 @@ export type ReceiptCreateManyInput = {
   url: string
   createdAt?: Date | string
   workOrderId: number
+  gastoType?: string | null
+  fileName?: string | null
+  fileSize?: number | null
+  mimeType?: string | null
 }
 
 export type ReceiptUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gastoType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReceiptUncheckedUpdateManyInput = {
@@ -298,6 +374,10 @@ export type ReceiptUncheckedUpdateManyInput = {
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workOrderId?: Prisma.IntFieldUpdateOperationsInput | number
+  gastoType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReceiptListRelationFilter = {
@@ -315,10 +395,15 @@ export type ReceiptCountOrderByAggregateInput = {
   url?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workOrderId?: Prisma.SortOrder
+  gastoType?: Prisma.SortOrder
+  fileName?: Prisma.SortOrder
+  fileSize?: Prisma.SortOrder
+  mimeType?: Prisma.SortOrder
 }
 
 export type ReceiptAvgOrderByAggregateInput = {
   workOrderId?: Prisma.SortOrder
+  fileSize?: Prisma.SortOrder
 }
 
 export type ReceiptMaxOrderByAggregateInput = {
@@ -326,6 +411,10 @@ export type ReceiptMaxOrderByAggregateInput = {
   url?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workOrderId?: Prisma.SortOrder
+  gastoType?: Prisma.SortOrder
+  fileName?: Prisma.SortOrder
+  fileSize?: Prisma.SortOrder
+  mimeType?: Prisma.SortOrder
 }
 
 export type ReceiptMinOrderByAggregateInput = {
@@ -333,10 +422,15 @@ export type ReceiptMinOrderByAggregateInput = {
   url?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   workOrderId?: Prisma.SortOrder
+  gastoType?: Prisma.SortOrder
+  fileName?: Prisma.SortOrder
+  fileSize?: Prisma.SortOrder
+  mimeType?: Prisma.SortOrder
 }
 
 export type ReceiptSumOrderByAggregateInput = {
   workOrderId?: Prisma.SortOrder
+  fileSize?: Prisma.SortOrder
 }
 
 export type ReceiptCreateNestedManyWithoutWorkOrderInput = {
@@ -385,12 +479,20 @@ export type ReceiptCreateWithoutWorkOrderInput = {
   id?: string
   url: string
   createdAt?: Date | string
+  gastoType?: string | null
+  fileName?: string | null
+  fileSize?: number | null
+  mimeType?: string | null
 }
 
 export type ReceiptUncheckedCreateWithoutWorkOrderInput = {
   id?: string
   url: string
   createdAt?: Date | string
+  gastoType?: string | null
+  fileName?: string | null
+  fileSize?: number | null
+  mimeType?: string | null
 }
 
 export type ReceiptCreateOrConnectWithoutWorkOrderInput = {
@@ -427,30 +529,50 @@ export type ReceiptScalarWhereInput = {
   url?: Prisma.StringFilter<"Receipt"> | string
   createdAt?: Prisma.DateTimeFilter<"Receipt"> | Date | string
   workOrderId?: Prisma.IntFilter<"Receipt"> | number
+  gastoType?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  fileName?: Prisma.StringNullableFilter<"Receipt"> | string | null
+  fileSize?: Prisma.IntNullableFilter<"Receipt"> | number | null
+  mimeType?: Prisma.StringNullableFilter<"Receipt"> | string | null
 }
 
 export type ReceiptCreateManyWorkOrderInput = {
   id?: string
   url: string
   createdAt?: Date | string
+  gastoType?: string | null
+  fileName?: string | null
+  fileSize?: number | null
+  mimeType?: string | null
 }
 
 export type ReceiptUpdateWithoutWorkOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gastoType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReceiptUncheckedUpdateWithoutWorkOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gastoType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ReceiptUncheckedUpdateManyWithoutWorkOrderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gastoType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -460,6 +582,10 @@ export type ReceiptSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   url?: boolean
   createdAt?: boolean
   workOrderId?: boolean
+  gastoType?: boolean
+  fileName?: boolean
+  fileSize?: boolean
+  mimeType?: boolean
   workOrder?: boolean | Prisma.WorkOrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["receipt"]>
 
@@ -468,6 +594,10 @@ export type ReceiptSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   url?: boolean
   createdAt?: boolean
   workOrderId?: boolean
+  gastoType?: boolean
+  fileName?: boolean
+  fileSize?: boolean
+  mimeType?: boolean
   workOrder?: boolean | Prisma.WorkOrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["receipt"]>
 
@@ -476,6 +606,10 @@ export type ReceiptSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   url?: boolean
   createdAt?: boolean
   workOrderId?: boolean
+  gastoType?: boolean
+  fileName?: boolean
+  fileSize?: boolean
+  mimeType?: boolean
   workOrder?: boolean | Prisma.WorkOrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["receipt"]>
 
@@ -484,9 +618,13 @@ export type ReceiptSelectScalar = {
   url?: boolean
   createdAt?: boolean
   workOrderId?: boolean
+  gastoType?: boolean
+  fileName?: boolean
+  fileSize?: boolean
+  mimeType?: boolean
 }
 
-export type ReceiptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "url" | "createdAt" | "workOrderId", ExtArgs["result"]["receipt"]>
+export type ReceiptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "url" | "createdAt" | "workOrderId" | "gastoType" | "fileName" | "fileSize" | "mimeType", ExtArgs["result"]["receipt"]>
 export type ReceiptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workOrder?: boolean | Prisma.WorkOrderDefaultArgs<ExtArgs>
 }
@@ -507,6 +645,10 @@ export type $ReceiptPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     url: string
     createdAt: Date
     workOrderId: number
+    gastoType: string | null
+    fileName: string | null
+    fileSize: number | null
+    mimeType: string | null
   }, ExtArgs["result"]["receipt"]>
   composites: {}
 }
@@ -935,6 +1077,10 @@ export interface ReceiptFieldRefs {
   readonly url: Prisma.FieldRef<"Receipt", 'String'>
   readonly createdAt: Prisma.FieldRef<"Receipt", 'DateTime'>
   readonly workOrderId: Prisma.FieldRef<"Receipt", 'Int'>
+  readonly gastoType: Prisma.FieldRef<"Receipt", 'String'>
+  readonly fileName: Prisma.FieldRef<"Receipt", 'String'>
+  readonly fileSize: Prisma.FieldRef<"Receipt", 'Int'>
+  readonly mimeType: Prisma.FieldRef<"Receipt", 'String'>
 }
     
 

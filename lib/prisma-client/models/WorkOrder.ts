@@ -35,6 +35,8 @@ export type WorkOrderAvgAggregateOutputType = {
   gastoVarios: number | null
   pagoCapitana: number | null
   pagoMarinero: number | null
+  precioAcordado: number | null
+  horasAcordadas: number | null
   costoTotal: number | null
   deposito: number | null
   saldoCliente: number | null
@@ -49,6 +51,8 @@ export type WorkOrderSumAggregateOutputType = {
   gastoVarios: number | null
   pagoCapitana: number | null
   pagoMarinero: number | null
+  precioAcordado: number | null
+  horasAcordadas: number | null
   costoTotal: number | null
   deposito: number | null
   saldoCliente: number | null
@@ -70,6 +74,8 @@ export type WorkOrderMinAggregateOutputType = {
   gastoVarios: number | null
   pagoCapitana: number | null
   pagoMarinero: number | null
+  precioAcordado: number | null
+  horasAcordadas: number | null
   costoTotal: number | null
   deposito: number | null
   saldoCliente: number | null
@@ -91,6 +97,8 @@ export type WorkOrderMaxAggregateOutputType = {
   gastoVarios: number | null
   pagoCapitana: number | null
   pagoMarinero: number | null
+  precioAcordado: number | null
+  horasAcordadas: number | null
   costoTotal: number | null
   deposito: number | null
   saldoCliente: number | null
@@ -112,6 +120,8 @@ export type WorkOrderCountAggregateOutputType = {
   gastoVarios: number
   pagoCapitana: number
   pagoMarinero: number
+  precioAcordado: number
+  horasAcordadas: number
   costoTotal: number
   deposito: number
   saldoCliente: number
@@ -128,6 +138,8 @@ export type WorkOrderAvgAggregateInputType = {
   gastoVarios?: true
   pagoCapitana?: true
   pagoMarinero?: true
+  precioAcordado?: true
+  horasAcordadas?: true
   costoTotal?: true
   deposito?: true
   saldoCliente?: true
@@ -142,6 +154,8 @@ export type WorkOrderSumAggregateInputType = {
   gastoVarios?: true
   pagoCapitana?: true
   pagoMarinero?: true
+  precioAcordado?: true
+  horasAcordadas?: true
   costoTotal?: true
   deposito?: true
   saldoCliente?: true
@@ -163,6 +177,8 @@ export type WorkOrderMinAggregateInputType = {
   gastoVarios?: true
   pagoCapitana?: true
   pagoMarinero?: true
+  precioAcordado?: true
+  horasAcordadas?: true
   costoTotal?: true
   deposito?: true
   saldoCliente?: true
@@ -184,6 +200,8 @@ export type WorkOrderMaxAggregateInputType = {
   gastoVarios?: true
   pagoCapitana?: true
   pagoMarinero?: true
+  precioAcordado?: true
+  horasAcordadas?: true
   costoTotal?: true
   deposito?: true
   saldoCliente?: true
@@ -205,6 +223,8 @@ export type WorkOrderCountAggregateInputType = {
   gastoVarios?: true
   pagoCapitana?: true
   pagoMarinero?: true
+  precioAcordado?: true
+  horasAcordadas?: true
   costoTotal?: true
   deposito?: true
   saldoCliente?: true
@@ -300,12 +320,12 @@ export type WorkOrderGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 export type WorkOrderGroupByOutputType = {
   id: number
   createdAt: Date
-  nombre: string
-  fecha: Date
-  horaSalida: string
-  destino: string
-  puntoEncuentro: string
-  pasajeros: number
+  nombre: string | null
+  fecha: Date | null
+  horaSalida: string | null
+  destino: string | null
+  puntoEncuentro: string | null
+  pasajeros: number | null
   detallesNotas: string | null
   combustible: number | null
   hielo: number | null
@@ -313,6 +333,8 @@ export type WorkOrderGroupByOutputType = {
   gastoVarios: number | null
   pagoCapitana: number | null
   pagoMarinero: number | null
+  precioAcordado: number | null
+  horasAcordadas: number | null
   costoTotal: number
   deposito: number
   saldoCliente: number
@@ -344,12 +366,12 @@ export type WorkOrderWhereInput = {
   NOT?: Prisma.WorkOrderWhereInput | Prisma.WorkOrderWhereInput[]
   id?: Prisma.IntFilter<"WorkOrder"> | number
   createdAt?: Prisma.DateTimeFilter<"WorkOrder"> | Date | string
-  nombre?: Prisma.StringFilter<"WorkOrder"> | string
-  fecha?: Prisma.DateTimeFilter<"WorkOrder"> | Date | string
-  horaSalida?: Prisma.StringFilter<"WorkOrder"> | string
-  destino?: Prisma.StringFilter<"WorkOrder"> | string
-  puntoEncuentro?: Prisma.StringFilter<"WorkOrder"> | string
-  pasajeros?: Prisma.IntFilter<"WorkOrder"> | number
+  nombre?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  fecha?: Prisma.DateTimeNullableFilter<"WorkOrder"> | Date | string | null
+  horaSalida?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  destino?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  puntoEncuentro?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  pasajeros?: Prisma.IntNullableFilter<"WorkOrder"> | number | null
   detallesNotas?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   combustible?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
   hielo?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
@@ -357,6 +379,8 @@ export type WorkOrderWhereInput = {
   gastoVarios?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
   pagoCapitana?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
   pagoMarinero?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
+  precioAcordado?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
+  horasAcordadas?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
   costoTotal?: Prisma.FloatFilter<"WorkOrder"> | number
   deposito?: Prisma.FloatFilter<"WorkOrder"> | number
   saldoCliente?: Prisma.FloatFilter<"WorkOrder"> | number
@@ -366,12 +390,12 @@ export type WorkOrderWhereInput = {
 export type WorkOrderOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  nombre?: Prisma.SortOrder
-  fecha?: Prisma.SortOrder
-  horaSalida?: Prisma.SortOrder
-  destino?: Prisma.SortOrder
-  puntoEncuentro?: Prisma.SortOrder
-  pasajeros?: Prisma.SortOrder
+  nombre?: Prisma.SortOrderInput | Prisma.SortOrder
+  fecha?: Prisma.SortOrderInput | Prisma.SortOrder
+  horaSalida?: Prisma.SortOrderInput | Prisma.SortOrder
+  destino?: Prisma.SortOrderInput | Prisma.SortOrder
+  puntoEncuentro?: Prisma.SortOrderInput | Prisma.SortOrder
+  pasajeros?: Prisma.SortOrderInput | Prisma.SortOrder
   detallesNotas?: Prisma.SortOrderInput | Prisma.SortOrder
   combustible?: Prisma.SortOrderInput | Prisma.SortOrder
   hielo?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -379,6 +403,8 @@ export type WorkOrderOrderByWithRelationInput = {
   gastoVarios?: Prisma.SortOrderInput | Prisma.SortOrder
   pagoCapitana?: Prisma.SortOrderInput | Prisma.SortOrder
   pagoMarinero?: Prisma.SortOrderInput | Prisma.SortOrder
+  precioAcordado?: Prisma.SortOrderInput | Prisma.SortOrder
+  horasAcordadas?: Prisma.SortOrderInput | Prisma.SortOrder
   costoTotal?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
@@ -391,12 +417,12 @@ export type WorkOrderWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.WorkOrderWhereInput[]
   NOT?: Prisma.WorkOrderWhereInput | Prisma.WorkOrderWhereInput[]
   createdAt?: Prisma.DateTimeFilter<"WorkOrder"> | Date | string
-  nombre?: Prisma.StringFilter<"WorkOrder"> | string
-  fecha?: Prisma.DateTimeFilter<"WorkOrder"> | Date | string
-  horaSalida?: Prisma.StringFilter<"WorkOrder"> | string
-  destino?: Prisma.StringFilter<"WorkOrder"> | string
-  puntoEncuentro?: Prisma.StringFilter<"WorkOrder"> | string
-  pasajeros?: Prisma.IntFilter<"WorkOrder"> | number
+  nombre?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  fecha?: Prisma.DateTimeNullableFilter<"WorkOrder"> | Date | string | null
+  horaSalida?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  destino?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  puntoEncuentro?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  pasajeros?: Prisma.IntNullableFilter<"WorkOrder"> | number | null
   detallesNotas?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   combustible?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
   hielo?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
@@ -404,6 +430,8 @@ export type WorkOrderWhereUniqueInput = Prisma.AtLeast<{
   gastoVarios?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
   pagoCapitana?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
   pagoMarinero?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
+  precioAcordado?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
+  horasAcordadas?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
   costoTotal?: Prisma.FloatFilter<"WorkOrder"> | number
   deposito?: Prisma.FloatFilter<"WorkOrder"> | number
   saldoCliente?: Prisma.FloatFilter<"WorkOrder"> | number
@@ -413,12 +441,12 @@ export type WorkOrderWhereUniqueInput = Prisma.AtLeast<{
 export type WorkOrderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  nombre?: Prisma.SortOrder
-  fecha?: Prisma.SortOrder
-  horaSalida?: Prisma.SortOrder
-  destino?: Prisma.SortOrder
-  puntoEncuentro?: Prisma.SortOrder
-  pasajeros?: Prisma.SortOrder
+  nombre?: Prisma.SortOrderInput | Prisma.SortOrder
+  fecha?: Prisma.SortOrderInput | Prisma.SortOrder
+  horaSalida?: Prisma.SortOrderInput | Prisma.SortOrder
+  destino?: Prisma.SortOrderInput | Prisma.SortOrder
+  puntoEncuentro?: Prisma.SortOrderInput | Prisma.SortOrder
+  pasajeros?: Prisma.SortOrderInput | Prisma.SortOrder
   detallesNotas?: Prisma.SortOrderInput | Prisma.SortOrder
   combustible?: Prisma.SortOrderInput | Prisma.SortOrder
   hielo?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -426,6 +454,8 @@ export type WorkOrderOrderByWithAggregationInput = {
   gastoVarios?: Prisma.SortOrderInput | Prisma.SortOrder
   pagoCapitana?: Prisma.SortOrderInput | Prisma.SortOrder
   pagoMarinero?: Prisma.SortOrderInput | Prisma.SortOrder
+  precioAcordado?: Prisma.SortOrderInput | Prisma.SortOrder
+  horasAcordadas?: Prisma.SortOrderInput | Prisma.SortOrder
   costoTotal?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
@@ -442,12 +472,12 @@ export type WorkOrderScalarWhereWithAggregatesInput = {
   NOT?: Prisma.WorkOrderScalarWhereWithAggregatesInput | Prisma.WorkOrderScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"WorkOrder"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"WorkOrder"> | Date | string
-  nombre?: Prisma.StringWithAggregatesFilter<"WorkOrder"> | string
-  fecha?: Prisma.DateTimeWithAggregatesFilter<"WorkOrder"> | Date | string
-  horaSalida?: Prisma.StringWithAggregatesFilter<"WorkOrder"> | string
-  destino?: Prisma.StringWithAggregatesFilter<"WorkOrder"> | string
-  puntoEncuentro?: Prisma.StringWithAggregatesFilter<"WorkOrder"> | string
-  pasajeros?: Prisma.IntWithAggregatesFilter<"WorkOrder"> | number
+  nombre?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
+  fecha?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkOrder"> | Date | string | null
+  horaSalida?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
+  destino?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
+  puntoEncuentro?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
+  pasajeros?: Prisma.IntNullableWithAggregatesFilter<"WorkOrder"> | number | null
   detallesNotas?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   combustible?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
   hielo?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
@@ -455,6 +485,8 @@ export type WorkOrderScalarWhereWithAggregatesInput = {
   gastoVarios?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
   pagoCapitana?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
   pagoMarinero?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
+  precioAcordado?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
+  horasAcordadas?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
   costoTotal?: Prisma.FloatWithAggregatesFilter<"WorkOrder"> | number
   deposito?: Prisma.FloatWithAggregatesFilter<"WorkOrder"> | number
   saldoCliente?: Prisma.FloatWithAggregatesFilter<"WorkOrder"> | number
@@ -462,12 +494,12 @@ export type WorkOrderScalarWhereWithAggregatesInput = {
 
 export type WorkOrderCreateInput = {
   createdAt?: Date | string
-  nombre: string
-  fecha: Date | string
-  horaSalida: string
-  destino: string
-  puntoEncuentro: string
-  pasajeros: number
+  nombre?: string | null
+  fecha?: Date | string | null
+  horaSalida?: string | null
+  destino?: string | null
+  puntoEncuentro?: string | null
+  pasajeros?: number | null
   detallesNotas?: string | null
   combustible?: number | null
   hielo?: number | null
@@ -475,21 +507,23 @@ export type WorkOrderCreateInput = {
   gastoVarios?: number | null
   pagoCapitana?: number | null
   pagoMarinero?: number | null
-  costoTotal: number
+  precioAcordado?: number | null
+  horasAcordadas?: number | null
+  costoTotal?: number
   deposito?: number
-  saldoCliente: number
+  saldoCliente?: number
   receipts?: Prisma.ReceiptCreateNestedManyWithoutWorkOrderInput
 }
 
 export type WorkOrderUncheckedCreateInput = {
   id?: number
   createdAt?: Date | string
-  nombre: string
-  fecha: Date | string
-  horaSalida: string
-  destino: string
-  puntoEncuentro: string
-  pasajeros: number
+  nombre?: string | null
+  fecha?: Date | string | null
+  horaSalida?: string | null
+  destino?: string | null
+  puntoEncuentro?: string | null
+  pasajeros?: number | null
   detallesNotas?: string | null
   combustible?: number | null
   hielo?: number | null
@@ -497,20 +531,22 @@ export type WorkOrderUncheckedCreateInput = {
   gastoVarios?: number | null
   pagoCapitana?: number | null
   pagoMarinero?: number | null
-  costoTotal: number
+  precioAcordado?: number | null
+  horasAcordadas?: number | null
+  costoTotal?: number
   deposito?: number
-  saldoCliente: number
+  saldoCliente?: number
   receipts?: Prisma.ReceiptUncheckedCreateNestedManyWithoutWorkOrderInput
 }
 
 export type WorkOrderUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
-  fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  horaSalida?: Prisma.StringFieldUpdateOperationsInput | string
-  destino?: Prisma.StringFieldUpdateOperationsInput | string
-  puntoEncuentro?: Prisma.StringFieldUpdateOperationsInput | string
-  pasajeros?: Prisma.IntFieldUpdateOperationsInput | number
+  nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -518,6 +554,8 @@ export type WorkOrderUpdateInput = {
   gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   costoTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   deposito?: Prisma.FloatFieldUpdateOperationsInput | number
   saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -527,12 +565,12 @@ export type WorkOrderUpdateInput = {
 export type WorkOrderUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
-  fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  horaSalida?: Prisma.StringFieldUpdateOperationsInput | string
-  destino?: Prisma.StringFieldUpdateOperationsInput | string
-  puntoEncuentro?: Prisma.StringFieldUpdateOperationsInput | string
-  pasajeros?: Prisma.IntFieldUpdateOperationsInput | number
+  nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -540,6 +578,8 @@ export type WorkOrderUncheckedUpdateInput = {
   gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   costoTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   deposito?: Prisma.FloatFieldUpdateOperationsInput | number
   saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -549,12 +589,12 @@ export type WorkOrderUncheckedUpdateInput = {
 export type WorkOrderCreateManyInput = {
   id?: number
   createdAt?: Date | string
-  nombre: string
-  fecha: Date | string
-  horaSalida: string
-  destino: string
-  puntoEncuentro: string
-  pasajeros: number
+  nombre?: string | null
+  fecha?: Date | string | null
+  horaSalida?: string | null
+  destino?: string | null
+  puntoEncuentro?: string | null
+  pasajeros?: number | null
   detallesNotas?: string | null
   combustible?: number | null
   hielo?: number | null
@@ -562,19 +602,21 @@ export type WorkOrderCreateManyInput = {
   gastoVarios?: number | null
   pagoCapitana?: number | null
   pagoMarinero?: number | null
-  costoTotal: number
+  precioAcordado?: number | null
+  horasAcordadas?: number | null
+  costoTotal?: number
   deposito?: number
-  saldoCliente: number
+  saldoCliente?: number
 }
 
 export type WorkOrderUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
-  fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  horaSalida?: Prisma.StringFieldUpdateOperationsInput | string
-  destino?: Prisma.StringFieldUpdateOperationsInput | string
-  puntoEncuentro?: Prisma.StringFieldUpdateOperationsInput | string
-  pasajeros?: Prisma.IntFieldUpdateOperationsInput | number
+  nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -582,6 +624,8 @@ export type WorkOrderUpdateManyMutationInput = {
   gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   costoTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   deposito?: Prisma.FloatFieldUpdateOperationsInput | number
   saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -590,12 +634,12 @@ export type WorkOrderUpdateManyMutationInput = {
 export type WorkOrderUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
-  fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  horaSalida?: Prisma.StringFieldUpdateOperationsInput | string
-  destino?: Prisma.StringFieldUpdateOperationsInput | string
-  puntoEncuentro?: Prisma.StringFieldUpdateOperationsInput | string
-  pasajeros?: Prisma.IntFieldUpdateOperationsInput | number
+  nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -603,6 +647,8 @@ export type WorkOrderUncheckedUpdateManyInput = {
   gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   costoTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   deposito?: Prisma.FloatFieldUpdateOperationsInput | number
   saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -624,6 +670,8 @@ export type WorkOrderCountOrderByAggregateInput = {
   gastoVarios?: Prisma.SortOrder
   pagoCapitana?: Prisma.SortOrder
   pagoMarinero?: Prisma.SortOrder
+  precioAcordado?: Prisma.SortOrder
+  horasAcordadas?: Prisma.SortOrder
   costoTotal?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
@@ -638,6 +686,8 @@ export type WorkOrderAvgOrderByAggregateInput = {
   gastoVarios?: Prisma.SortOrder
   pagoCapitana?: Prisma.SortOrder
   pagoMarinero?: Prisma.SortOrder
+  precioAcordado?: Prisma.SortOrder
+  horasAcordadas?: Prisma.SortOrder
   costoTotal?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
@@ -659,6 +709,8 @@ export type WorkOrderMaxOrderByAggregateInput = {
   gastoVarios?: Prisma.SortOrder
   pagoCapitana?: Prisma.SortOrder
   pagoMarinero?: Prisma.SortOrder
+  precioAcordado?: Prisma.SortOrder
+  horasAcordadas?: Prisma.SortOrder
   costoTotal?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
@@ -680,6 +732,8 @@ export type WorkOrderMinOrderByAggregateInput = {
   gastoVarios?: Prisma.SortOrder
   pagoCapitana?: Prisma.SortOrder
   pagoMarinero?: Prisma.SortOrder
+  precioAcordado?: Prisma.SortOrder
+  horasAcordadas?: Prisma.SortOrder
   costoTotal?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
@@ -694,6 +748,8 @@ export type WorkOrderSumOrderByAggregateInput = {
   gastoVarios?: Prisma.SortOrder
   pagoCapitana?: Prisma.SortOrder
   pagoMarinero?: Prisma.SortOrder
+  precioAcordado?: Prisma.SortOrder
+  horasAcordadas?: Prisma.SortOrder
   costoTotal?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
@@ -704,8 +760,8 @@ export type WorkOrderScalarRelationFilter = {
   isNot?: Prisma.WorkOrderWhereInput
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
   increment?: number
   decrement?: number
   multiply?: number
@@ -721,6 +777,14 @@ export type NullableFloatFieldUpdateOperationsInput = {
 }
 
 export type FloatFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
   decrement?: number
@@ -744,12 +808,12 @@ export type WorkOrderUpdateOneRequiredWithoutReceiptsNestedInput = {
 
 export type WorkOrderCreateWithoutReceiptsInput = {
   createdAt?: Date | string
-  nombre: string
-  fecha: Date | string
-  horaSalida: string
-  destino: string
-  puntoEncuentro: string
-  pasajeros: number
+  nombre?: string | null
+  fecha?: Date | string | null
+  horaSalida?: string | null
+  destino?: string | null
+  puntoEncuentro?: string | null
+  pasajeros?: number | null
   detallesNotas?: string | null
   combustible?: number | null
   hielo?: number | null
@@ -757,20 +821,22 @@ export type WorkOrderCreateWithoutReceiptsInput = {
   gastoVarios?: number | null
   pagoCapitana?: number | null
   pagoMarinero?: number | null
-  costoTotal: number
+  precioAcordado?: number | null
+  horasAcordadas?: number | null
+  costoTotal?: number
   deposito?: number
-  saldoCliente: number
+  saldoCliente?: number
 }
 
 export type WorkOrderUncheckedCreateWithoutReceiptsInput = {
   id?: number
   createdAt?: Date | string
-  nombre: string
-  fecha: Date | string
-  horaSalida: string
-  destino: string
-  puntoEncuentro: string
-  pasajeros: number
+  nombre?: string | null
+  fecha?: Date | string | null
+  horaSalida?: string | null
+  destino?: string | null
+  puntoEncuentro?: string | null
+  pasajeros?: number | null
   detallesNotas?: string | null
   combustible?: number | null
   hielo?: number | null
@@ -778,9 +844,11 @@ export type WorkOrderUncheckedCreateWithoutReceiptsInput = {
   gastoVarios?: number | null
   pagoCapitana?: number | null
   pagoMarinero?: number | null
-  costoTotal: number
+  precioAcordado?: number | null
+  horasAcordadas?: number | null
+  costoTotal?: number
   deposito?: number
-  saldoCliente: number
+  saldoCliente?: number
 }
 
 export type WorkOrderCreateOrConnectWithoutReceiptsInput = {
@@ -801,12 +869,12 @@ export type WorkOrderUpdateToOneWithWhereWithoutReceiptsInput = {
 
 export type WorkOrderUpdateWithoutReceiptsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
-  fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  horaSalida?: Prisma.StringFieldUpdateOperationsInput | string
-  destino?: Prisma.StringFieldUpdateOperationsInput | string
-  puntoEncuentro?: Prisma.StringFieldUpdateOperationsInput | string
-  pasajeros?: Prisma.IntFieldUpdateOperationsInput | number
+  nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -814,6 +882,8 @@ export type WorkOrderUpdateWithoutReceiptsInput = {
   gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   costoTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   deposito?: Prisma.FloatFieldUpdateOperationsInput | number
   saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -822,12 +892,12 @@ export type WorkOrderUpdateWithoutReceiptsInput = {
 export type WorkOrderUncheckedUpdateWithoutReceiptsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
-  fecha?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  horaSalida?: Prisma.StringFieldUpdateOperationsInput | string
-  destino?: Prisma.StringFieldUpdateOperationsInput | string
-  puntoEncuentro?: Prisma.StringFieldUpdateOperationsInput | string
-  pasajeros?: Prisma.IntFieldUpdateOperationsInput | number
+  nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -835,6 +905,8 @@ export type WorkOrderUncheckedUpdateWithoutReceiptsInput = {
   gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   costoTotal?: Prisma.FloatFieldUpdateOperationsInput | number
   deposito?: Prisma.FloatFieldUpdateOperationsInput | number
   saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -887,6 +959,8 @@ export type WorkOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   gastoVarios?: boolean
   pagoCapitana?: boolean
   pagoMarinero?: boolean
+  precioAcordado?: boolean
+  horasAcordadas?: boolean
   costoTotal?: boolean
   deposito?: boolean
   saldoCliente?: boolean
@@ -910,6 +984,8 @@ export type WorkOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   gastoVarios?: boolean
   pagoCapitana?: boolean
   pagoMarinero?: boolean
+  precioAcordado?: boolean
+  horasAcordadas?: boolean
   costoTotal?: boolean
   deposito?: boolean
   saldoCliente?: boolean
@@ -931,6 +1007,8 @@ export type WorkOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   gastoVarios?: boolean
   pagoCapitana?: boolean
   pagoMarinero?: boolean
+  precioAcordado?: boolean
+  horasAcordadas?: boolean
   costoTotal?: boolean
   deposito?: boolean
   saldoCliente?: boolean
@@ -952,12 +1030,14 @@ export type WorkOrderSelectScalar = {
   gastoVarios?: boolean
   pagoCapitana?: boolean
   pagoMarinero?: boolean
+  precioAcordado?: boolean
+  horasAcordadas?: boolean
   costoTotal?: boolean
   deposito?: boolean
   saldoCliente?: boolean
 }
 
-export type WorkOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "nombre" | "fecha" | "horaSalida" | "destino" | "puntoEncuentro" | "pasajeros" | "detallesNotas" | "combustible" | "hielo" | "aguaBebidas" | "gastoVarios" | "pagoCapitana" | "pagoMarinero" | "costoTotal" | "deposito" | "saldoCliente", ExtArgs["result"]["workOrder"]>
+export type WorkOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "nombre" | "fecha" | "horaSalida" | "destino" | "puntoEncuentro" | "pasajeros" | "detallesNotas" | "combustible" | "hielo" | "aguaBebidas" | "gastoVarios" | "pagoCapitana" | "pagoMarinero" | "precioAcordado" | "horasAcordadas" | "costoTotal" | "deposito" | "saldoCliente", ExtArgs["result"]["workOrder"]>
 export type WorkOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   receipts?: boolean | Prisma.WorkOrder$receiptsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkOrderCountOutputTypeDefaultArgs<ExtArgs>
@@ -973,12 +1053,12 @@ export type $WorkOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     createdAt: Date
-    nombre: string
-    fecha: Date
-    horaSalida: string
-    destino: string
-    puntoEncuentro: string
-    pasajeros: number
+    nombre: string | null
+    fecha: Date | null
+    horaSalida: string | null
+    destino: string | null
+    puntoEncuentro: string | null
+    pasajeros: number | null
     detallesNotas: string | null
     combustible: number | null
     hielo: number | null
@@ -986,6 +1066,8 @@ export type $WorkOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     gastoVarios: number | null
     pagoCapitana: number | null
     pagoMarinero: number | null
+    precioAcordado: number | null
+    horasAcordadas: number | null
     costoTotal: number
     deposito: number
     saldoCliente: number
@@ -1428,6 +1510,8 @@ export interface WorkOrderFieldRefs {
   readonly gastoVarios: Prisma.FieldRef<"WorkOrder", 'Float'>
   readonly pagoCapitana: Prisma.FieldRef<"WorkOrder", 'Float'>
   readonly pagoMarinero: Prisma.FieldRef<"WorkOrder", 'Float'>
+  readonly precioAcordado: Prisma.FieldRef<"WorkOrder", 'Float'>
+  readonly horasAcordadas: Prisma.FieldRef<"WorkOrder", 'Float'>
   readonly costoTotal: Prisma.FieldRef<"WorkOrder", 'Float'>
   readonly deposito: Prisma.FieldRef<"WorkOrder", 'Float'>
   readonly saldoCliente: Prisma.FieldRef<"WorkOrder", 'Float'>
@@ -1649,7 +1733,7 @@ export type WorkOrderCreateArgs<ExtArgs extends runtime.Types.Extensions.Interna
   /**
    * The data needed to create a WorkOrder.
    */
-  data: Prisma.XOR<Prisma.WorkOrderCreateInput, Prisma.WorkOrderUncheckedCreateInput>
+  data?: Prisma.XOR<Prisma.WorkOrderCreateInput, Prisma.WorkOrderUncheckedCreateInput>
 }
 
 /**
