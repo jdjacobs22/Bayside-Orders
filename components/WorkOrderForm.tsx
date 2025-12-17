@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   createWorkOrder,
   getWorkOrder,
@@ -15,12 +15,6 @@ interface WorkOrderFormProps {
   orderId?: number;
 }
 
-// 📸 NEW CAMERA LOGIC: Interface for file transfer
-interface CapturedFile {
-  blob: Blob;
-  name: string;
-}
-
 export default function WorkOrderForm({
   mode = "admin-create",
   orderId,
@@ -29,19 +23,6 @@ export default function WorkOrderForm({
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [receipts, setReceipts] = useState<any[]>([]);
-
-  // 📸 NEW CAMERA LOGIC: Refs and State for Camera Stream
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const [isCameraActive, setIsCameraActive] = useState(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
-
-  // 📸 MODIFIED STATE: pendingFile now accepts Blob or File
-  const [pendingFile, setPendingFile] = useState<File | Blob | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
-  const [currentGastoType, setCurrentGastoType] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -62,7 +43,7 @@ export default function WorkOrderForm({
     deposito: 0,
   });
 
-  // Load data for edit modes (Original Logic)
+  // Load data for edit modes
   useEffect(() => {
     if (orderId && (mode === "admin-edit" || mode === "captain-edit")) {
       setLoading(true);
@@ -98,24 +79,6 @@ export default function WorkOrderForm({
     }
   }, [orderId, mode]);
 
-  // Debug: Monitor preview state changes
-  useEffect(() => {
-    console.log("Preview state changed", {
-      hasPreviewUrl: !!previewUrl,
-      previewUrl: previewUrl?.substring(0, 50) + "...",
-      currentGastoType,
-      hasPendingFile: !!pendingFile,
-      pendingFileType:
-        pendingFile instanceof File
-          ? "File"
-          : pendingFile instanceof Blob
-            ? "Blob"
-            : "null",
-      modalShouldShow: !!(previewUrl && currentGastoType),
-    });
-  }, [previewUrl, currentGastoType, pendingFile]);
-
-  // ??
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -142,7 +105,6 @@ export default function WorkOrderForm({
     return total - (formData.deposito || 0);
   };
 
-  // --- Original handleSubmit Logic ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -190,6 +152,7 @@ export default function WorkOrderForm({
         } as any);
         router.push("/admin/list");
       } else if (mode === "captain-edit") {
+        // Captain Flow: Only sign out here, after explicit "Guardar"
         await authClient.signOut();
         router.push("/");
       } else {
@@ -201,328 +164,136 @@ export default function WorkOrderForm({
     setLoading(false);
   };
 
-  // --- Original handleFileSelect Logic (for gallery/files) ---
-  const handleFileSelect = (
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [currentGastoType, setCurrentGastoType] = useState<string | null>(null);
+  const [compressing, setCompressing] = useState(false);
+
+  /**
+   * Compress an image file to reduce upload size
+   * Target: ~1MB or less for fast mobile uploads
+   */
+  const compressImage = async (file: File): Promise<File> => {
+    // Skip compression for non-image files (like PDFs)
+    if (!file.type.startsWith("image/")) {
+      return file;
+    }
+
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+
+      img.onload = () => {
+        // Calculate new dimensions - max 1920px on longest side
+        const maxDimension = 1920;
+        let { width, height } = img;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = (height / width) * maxDimension;
+            width = maxDimension;
+          } else {
+            width = (width / height) * maxDimension;
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw image onto canvas
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        // Convert to blob with quality setting (0.7 = 70% quality)
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              // Create a new File from the blob
+              const compressedFile = new File([blob], file.name, {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              });
+              console.log(
+                `Image compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`
+              );
+              resolve(compressedFile);
+            } else {
+              // If compression fails, return original
+              resolve(file);
+            }
+          },
+          "image/jpeg",
+          0.7 // Quality: 0.7 = 70%
+        );
+      };
+
+      img.onerror = () => {
+        console.error("Failed to load image for compression");
+        resolve(file); // Return original on error
+      };
+
+      // Load the image from the file
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleFileSelect = async (
     e: React.ChangeEvent<HTMLInputElement>,
     gastoType: string
   ) => {
-    const fileInput = e.target;
-    const files = fileInput.files;
+    if (e.target.files && e.target.files[0]) {
+      const originalFile = e.target.files[0];
+      // Reset input value immediately to allow re-selecting the same file
+      e.target.value = "";
 
-    console.log("handleFileSelect called", {
-      hasFiles: !!files,
-      fileCount: files?.length || 0,
-      gastoType,
-      firstFile: files?.[0]
-        ? {
-            name: files[0].name,
-            size: files[0].size,
-            type: files[0].type,
-            lastModified: files[0].lastModified,
-          }
-        : null,
-    });
+      // Show compressing state for large images
+      if (
+        originalFile.type.startsWith("image/") &&
+        originalFile.size > 1024 * 1024
+      ) {
+        setCompressing(true);
+        setCurrentGastoType(gastoType);
 
-    if (files && files[0]) {
-      const file = files[0];
-      const previewUrl = URL.createObjectURL(file);
-
-      console.log("Setting state in handleFileSelect", {
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: file.type,
-        gastoType,
-        previewUrlCreated: !!previewUrl,
-        previewUrlPrefix: previewUrl.substring(0, 20),
-      });
-
-      // Set all state immediately - React will batch these updates
-      setPendingFile(file);
-      setPreviewUrl(previewUrl);
-      setCurrentGastoType(gastoType);
-
-      console.log(
-        "State setters called - React will batch and update in next render"
-      );
-    } else {
-      console.error("handleFileSelect: No file selected", {
-        hasFiles: !!files,
-        fileCount: files?.length || 0,
-        inputValue: fileInput.value,
-      });
-      // Clear state if no file was selected (user cancelled)
-      setPendingFile(null);
-      setPreviewUrl(null);
-      setCurrentGastoType(null);
-    }
-
-    // Reset input value AFTER processing to allow re-selecting the same file
-    // This must happen after we've read the files
-    fileInput.value = "";
-  };
-
-  // ----------------------------------------------------------------------------------
-  // 📸 NEW CAMERA LOGIC: Core Media Devices API Functions
-  // ----------------------------------------------------------------------------------
-
-  const stopStream = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-    setIsCameraActive(false);
-  }, []);
-
-  useEffect(() => {
-    // Cleanup function to stop the stream when the component is unmounted
-    return () => {
-        stopStream();
-        // Important Fix:  Revoke any pending preview URL on unmount
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
-        // jdj commented below out because not sure it was present before his changes
-        // setPendingFile(null);
-        // setPreviewUrl(null);
-        // setCurrentGastoType(null);
-    };
-  }, [stopStream, previewUrl]);
-
-  const startCamera = useCallback(
-    async (gastoType: string) => {
-      // Takes gastoType
-      setCameraError(null);
-      stopStream();
-
-      try {
-        // 1. Get initial permissions
-        await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false,
-        });
-
-        // 2. Enumerate and find the rear camera ID
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoInputs = devices.filter((d) => d.kind === "videoinput");
-
-        let rearCameraId: string | undefined;
-
-        const rearCamera = videoInputs.find(
-          (d) =>
-            d.label.toLowerCase().includes("back") ||
-            d.label.toLowerCase().includes("rear") ||
-            d.label.toLowerCase().includes("environment")
-        );
-
-        rearCameraId = rearCamera
-          ? rearCamera.deviceId
-          : videoInputs[videoInputs.length - 1]?.deviceId;
-
-        if (!rearCameraId) {
-          throw new Error("No video input devices found.");
-        }
-
-        // 3. Request the stream using the specific device ID and resolution constraints (Memory Fix)
-        const constraints: MediaStreamConstraints = {
-          audio: false,
-          video: {
-            deviceId: { exact: rearCameraId },
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-          },
-        };
-
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        streamRef.current = stream;
-        setCurrentGastoType(gastoType); // Set the context here
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play();
-          setIsCameraActive(true);
-        }
-      } catch (e) {
-        console.error("Camera access failed:", e);
-        setCameraError("Fallo al acceder la cámara. Verifique permisos.");
-        setIsCameraActive(false);
-      }
-    },
-    [stopStream]
-  );
-
-  // New takePhoto (below) resizes canvas
-  // const takePhoto = useCallback(() => {
-  //     const video = videoRef.current;
-  //     const canvas = canvasRef.current;
-
-  //     if (!video || !canvas || !streamRef.current || !currentGastoType) {
-  //         setCameraError("Stream no activo o tipo de gasto no definido.");
-  //         return;
-  //     }
-
-  //     // Set canvas dimensions and draw frame
-  //     canvas.width = video.videoWidth;
-  //     canvas.height = video.videoHeight;
-  //     const ctx = canvas.getContext('2d');
-  //     if (!ctx) return;
-  //     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  //     // Convert to Blob and handle the file
-  //     canvas.toBlob((blob) => {
-  //         if (blob) {
-  //             setPendingFile(blob);
-  //             setPreviewUrl(URL.createObjectURL(blob));
-
-  //             // STOP the stream and close the video view immediately after capture
-  //             stopStream();
-
-  //         } else {
-  //             setCameraError("Fallo al crear el archivo de la imagen.");
-  //         }
-  //     }, 'image/jpeg', 0.95);
-
-  // }, [currentGastoType, stopStream]);
-
-  // ----------------------------------------------------------------------------------
-  // 📸 NEW UTILITY: Client-Side Image Resizing
-  // ----------------------------------------------------------------------------------
-
-  /**
-   * Resizes the image contained in the source Canvas element to a maximum dimension
-   * and converts it back to a Blob with specified JPEG quality.
-   * @param sourceCanvas The canvas containing the captured image.
-   * @param maxWidth The maximum width for the resized image.
-   * @param maxHeight The maximum height for the resized image.
-   * @param quality The JPEG quality (0.0 to 1.0).
-   * @returns A promise that resolves to the resized Blob.
-   */
-  function resizeImage(
-    sourceCanvas: HTMLCanvasElement,
-    maxWidth: number,
-    maxHeight: number,
-    quality: number = 0.8
-  ): Promise<Blob | null> {
-    return new Promise((resolve) => {
-      const width = sourceCanvas.width;
-      const height = sourceCanvas.height;
-
-      let newWidth = width;
-      let newHeight = height;
-
-      // Calculate the ratio and check if resizing is needed
-      if (width > height) {
-        if (width > maxWidth) {
-          newHeight = height * (maxWidth / width);
-          newWidth = maxWidth;
+        try {
+          const compressedFile = await compressImage(originalFile);
+          setPendingFile(compressedFile);
+          setPreviewUrl(URL.createObjectURL(compressedFile));
+        } catch (err) {
+          console.error("Compression error:", err);
+          setPendingFile(originalFile);
+          setPreviewUrl(URL.createObjectURL(originalFile));
+        } finally {
+          setCompressing(false);
         }
       } else {
-        if (height > maxHeight) {
-          newWidth = width * (maxHeight / height);
-          newHeight = maxHeight;
-        }
+        // Small file or non-image, no compression needed
+        setPendingFile(originalFile);
+        setPreviewUrl(URL.createObjectURL(originalFile));
+        setCurrentGastoType(gastoType);
       }
-
-      // Skip resizing if the image is already small enough
-      if (newWidth === width && newHeight === height) {
-        console.log("Image size OK, skipping resize.");
-        sourceCanvas.toBlob((blob) => resolve(blob), "image/jpeg", quality);
-        return;
-      }
-
-      // Create a temporary canvas for resizing
-      const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = newWidth;
-      tempCanvas.height = newHeight;
-
-      const tempCtx = tempCanvas.getContext("2d");
-      if (!tempCtx) {
-        console.error("Could not get 2D context for resizing.");
-        return resolve(null);
-      }
-
-      // Draw the image from the source canvas onto the new dimensions
-      tempCtx.drawImage(sourceCanvas, 0, 0, newWidth, newHeight);
-
-      // Convert the resized canvas to a Blob with lower quality
-      tempCanvas.toBlob((blob) => resolve(blob), "image/jpeg", quality);
-    });
-  }
-
-  // New takePhoto resizses photo to avoid hang on large photos
-  // L261: Original start of takePhoto
-  const takePhoto = useCallback(() => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-
-    if (!video || !canvas || !streamRef.current || !currentGastoType) {
-      setCameraError("Stream no activo o tipo de gasto no definido.");
-      return;
     }
-
-    // Set canvas dimensions and draw frame from video (Full Resolution)
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    // STOP the stream and close the video view immediately after capture
-    // Important: Do this BEFORE the potentially long resizing step
-    stopStream();
-
-    // 📸 MODIFIED LOGIC: Resize and Compress the image before setting state
-    // We target a max dimension (e.g., 1280px) and 0.8 JPEG quality
-    resizeImage(canvas, 1280, 1280, 0.8)
-      .then((resizedBlob) => {
-        if (resizedBlob) {
-          // Log the new, smaller size for debugging
-          console.log(
-            `Resized photo created: ${resizedBlob.size} bytes (${(resizedBlob.size / (1024 * 1024)).toFixed(2)}MB)`
-          );
-
-          // Set state with the new, smaller Blob
-          setPendingFile(resizedBlob);
-          setPreviewUrl(URL.createObjectURL(resizedBlob));
-        } else {
-          setCameraError(
-            "Fallo al crear el archivo de la imagen o al redimensionar."
-          );
-        }
-      })
-      .catch((e) => {
-        console.error("Error during photo processing/resizing:", e);
-        setCameraError("Error al procesar la imagen.");
-      });
-  }, [currentGastoType, stopStream]);
-
-  // ----------------------------------------------------------------------------------
-  // 🔄 MODIFIED: confirmUpload Logic
-  // ----------------------------------------------------------------------------------
+  };
 
   const confirmUpload = async () => {
-
-    // #endregion
     if (!pendingFile || !orderId || !currentGastoType) return;
 
     setUploading(true);
 
-
+    // Helper to clean up state
+    const cleanupState = () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setPendingFile(null);
+      setPreviewUrl(null);
+      setCurrentGastoType(null);
+      setUploading(false);
+    };
 
     try {
-      // 1. Convert Blob (from camera) to File object if necessary
-      const fileName = `receipt-${currentGastoType}-${Date.now()}.jpg`;
-      const fileToUpload =
-        pendingFile instanceof Blob
-          ? new File([pendingFile], fileName, { type: pendingFile.type })
-          : pendingFile; // If it was already a File from handleFileSelect
-
-      // 2. Save Form Data First (Original Logic)
-
+      // Save Form Data First
       const total = calculateTotal();
       const balance = calculateBalance();
-
-
 
       const submissionData = {
         ...formData,
@@ -530,84 +301,39 @@ export default function WorkOrderForm({
         saldoCliente: balance,
       };
 
- 
-
+      const saveRes = await updateWorkOrder(orderId, submissionData);
       if (!saveRes.success) {
         alert("Error guardando datos: " + saveRes.error);
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
-        setPendingFile(null);
-        setPreviewUrl(null);
-        setCurrentGastoType(null);
-        setUploading(false);
-
+        cleanupState();
         return;
       }
 
-      // 3. Upload Receipt (Original Logic)
       const formDataUpload = new FormData();
-      formDataUpload.append("file", fileToUpload);
+      formDataUpload.append("file", pendingFile);
       formDataUpload.append("orderId", orderId.toString());
       formDataUpload.append("gastoType", currentGastoType);
 
+      console.log(
+        `Uploading file: ${pendingFile.name}, size: ${(pendingFile.size / 1024 / 1024).toFixed(2)}MB`
+      );
 
       const res = await uploadReceipt(formDataUpload);
 
- 
-
-      if (res.success && res.data) {
-        // Reset state IMMEDIATELY to close modal and update UI
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
-        setPendingFile(null);
-        setPreviewUrl(null);
-        setCurrentGastoType(null);
-        setUploading(false);
-
-        // Optimistically add receipt to state for immediate UI update
+      if (res.success) {
         setReceipts((prev) => [...prev, res.data]);
-
-        // Refetch work order data in the background to ensure consistency
-        // Don't await - let it happen asynchronously so UI doesn't hang
-        if (orderId) {
-          getWorkOrder(orderId)
-            .then((refreshedOrder) => {
-              if (refreshedOrder.success && refreshedOrder.data?.receipts) {
-                // Update receipts with server data once available
-                setReceipts(refreshedOrder.data.receipts);
-              }
-              // Refresh the router to ensure cache is updated
-              router.refresh();
-            })
-            .catch((refreshError) => {
-              console.error(
-                "Error refreshing receipts (non-fatal):",
-                refreshError
-              );
-              // State already updated optimistically above, so UI is fine
-            });
-        }
+        console.log("Upload successful:", res.data?.url);
+        cleanupState();
       } else {
-        const errorMsg = res.error || "Error desconocido al subir la foto";
-        console.error("Upload failed:", errorMsg);
-        alert("Error al subir: " + errorMsg);
-        // Clean up state on error
-        if (previewUrl) URL.revokeObjectURL(previewUrl);
-        setPendingFile(null);
-        setPreviewUrl(null);
-        setCurrentGastoType(null);
-        setUploading(false);
+        alert("Error al subir: " + res.error);
+        cleanupState();
       }
-    } catch (err: any) {
-
-      console.error("Error in confirmUpload:", err);
-      alert(
-        "Error inesperado: " + (err?.message || "Por favor intente nuevamente")
-      );
-      // Reset state on exception
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      setPendingFile(null);
-      setPreviewUrl(null);
-      setCurrentGastoType(null);
-      setUploading(false);
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      // Handle network timeouts and unexpected errors
+      const errorMessage =
+        error?.message || "Error de conexión. Intenta de nuevo.";
+      alert("Error: " + errorMessage);
+      cleanupState();
     }
   };
 
@@ -616,9 +342,10 @@ export default function WorkOrderForm({
     setPendingFile(null);
     setPreviewUrl(null);
     setCurrentGastoType(null);
+    // User stays on form, can click camera button again
   };
 
-  // --- Original Utility Functions ---
+  // Get receipts grouped by gasto type
   const getReceiptsByGasto = (gastoType: string) => {
     return receipts.filter((r) => r.gastoType === gastoType);
   };
@@ -633,6 +360,8 @@ export default function WorkOrderForm({
 
   // Field Access Logic
   const isCaptain = mode === "captain-edit";
+  // Captain can ONLY edit: Details/Notas, Combustible, Hielo, Agua/Bebidas, Gasto Varios
+  // Admin can edit ALL.
   const canEdit = (fieldName: string) => {
     if (!isCaptain) return true; // Admin creates/edits all
     const allowed = [
@@ -657,7 +386,7 @@ export default function WorkOrderForm({
             : `Orden #${orderId || ""}`}
         </h2>
 
-        {/* Basic Info Group (Original Logic) */}
+        {/* Basic Info Group */}
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-bold text-gray-700">
@@ -756,43 +485,6 @@ export default function WorkOrderForm({
         {/* Captain Editable Section - Expenses */}
         <div>
           <h3 className="font-bold text-lg mb-2 text-blue-800">Gastos</h3>
-
-          {/* 📸 NEW CAMERA LOGIC: Conditional Live Camera View */}
-          {isCameraActive && (
-            <div className="bg-gray-800 p-3 rounded-lg mb-4 text-center">
-              <p className="text-white mb-2">
-                Captura de Recibo: **{currentGastoType}**
-              </p>
-              {cameraError && (
-                <p className="text-sm text-red-500 mb-2">
-                  Error de Cámara: {cameraError}
-                </p>
-              )}
-              <video
-                ref={videoRef}
-                className="w-full rounded-md"
-                autoPlay
-                playsInline
-                muted
-              />
-              <button
-                type="button"
-                onClick={takePhoto}
-                className="w-full bg-green-500 text-white p-2 mt-3 rounded font-bold hover:bg-green-600"
-                disabled={uploading}
-              >
-                📸 Tomar Foto
-              </button>
-              <button
-                type="button"
-                onClick={stopStream}
-                className="w-full bg-red-500 text-white p-2 mt-2 rounded hover:bg-red-600"
-              >
-                Cerrar Cámara
-              </button>
-            </div>
-          )}
-
           <div className="space-y-4">
             {/* Combustible */}
             <div>
@@ -808,13 +500,37 @@ export default function WorkOrderForm({
                   disabled={!canEdit("combustibleCost")}
                   className="flex-1 border p-3 rounded font-mono text-lg"
                 />
-                {isCaptain && orderId && !isCameraActive && (
-                  <CameraButtons
-                    gastoType="combustible"
-                    startCamera={startCamera}
-                    handleFileSelect={handleFileSelect}
-                    uploading={uploading}
-                  />
+                {isCaptain && orderId && (
+                  <label className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white p-3 rounded cursor-pointer transition">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => handleFileSelect(e, "combustible")}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                  </label>
                 )}
               </div>
               {isCaptain && getReceiptsByGasto("combustible").length > 0 && (
@@ -854,13 +570,37 @@ export default function WorkOrderForm({
                   disabled={!canEdit("hieloCost")}
                   className="flex-1 border p-3 rounded font-mono text-lg"
                 />
-                {isCaptain && orderId && !isCameraActive && (
-                  <CameraButtons
-                    gastoType="hielo"
-                    startCamera={startCamera}
-                    handleFileSelect={handleFileSelect}
-                    uploading={uploading}
-                  />
+                {isCaptain && orderId && (
+                  <label className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white p-3 rounded cursor-pointer transition">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => handleFileSelect(e, "hielo")}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                  </label>
                 )}
               </div>
               {isCaptain && getReceiptsByGasto("hielo").length > 0 && (
@@ -898,13 +638,37 @@ export default function WorkOrderForm({
                   disabled={!canEdit("aguaBebidasCost")}
                   className="flex-1 border p-3 rounded font-mono text-lg"
                 />
-                {isCaptain && orderId && !isCameraActive && (
-                  <CameraButtons
-                    gastoType="aguaBebidas"
-                    startCamera={startCamera}
-                    handleFileSelect={handleFileSelect}
-                    uploading={uploading}
-                  />
+                {isCaptain && orderId && (
+                  <label className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white p-3 rounded cursor-pointer transition">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => handleFileSelect(e, "aguaBebidas")}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                  </label>
                 )}
               </div>
               {isCaptain && getReceiptsByGasto("aguaBebidas").length > 0 && (
@@ -944,13 +708,37 @@ export default function WorkOrderForm({
                   disabled={!canEdit("gastoVariosCost")}
                   className="flex-1 border p-3 rounded font-mono text-lg"
                 />
-                {isCaptain && orderId && !isCameraActive && (
-                  <CameraButtons
-                    gastoType="gastoVarios"
-                    startCamera={startCamera}
-                    handleFileSelect={handleFileSelect}
-                    uploading={uploading}
-                  />
+                {isCaptain && orderId && (
+                  <label className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white p-3 rounded cursor-pointer transition">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => handleFileSelect(e, "gastoVarios")}
+                      className="hidden"
+                      disabled={uploading}
+                    />
+                  </label>
                 )}
               </div>
               {isCaptain && getReceiptsByGasto("gastoVarios").length > 0 && (
@@ -993,7 +781,7 @@ export default function WorkOrderForm({
           />
         </div>
 
-        {/* Admin Receipts Section - Grouped by Gasto (Original Logic) */}
+        {/* Admin Receipts Section - Grouped by Gasto */}
         {mode === "admin-edit" && receipts.length > 0 && (
           <div className="mt-4 p-4 bg-gray-100 rounded border border-gray-300">
             <h3 className="font-bold text-sm mb-4 uppercase text-gray-600">
@@ -1072,18 +860,23 @@ export default function WorkOrderForm({
           </div>
         )}
 
-        {/* Photo Preview Modal (Original Logic, handles camera output now) */}
-        {(() => {
-          const shouldShow = !!(previewUrl && currentGastoType);
-          console.log("Modal render check", {
-            shouldShow,
-            hasPreviewUrl: !!previewUrl,
-            hasCurrentGastoType: !!currentGastoType,
-            previewUrlValue: previewUrl,
-            currentGastoTypeValue: currentGastoType,
-          });
-          return shouldShow;
-        })() && (
+        {/* Compressing Modal */}
+        {compressing && currentGastoType && (
+          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col items-center justify-center p-4">
+            <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+              <p className="text-lg font-bold text-gray-700">
+                Comprimiendo imagen...
+              </p>
+              <p className="text-sm text-gray-500">
+                Esto mejora la velocidad de subida
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Photo Preview Modal */}
+        {previewUrl && currentGastoType && !compressing && (
           <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex flex-col items-center justify-center p-4">
             <div className="relative w-full max-w-md bg-white rounded-lg overflow-hidden flex flex-col max-h-[90vh]">
               <div className="p-2 bg-gray-100 font-bold text-center">
@@ -1099,20 +892,18 @@ export default function WorkOrderForm({
                         : "General"}
               </div>
               <div className="flex-1 overflow-auto bg-black flex items-center justify-center">
-                {previewUrl && (
-                  <img
-                    src={previewUrl}
-                    alt="Preview"
-                    className="max-w-full max-h-[60vh] object-contain"
-                    onLoad={() =>
-                      console.log("Preview image loaded successfully")
-                    }
-                    onError={(e) =>
-                      console.error("Preview image failed to load", e)
-                    }
-                  />
-                )}
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="max-w-full max-h-[60vh] object-contain"
+                />
               </div>
+              {/* Show file size info */}
+              {pendingFile && (
+                <div className="text-center text-xs text-gray-500 py-1 bg-gray-50">
+                  Tamaño: {(pendingFile.size / 1024 / 1024).toFixed(2)} MB
+                </div>
+              )}
               <div className="p-4 grid grid-cols-2 gap-4">
                 <button
                   type="button"
@@ -1123,10 +914,7 @@ export default function WorkOrderForm({
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    console.log("Subir button clicked, calling confirmUpload");
-                    confirmUpload();
-                  }}
+                  onClick={confirmUpload}
                   disabled={uploading}
                   className="w-full py-3 bg-green-600 text-white font-bold rounded shadow hover:bg-green-700 flex justify-center items-center"
                 >
@@ -1137,7 +925,7 @@ export default function WorkOrderForm({
           </div>
         )}
 
-        {/* Photo Enlargement Dialog (Original Logic) */}
+        {/* Photo Enlargement Dialog */}
         {selectedPhoto && (
           <div
             className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
@@ -1164,12 +952,9 @@ export default function WorkOrderForm({
           </div>
         )}
 
-        {/* 📸 NEW CAMERA LOGIC: Hidden Canvas Ref */}
-        <canvas ref={canvasRef} style={{ display: "none" }} />
-
         <hr className="my-4 border-t-2" />
 
-        {/* Admin Payments Section (Original Logic) */}
+        {/* Admin Payments Section */}
         <div className="opacity-90">
           <h3 className="font-bold text-lg mb-2 text-green-800">
             Pagos (Solo Admin)
@@ -1273,92 +1058,3 @@ export default function WorkOrderForm({
     </div>
   );
 }
-
-// 📸 NEW HELPER COMPONENT: Extracted to keep the main JSX clean and DRY
-interface CameraButtonsProps {
-  gastoType: string;
-  startCamera: (gastoType: string) => void;
-  handleFileSelect: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    gastoType: string
-  ) => void;
-  uploading: boolean;
-}
-
-const CameraButtons: React.FC<CameraButtonsProps> = ({
-  gastoType,
-  startCamera,
-  handleFileSelect,
-  uploading,
-}) => (
-  <>
-    {/* Button 1: Reliable Camera (Media Devices API) */}
-    <button
-      type="button"
-      onClick={() => startCamera(gastoType)}
-      disabled={uploading}
-      className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white p-3 rounded cursor-pointer transition"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-        />
-      </svg>
-    </button>
-    {/* Button 2: File Picker/Gallery (Original Logic) */}
-    <label className="flex-shrink-0 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white p-3 rounded cursor-pointer transition">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-        />
-      </svg>
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={(e) => {
-          console.log("File input onChange triggered", {
-            gastoType,
-            hasFiles: !!e.target.files,
-            fileCount: e.target.files?.length || 0,
-          });
-          handleFileSelect(e, gastoType);
-        }}
-        onClick={(e) => {
-          console.log("File input clicked", { gastoType });
-          // Ensure we can select files even if disabled state is inconsistent
-          if (uploading) {
-            e.preventDefault();
-            console.warn("File input clicked but uploading is true");
-          }
-        }}
-        className="hidden"
-        disabled={uploading}
-      />
-    </label>
-  </>
-);

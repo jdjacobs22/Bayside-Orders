@@ -30,6 +30,6 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts",
     "types/react.d.ts"
-  ],
+, "components/.Discarded-Files/WorkOrderForm with 2 flow.tsx", "components/.Discarded-Files/WorkOrderForm With 2 Flows.tsx", "components/.Discarded-Files/WorkOrderForm.tsx"  ],
   "exclude": ["node_modules"]
 }

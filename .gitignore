@@ -43,3 +43,6 @@ next-env.d.ts
 
 certificates
 /app/generated/prisma
+
+#Old not used files
+.Discarded-Files
