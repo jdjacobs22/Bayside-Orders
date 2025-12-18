@@ -13,6 +13,7 @@ export async function GET() {
                     email: "admin@bayside.com",
                     password: "password123",
                     name: "Admin User",
+                    role: "admin",
                 }
             });
         } catch(e) { console.log("Admin exists/error", e) }
@@ -24,6 +25,7 @@ export async function GET() {
                     email: "captain@bayside.com",
                     password: "password123",
                     name: "Captain User",
+                    role: "captain",
                 }
             });
         } catch(e) { console.log("Captain exists/error", e) }

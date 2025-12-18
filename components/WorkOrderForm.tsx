@@ -85,10 +85,21 @@ export default function WorkOrderForm({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "number" ? parseFloat(value) || 0 : value,
-    }));
+    setFormData((prev) => {
+      // For number inputs: if empty, set to 0; otherwise parse the value
+      // This prevents leading zeros and ensures clean number display
+      if (type === "number") {
+        const numValue = value === "" ? 0 : parseFloat(value);
+        return {
+          ...prev,
+          [name]: isNaN(numValue) ? 0 : numValue,
+        };
+      }
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
   };
 
   const calculateTotal = () => {
@@ -485,7 +496,7 @@ export default function WorkOrderForm({
             <input
               type="number"
               name="pasajeros"
-              value={formData.pasajeros}
+              value={formData.pasajeros === 0 ? "" : formData.pasajeros}
               onChange={handleChange}
               disabled={!canEdit("pasajeros")}
               className="w-full border p-3 rounded bg-gray-50 disabled:bg-gray-200"
@@ -508,7 +519,7 @@ export default function WorkOrderForm({
                 <input
                   type="number"
                   name="combustibleCost"
-                  value={formData.combustibleCost}
+                  value={formData.combustibleCost === 0 ? "" : formData.combustibleCost}
                   onChange={handleChange}
                   disabled={!canEdit("combustibleCost")}
                   className="flex-1 border p-3 rounded font-mono text-lg"
@@ -578,7 +589,7 @@ export default function WorkOrderForm({
                 <input
                   type="number"
                   name="hieloCost"
-                  value={formData.hieloCost}
+                  value={formData.hieloCost === 0 ? "" : formData.hieloCost}
                   onChange={handleChange}
                   disabled={!canEdit("hieloCost")}
                   className="flex-1 border p-3 rounded font-mono text-lg"
@@ -646,7 +657,7 @@ export default function WorkOrderForm({
                 <input
                   type="number"
                   name="aguaBebidasCost"
-                  value={formData.aguaBebidasCost}
+                  value={formData.aguaBebidasCost === 0 ? "" : formData.aguaBebidasCost}
                   onChange={handleChange}
                   disabled={!canEdit("aguaBebidasCost")}
                   className="flex-1 border p-3 rounded font-mono text-lg"
@@ -716,7 +727,7 @@ export default function WorkOrderForm({
                 <input
                   type="number"
                   name="gastoVariosCost"
-                  value={formData.gastoVariosCost}
+                  value={formData.gastoVariosCost === 0 ? "" : formData.gastoVariosCost}
                   onChange={handleChange}
                   disabled={!canEdit("gastoVariosCost")}
                   className="flex-1 border p-3 rounded font-mono text-lg"
@@ -981,7 +992,7 @@ export default function WorkOrderForm({
               <input
                 type="number"
                 name="precioAcordado"
-                value={formData.precioAcordado}
+                value={formData.precioAcordado === 0 ? "" : formData.precioAcordado}
                 onChange={handleChange}
                 disabled={!canEdit("precioAcordado")}
                 className="w-full border p-2 rounded bg-gray-50 disabled:bg-gray-200"
@@ -994,7 +1005,7 @@ export default function WorkOrderForm({
               <input
                 type="number"
                 name="horasAcordadas"
-                value={formData.horasAcordadas}
+                value={formData.horasAcordadas === 0 ? "" : formData.horasAcordadas}
                 onChange={handleChange}
                 disabled={!canEdit("horasAcordadas")}
                 className="w-full border p-2 rounded bg-gray-50 disabled:bg-gray-200"
@@ -1010,7 +1021,7 @@ export default function WorkOrderForm({
               <input
                 type="number"
                 name="pagoCapitana"
-                value={formData.pagoCapitana}
+                value={formData.pagoCapitana === 0 ? "" : formData.pagoCapitana}
                 onChange={handleChange}
                 disabled={!canEdit("pagoCapitana")}
                 className="w-full border p-2 rounded bg-gray-50 disabled:bg-gray-200"
@@ -1023,7 +1034,7 @@ export default function WorkOrderForm({
               <input
                 type="number"
                 name="pagoMarinero"
-                value={formData.pagoMarinero}
+                value={formData.pagoMarinero === 0 ? "" : formData.pagoMarinero}
                 onChange={handleChange}
                 disabled={!canEdit("pagoMarinero")}
                 className="w-full border p-2 rounded bg-gray-50 disabled:bg-gray-200"
@@ -1043,7 +1054,7 @@ export default function WorkOrderForm({
             <input
               type="number"
               name="deposito"
-              value={formData.deposito}
+              value={formData.deposito === 0 ? "" : formData.deposito}
               onChange={handleChange}
               disabled={!canEdit("deposito")}
               className="w-full border p-2 rounded bg-white disabled:bg-gray-200"
