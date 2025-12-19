@@ -184,14 +184,14 @@ export default function WorkOrderForm({
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
       const img = new Image();
-      
+
       // Create blob URL and store it for cleanup
       const blobUrl = URL.createObjectURL(file);
 
       img.onload = () => {
         // Revoke blob URL immediately after image loads to free memory
         URL.revokeObjectURL(blobUrl);
-        
+
         // Calculate new dimensions - max 1920px on longest side
         const maxDimension = 1920;
         let { width, height } = img;
@@ -256,20 +256,40 @@ export default function WorkOrderForm({
       // Reset input value immediately to allow re-selecting the same file
       e.target.value = "";
 
-      // Show compressing state for large images
-      if (
+      // For large images that need compression, set compressing state FIRST
+      // to prevent flash of form between clearing preview and showing compressing modal
+      const needsCompression =
         originalFile.type.startsWith("image/") &&
-        originalFile.size > 1024 * 1024
-      ) {
-        setCompressing(true);
+        originalFile.size > 1024 * 1024;
+
+      if (needsCompression) {
+        // Store old preview URL for cleanup after compression
+        const oldPreviewUrl = previewUrl;
+
+        // Set compressing state FIRST - this will hide preview modal (due to !compressing condition)
+        // and show compressing modal, preventing any flash of the form
+        // Since preview modal condition is: previewUrl && currentGastoType && !compressing
+        // when compressing=true, preview modal won't render regardless of previewUrl value
         setCurrentGastoType(gastoType);
+        setCompressing(true);
+        setPendingFile(null);
+        // Don't clear previewUrl immediately - let it stay until we have the new one
+        // This prevents any visual flash during state transition
 
         try {
           const compressedFile = await compressImage(originalFile);
+          // Now that we have the new preview, clear the old one and set the new one
+          if (oldPreviewUrl) {
+            URL.revokeObjectURL(oldPreviewUrl);
+          }
           setPendingFile(compressedFile);
           setPreviewUrl(URL.createObjectURL(compressedFile));
         } catch (err) {
           console.error("Compression error:", err);
+          // On error, clear old preview and set new one
+          if (oldPreviewUrl) {
+            URL.revokeObjectURL(oldPreviewUrl);
+          }
           setPendingFile(originalFile);
           setPreviewUrl(URL.createObjectURL(originalFile));
         } finally {
@@ -277,9 +297,16 @@ export default function WorkOrderForm({
         }
       } else {
         // Small file or non-image, no compression needed
+        // Clear previous preview first
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+          setPreviewUrl(null);
+        }
+        setPendingFile(null);
+        // Then set new preview
+        setCurrentGastoType(gastoType);
         setPendingFile(originalFile);
         setPreviewUrl(URL.createObjectURL(originalFile));
-        setCurrentGastoType(gastoType);
       }
     }
   };
@@ -519,7 +546,11 @@ export default function WorkOrderForm({
                 <input
                   type="number"
                   name="combustibleCost"
-                  value={formData.combustibleCost === 0 ? "" : formData.combustibleCost}
+                  value={
+                    formData.combustibleCost === 0
+                      ? ""
+                      : formData.combustibleCost
+                  }
                   onChange={handleChange}
                   disabled={!canEdit("combustibleCost")}
                   className="flex-1 border p-3 rounded font-mono text-lg"
@@ -657,7 +688,11 @@ export default function WorkOrderForm({
                 <input
                   type="number"
                   name="aguaBebidasCost"
-                  value={formData.aguaBebidasCost === 0 ? "" : formData.aguaBebidasCost}
+                  value={
+                    formData.aguaBebidasCost === 0
+                      ? ""
+                      : formData.aguaBebidasCost
+                  }
                   onChange={handleChange}
                   disabled={!canEdit("aguaBebidasCost")}
                   className="flex-1 border p-3 rounded font-mono text-lg"
@@ -727,7 +762,11 @@ export default function WorkOrderForm({
                 <input
                   type="number"
                   name="gastoVariosCost"
-                  value={formData.gastoVariosCost === 0 ? "" : formData.gastoVariosCost}
+                  value={
+                    formData.gastoVariosCost === 0
+                      ? ""
+                      : formData.gastoVariosCost
+                  }
                   onChange={handleChange}
                   disabled={!canEdit("gastoVariosCost")}
                   className="flex-1 border p-3 rounded font-mono text-lg"
@@ -992,7 +1031,9 @@ export default function WorkOrderForm({
               <input
                 type="number"
                 name="precioAcordado"
-                value={formData.precioAcordado === 0 ? "" : formData.precioAcordado}
+                value={
+                  formData.precioAcordado === 0 ? "" : formData.precioAcordado
+                }
                 onChange={handleChange}
                 disabled={!canEdit("precioAcordado")}
                 className="w-full border p-2 rounded bg-gray-50 disabled:bg-gray-200"
@@ -1005,7 +1046,9 @@ export default function WorkOrderForm({
               <input
                 type="number"
                 name="horasAcordadas"
-                value={formData.horasAcordadas === 0 ? "" : formData.horasAcordadas}
+                value={
+                  formData.horasAcordadas === 0 ? "" : formData.horasAcordadas
+                }
                 onChange={handleChange}
                 disabled={!canEdit("horasAcordadas")}
                 className="w-full border p-2 rounded bg-gray-50 disabled:bg-gray-200"

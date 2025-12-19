@@ -1,14 +1,6 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+"use server";
 
-// Initialize R2 client (S3-compatible)
-const r2Client = new S3Client({
-  region: "auto",
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
-  },
-});
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 interface UploadPhotoParams {
   file: File;
@@ -27,15 +19,34 @@ interface UploadPhotoResult {
 
 /**
  * Upload a photo to Cloudflare R2
- * @param params - Upload parameters including file, workOrderId, and optional gastoType
+ * @param formData - FormData containing "file", "orderId", and optional "gastoType"
  * @returns Upload result with URL and metadata
  */
-export async function uploadPhotoToR2({
-  file,
-  workOrderId,
-  gastoType,
-}: UploadPhotoParams): Promise<UploadPhotoResult> {
+// Move client initialization inside the function or a getter to ensure
+// env vars are loaded when the function runs
+function getR2Client() {
+  return new S3Client({
+    region: "auto",
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
+    },
+  });
+}
+
+export async function uploadPhotoToR2(
+  formData: FormData
+): Promise<UploadPhotoResult> {
   try {
+    // 1. Extract values from FormData
+    const file = formData.get("file") as File;
+    const orderId = formData.get("orderId") as string;
+    const gastoType = (formData.get("gastoType") as string) || "general";
+
+    if (!file) throw new Error("No file provided");
+    if (!orderId) throw new Error("No order ID provided");
+
     // Validate environment variables
     if (
       !process.env.R2_ACCOUNT_ID ||
@@ -97,21 +108,23 @@ export async function uploadPhotoToR2({
       }
     }
 
-    const fileName = `work-orders/${workOrderId}/${gastoType || "general"}-${timestamp}-${randomId}.${fileExtension}`;
+    const fileName = `work-orders/${orderId}/${gastoType || "general"}-${timestamp}-${randomId}.${fileExtension}`;
 
     // Convert File to Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
     // Upload to R2
-    const command = new PutObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME,
-      Key: fileName,
-      Body: buffer,
-      ContentType: fileType,
-    });
-
-    await r2Client.send(command);
+    const r2Client = getR2Client();
+    await r2Client.send(
+      new PutObjectCommand({
+        // const command = new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: fileName,
+        Body: buffer,
+        ContentType: fileType,
+      })
+    );
 
     // Construct public URL - clean up R2_PUBLIC_URL (remove leading colons, trailing slashes)
     let baseUrl = process.env.R2_PUBLIC_URL.trim();
@@ -140,10 +153,9 @@ export async function uploadPhotoToR2({
     };
   } catch (error: any) {
     console.error("R2 upload error:", error);
-    const errorMessage = error.message || "Failed to upload file to R2";
     return {
       success: false,
-      error: errorMessage,
+      error: error.message || "Failed to upload file to R2",
     };
   }
 }

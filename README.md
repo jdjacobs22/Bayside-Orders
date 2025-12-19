@@ -1,3 +1,7 @@
+https://pub-e11ea1a241ff4f7cb63646ea9df528e4.r2.dev
+
+bayside-orders-kqk2h88wn-jim-jacobshomecs-projects.vercel.app
+
 https://baysidepv.com/contact-us/
 Simply Static WordPress plugin
 

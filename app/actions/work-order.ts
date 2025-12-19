@@ -220,12 +220,8 @@ export async function uploadReceipt(formData: FormData) {
       gastoType,
     });
 
-    // Upload to R2
-    const uploadResult = await uploadPhotoToR2({
-      file,
-      workOrderId: orderId,
-      gastoType: gastoType || undefined,
-    });
+    // Upload to R2 - pass the FormData instance directly
+    const uploadResult = await uploadPhotoToR2(formData);
 
     if (!uploadResult.success || !uploadResult.url) {
       console.error("Upload receipt: R2 upload failed", {
