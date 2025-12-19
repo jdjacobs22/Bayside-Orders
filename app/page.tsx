@@ -16,6 +16,17 @@ import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 
 function LandingPageContent() {
+  // Check for signout before initial render to prevent flash of credentials
+  // Use a key that changes on signout to force remount of inputs with blank values
+  const [formKey, setFormKey] = useState(() => {
+    // Check sessionStorage synchronously during initialization
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("justSignedOut") === "true"
+        ? Date.now().toString()
+        : "default";
+    }
+    return "default";
+  });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -27,8 +38,16 @@ function LandingPageContent() {
   // Clear form fields on mount, especially after sign-out
   useEffect(() => {
     const isSignOut = searchParams.get("signout") === "true";
+    const justSignedOut =
+      typeof window !== "undefined" &&
+      sessionStorage.getItem("justSignedOut") === "true";
 
-    // Clear state
+    // Clear the sessionStorage flag if it exists (already handled by initial formKey)
+    if (justSignedOut) {
+      sessionStorage.removeItem("justSignedOut");
+    }
+
+    // Clear state immediately
     setEmail("");
     setPassword("");
 
@@ -36,17 +55,21 @@ function LandingPageContent() {
     const clearInputs = () => {
       if (emailInputRef.current) {
         emailInputRef.current.value = "";
+        // Force clear by setting value multiple times
+        emailInputRef.current.setAttribute("value", "");
       }
       if (passwordInputRef.current) {
         passwordInputRef.current.value = "";
+        passwordInputRef.current.setAttribute("value", "");
       }
     };
 
     // Clear immediately and multiple times to override browser autofill
     clearInputs();
-    const timeout1 = setTimeout(clearInputs, 50);
-    const timeout2 = setTimeout(clearInputs, 200);
-    const timeout3 = setTimeout(clearInputs, 500);
+    const timeout1 = setTimeout(clearInputs, 0);
+    const timeout2 = setTimeout(clearInputs, 50);
+    const timeout3 = setTimeout(clearInputs, 200);
+    const timeout4 = setTimeout(clearInputs, 500);
 
     // Remove signout query parameter from URL without reload
     if (isSignOut) {
@@ -57,6 +80,7 @@ function LandingPageContent() {
       clearTimeout(timeout1);
       clearTimeout(timeout2);
       clearTimeout(timeout3);
+      clearTimeout(timeout4);
     };
   }, [searchParams, router]);
 
@@ -136,10 +160,11 @@ function LandingPageContent() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form key={formKey} onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email address</Label>
               <Input
+                key={`email-${formKey}`}
                 ref={emailInputRef}
                 id="email"
                 name="email"
@@ -155,6 +180,7 @@ function LandingPageContent() {
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
+                key={`password-${formKey}`}
                 ref={passwordInputRef}
                 id="password"
                 name="password"
@@ -184,30 +210,32 @@ function LandingPageContent() {
 
 export default function LandingPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 p-4">
-        <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur">
-          <CardHeader className="space-y-1 text-center pb-6">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <LogIn className="h-8 w-8 text-primary" />
-            </div>
-            <CardTitle className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
-              BAYSIDE PV
-            </CardTitle>
-            <CardDescription className="text-base mt-2">
-              Work Order Management System
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="h-11 bg-gray-100 rounded animate-pulse"></div>
-              <div className="h-11 bg-gray-100 rounded animate-pulse"></div>
-              <div className="h-11 bg-gray-100 rounded animate-pulse"></div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 p-4">
+          <Card className="w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur">
+            <CardHeader className="space-y-1 text-center pb-6">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <LogIn className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                BAYSIDE PV
+              </CardTitle>
+              <CardDescription className="text-base mt-2">
+                Work Order Management System
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="h-11 bg-gray-100 rounded animate-pulse"></div>
+                <div className="h-11 bg-gray-100 rounded animate-pulse"></div>
+                <div className="h-11 bg-gray-100 rounded animate-pulse"></div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      }
+    >
       <LandingPageContent />
     </Suspense>
   );

@@ -45,6 +45,9 @@ export default function SignOutButton() {
       try {
         localStorage.clear();
         sessionStorage.clear();
+        // Set flag AFTER clearing to ensure sign-in page starts blank
+        // This prevents flash of old credentials
+        sessionStorage.setItem("justSignedOut", "true");
       } catch (storageError) {
         // Ignore storage errors (might not be available)
         console.log("Storage clear error (non-fatal):", storageError);
@@ -73,6 +76,8 @@ export default function SignOutButton() {
       try {
         localStorage.clear();
         sessionStorage.clear();
+        // Set flag AFTER clearing to ensure sign-in page starts blank
+        sessionStorage.setItem("justSignedOut", "true");
       } catch (storageError) {
         // Ignore
       }
