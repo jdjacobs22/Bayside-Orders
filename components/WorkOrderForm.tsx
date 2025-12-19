@@ -382,7 +382,7 @@ export default function WorkOrderForm({
 
   const handleCancel = () => {
     if (
-      confirm(
+      window.confirm(
         "¿Estás seguro de que deseas cancelar? Los datos no guardados se perderán."
       )
     ) {
@@ -438,7 +438,28 @@ export default function WorkOrderForm({
         </h2>
 
         {/* Basic Info Group */}
-        <div className="space-y-3">
+        <div
+          className={`space-y-3 ${isCaptain ? "p-4 bg-gray-50 rounded-lg border-2 border-gray-300 relative" : ""}`}
+        >
+          {isCaptain && (
+            <div className="absolute -top-3 left-4 bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-3 w-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+              Solo Lectura (Admin)
+            </div>
+          )}
           <div>
             <label className="block text-sm font-bold text-gray-700">
               Orden #
@@ -534,8 +555,35 @@ export default function WorkOrderForm({
         <hr className="my-4 border-t-2" />
 
         {/* Captain Editable Section - Expenses */}
-        <div>
-          <h3 className="font-bold text-lg mb-2 text-blue-800">Gastos</h3>
+        <div
+          className={`${isCaptain ? "p-5 bg-green-50 rounded-lg border-4 border-green-500 shadow-lg relative" : ""}`}
+        >
+          {isCaptain && (
+            <div className="absolute -top-3 left-4 bg-green-600 text-white px-4 py-1 rounded-full text-xs font-bold flex items-center gap-2 shadow-md">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+              ÁREA EDITABLE - Complete los gastos aquí
+            </div>
+          )}
+          <h3
+            className={`font-bold text-lg mb-2 ${
+              isCaptain ? "text-green-800 mt-2" : "text-blue-800"
+            }`}
+          >
+            Gastos
+          </h3>
           <div className="space-y-4">
             {/* Combustible */}
             <div>
@@ -553,7 +601,11 @@ export default function WorkOrderForm({
                   }
                   onChange={handleChange}
                   disabled={!canEdit("combustibleCost")}
-                  className="flex-1 border p-3 rounded font-mono text-lg"
+                  className={`flex-1 border p-3 rounded font-mono text-lg ${
+                    isCaptain
+                      ? "bg-white border-green-400 focus:border-green-600 focus:ring-2 focus:ring-green-500"
+                      : ""
+                  }`}
                 />
                 {isCaptain && orderId && (
                   <label className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white p-3 rounded cursor-pointer transition">
@@ -623,7 +675,11 @@ export default function WorkOrderForm({
                   value={formData.hieloCost === 0 ? "" : formData.hieloCost}
                   onChange={handleChange}
                   disabled={!canEdit("hieloCost")}
-                  className="flex-1 border p-3 rounded font-mono text-lg"
+                  className={`flex-1 border p-3 rounded font-mono text-lg ${
+                    isCaptain
+                      ? "bg-white border-green-400 focus:border-green-600 focus:ring-2 focus:ring-green-500"
+                      : ""
+                  }`}
                 />
                 {isCaptain && orderId && (
                   <label className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white p-3 rounded cursor-pointer transition">
@@ -695,7 +751,11 @@ export default function WorkOrderForm({
                   }
                   onChange={handleChange}
                   disabled={!canEdit("aguaBebidasCost")}
-                  className="flex-1 border p-3 rounded font-mono text-lg"
+                  className={`flex-1 border p-3 rounded font-mono text-lg ${
+                    isCaptain
+                      ? "bg-white border-green-400 focus:border-green-600 focus:ring-2 focus:ring-green-500"
+                      : ""
+                  }`}
                 />
                 {isCaptain && orderId && (
                   <label className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white p-3 rounded cursor-pointer transition">
@@ -769,7 +829,11 @@ export default function WorkOrderForm({
                   }
                   onChange={handleChange}
                   disabled={!canEdit("gastoVariosCost")}
-                  className="flex-1 border p-3 rounded font-mono text-lg"
+                  className={`flex-1 border p-3 rounded font-mono text-lg ${
+                    isCaptain
+                      ? "bg-white border-green-400 focus:border-green-600 focus:ring-2 focus:ring-green-500"
+                      : ""
+                  }`}
                 />
                 {isCaptain && orderId && (
                   <label className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white p-3 rounded cursor-pointer transition">
@@ -829,7 +893,29 @@ export default function WorkOrderForm({
           </div>
         </div>
 
-        <div className="mt-2">
+        {/* Detalles / Notas - Also editable by captain */}
+        <div
+          className={`mt-2 ${isCaptain ? "p-4 bg-green-50 rounded-lg border-2 border-green-500 relative" : ""}`}
+        >
+          {isCaptain && (
+            <div className="absolute -top-3 left-4 bg-green-600 text-white px-4 py-1 rounded-full text-xs font-bold flex items-center gap-2 shadow-md">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+              EDITABLE
+            </div>
+          )}
           <label className="block text-sm font-bold text-gray-700">
             Detalles / Notas
           </label>
@@ -839,7 +925,11 @@ export default function WorkOrderForm({
             onChange={handleChange}
             disabled={!canEdit("detallesNotas")}
             rows={4}
-            className="w-full border p-3 rounded"
+            className={`w-full border p-3 rounded ${
+              isCaptain
+                ? "bg-white border-green-400 focus:border-green-600 focus:ring-2 focus:ring-green-500"
+                : ""
+            }`}
             placeholder="Agregar notas aquí..."
           />
         </div>
@@ -1018,8 +1108,33 @@ export default function WorkOrderForm({
         <hr className="my-4 border-t-2" />
 
         {/* Admin Payments Section */}
-        <div className="opacity-90">
-          <h3 className="font-bold text-lg mb-2 text-green-800">
+        <div
+          className={`${isCaptain ? "opacity-60 p-4 bg-gray-50 rounded-lg border-2 border-gray-300 relative" : "opacity-90"}`}
+        >
+          {isCaptain && (
+            <div className="absolute -top-3 left-4 bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-3 w-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+              Solo Lectura (Admin)
+            </div>
+          )}
+          <h3
+            className={`font-bold text-lg mb-2 ${
+              isCaptain ? "text-gray-600 mt-2" : "text-green-800"
+            }`}
+          >
             Pagos (Solo Admin)
           </h3>
           <div className="grid grid-cols-2 gap-3 mb-3">
