@@ -13,6 +13,8 @@ import {
   DollarSign,
   Anchor,
   Camera,
+  Lock,
+  Edit,
 } from "lucide-react";
 import {
   uploadReceipt,
@@ -116,6 +118,32 @@ export default function WorkOrderForm({
       "horaLlagado",
     ];
     return allowed.includes(fieldName);
+  };
+
+  // Styling helper for captain mode - makes editable fields stand out clearly
+  const getFieldStyles = (fieldName: string) => {
+    if (!isCaptain) {
+      return {
+        inputClassName: "bg-white/80 border border-gray-200",
+        labelClassName: "",
+        icon: null,
+      };
+    }
+    
+    const editable = canEdit(fieldName);
+    return {
+      inputClassName: editable
+        ? "bg-green-50 border-2 border-green-400 focus:border-green-600 focus:ring-green-500"
+        : "bg-gray-100 border-2 border-gray-300 cursor-not-allowed opacity-75",
+      labelClassName: editable
+        ? "text-green-700 font-semibold flex items-center gap-1"
+        : "text-gray-500 flex items-center gap-1",
+      icon: editable ? (
+        <Edit className="h-3 w-3 text-green-600" />
+      ) : (
+        <Lock className="h-3 w-3 text-gray-400" />
+      ),
+    };
   };
 
   const form = useForm<FormValues>({
@@ -675,70 +703,92 @@ export default function WorkOrderForm({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               {/* CLIENTE INFO */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-green-50/50 p-4 rounded-lg border border-green-100 space-y-4">
+                <h3 className="font-bold flex items-center gap-2 text-green-700 mb-4">
+                  <User className="h-4 w-4" /> Información del Cliente
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField
                   control={form.control}
                   name="nombre"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nombre</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          disabled={!canEdit("nombre")}
-                          className={!canEdit("nombre") ? "bg-gray-200" : ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const styles = getFieldStyles("nombre");
+                    return (
+                      <FormItem>
+                        <FormLabel className={styles.labelClassName}>
+                          {styles.icon}
+                          Nombre
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("nombre")}
+                            className={styles.inputClassName}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
                 <FormField
                   control={form.control}
                   name="cell"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cell</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          disabled={!canEdit("cell")}
-                          className={!canEdit("cell") ? "bg-gray-200" : ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const styles = getFieldStyles("cell");
+                    return (
+                      <FormItem>
+                        <FormLabel className={styles.labelClassName}>
+                          {styles.icon}
+                          Cell
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("cell")}
+                            className={styles.inputClassName}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
                 <FormField
                   control={form.control}
                   name="pasajeros"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>No. de Pasajeros</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          {...field}
-                          value={field.value === 0 ? "" : (field.value ?? "")}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            field.onChange(
-                              val === ""
-                                ? 0
-                                : isNaN(e.target.valueAsNumber)
+                  render={({ field }) => {
+                    const styles = getFieldStyles("pasajeros");
+                    return (
+                      <FormItem>
+                        <FormLabel className={styles.labelClassName}>
+                          {styles.icon}
+                          No. de Pasajeros
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              field.onChange(
+                                val === ""
                                   ? 0
-                                  : e.target.valueAsNumber
-                            );
-                          }}
-                          disabled={!canEdit("pasajeros")}
-                          className={!canEdit("pasajeros") ? "bg-gray-200" : ""}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
+                                  : isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber
+                              );
+                            }}
+                            disabled={!canEdit("pasajeros")}
+                            className={styles.inputClassName}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
 
@@ -746,102 +796,123 @@ export default function WorkOrderForm({
                 <FormField
                   control={form.control}
                   name="destino"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Destino</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          disabled={!canEdit("destino")}
-                          className={!canEdit("destino") ? "bg-gray-200" : ""}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const styles = getFieldStyles("destino");
+                    return (
+                      <FormItem>
+                        <FormLabel className={styles.labelClassName}>
+                          {styles.icon}
+                          Destino
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("destino")}
+                            className={styles.inputClassName}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    );
+                  }}
                 />
                 <FormField
                   control={form.control}
                   name="puntoEncuentro"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Punto de Encuentro</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          disabled={!canEdit("puntoEncuentro")}
-                          className={
-                            !canEdit("puntoEncuentro") ? "bg-gray-200" : ""
-                          }
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const styles = getFieldStyles("puntoEncuentro");
+                    return (
+                      <FormItem>
+                        <FormLabel className={styles.labelClassName}>
+                          {styles.icon}
+                          Punto de Encuentro
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("puntoEncuentro")}
+                            className={styles.inputClassName}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b pb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <FormField
                   control={form.control}
                   name="fechaEmbarque"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Fecha de Embarque</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
+                  render={({ field }) => {
+                    const styles = getFieldStyles("fechaEmbarque");
+                    return (
+                      <FormItem className="flex flex-col">
+                        <FormLabel className={styles.labelClassName}>
+                          {styles.icon}
+                          Fecha de Embarque
+                        </FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                disabled={!canEdit("fechaEmbarque")}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground",
+                                  styles.inputClassName
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Seleccione fecha</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
                               disabled={!canEdit("fechaEmbarque")}
-                              className={cn(
-                                "pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground",
-                                !canEdit("fechaEmbarque") && "bg-gray-200"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Seleccione fecha</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={!canEdit("fechaEmbarque")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  )}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </FormItem>
+                    );
+                  }}
                 />
                 <FormField
                   control={form.control}
                   name="horaEmbarque"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Hora de Embarque</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="time"
-                          step="1800"
-                          {...field}
-                          value={field.value ?? ""}
-                          disabled={!canEdit("horaEmbarque")}
-                          className={
-                            !canEdit("horaEmbarque") ? "bg-gray-200" : ""
-                          }
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const styles = getFieldStyles("horaEmbarque");
+                    return (
+                      <FormItem>
+                        <FormLabel className={styles.labelClassName}>
+                          {styles.icon}
+                          Hora de Embarque
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="time"
+                            step="1800"
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("horaEmbarque")}
+                            className={styles.inputClassName}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    );
+                  }}
                 />
+              </div>
               </div>
 
               {/* CAPITANA */}
@@ -853,53 +924,60 @@ export default function WorkOrderForm({
                   <FormField
                     control={form.control}
                     name="horaLlagado"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Hora de Llegado</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="time"
-                            step="1800"
-                            {...field}
-                            value={field.value ?? ""}
-                            disabled={!canEdit("horaLlagado")}
-                            className={
-                              !canEdit("horaLlagado") ? "bg-gray-200" : ""
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const styles = getFieldStyles("horaLlagado");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Hora de Llegado
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="time"
+                              step="1800"
+                              {...field}
+                              value={field.value ?? ""}
+                              disabled={!canEdit("horaLlagado")}
+                              className={styles.inputClassName}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
                     name="combustible"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Combustible</FormLabel>
-                        <FormControl>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="number"
-                              {...field}
-                              value={
-                                field.value === 0 ? "" : (field.value ?? "")
-                              }
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                field.onChange(
-                                  val === ""
-                                    ? 0
-                                    : isNaN(e.target.valueAsNumber)
+                    render={({ field }) => {
+                      const styles = getFieldStyles("combustible");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Combustible
+                          </FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="number"
+                                {...field}
+                                value={
+                                  field.value === 0 ? "" : (field.value ?? "")
+                                }
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  field.onChange(
+                                    val === ""
                                       ? 0
-                                      : e.target.valueAsNumber
-                                );
-                              }}
-                              className={`flex-1 ${
-                                !canEdit("combustible") ? "bg-gray-200" : ""
-                              }`}
-                              disabled={!canEdit("combustible")}
-                            />
+                                      : isNaN(e.target.valueAsNumber)
+                                        ? 0
+                                        : e.target.valueAsNumber
+                                  );
+                                }}
+                                className={`flex-1 ${styles.inputClassName}`}
+                                disabled={!canEdit("combustible")}
+                              />
                             {orderId && isCaptain && (
                               <label className="cursor-pointer">
                                 <Camera className="h-5 w-5 text-blue-600 hover:text-blue-800" />
@@ -940,37 +1018,41 @@ export default function WorkOrderForm({
                           </div>
                         )}
                       </FormItem>
-                    )}
+                    );
+                  }}
                   />
                   <FormField
                     control={form.control}
                     name="hielo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Hielo</FormLabel>
-                        <FormControl>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="number"
-                              {...field}
-                              value={
-                                field.value === 0 ? "" : (field.value ?? "")
-                              }
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                field.onChange(
-                                  val === ""
-                                    ? 0
-                                    : isNaN(e.target.valueAsNumber)
+                    render={({ field }) => {
+                      const styles = getFieldStyles("hielo");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Hielo
+                          </FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="number"
+                                {...field}
+                                value={
+                                  field.value === 0 ? "" : (field.value ?? "")
+                                }
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  field.onChange(
+                                    val === ""
                                       ? 0
-                                      : e.target.valueAsNumber
-                                );
-                              }}
-                              className={`flex-1 ${
-                                !canEdit("hielo") ? "bg-gray-200" : ""
-                              }`}
-                              disabled={!canEdit("hielo")}
-                            />
+                                      : isNaN(e.target.valueAsNumber)
+                                        ? 0
+                                        : e.target.valueAsNumber
+                                  );
+                                }}
+                                className={`flex-1 ${styles.inputClassName}`}
+                                disabled={!canEdit("hielo")}
+                              />
                             {orderId && isCaptain && (
                               <label className="cursor-pointer">
                                 <Camera className="h-5 w-5 text-blue-600 hover:text-blue-800" />
@@ -1007,37 +1089,41 @@ export default function WorkOrderForm({
                           </div>
                         )}
                       </FormItem>
-                    )}
+                    );
+                  }}
                   />
                   <FormField
                     control={form.control}
                     name="aguaBebidas"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Bebidas</FormLabel>
-                        <FormControl>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="number"
-                              {...field}
-                              value={
-                                field.value === 0 ? "" : (field.value ?? "")
-                              }
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                field.onChange(
-                                  val === ""
-                                    ? 0
-                                    : isNaN(e.target.valueAsNumber)
+                    render={({ field }) => {
+                      const styles = getFieldStyles("aguaBebidas");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Bebidas
+                          </FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="number"
+                                {...field}
+                                value={
+                                  field.value === 0 ? "" : (field.value ?? "")
+                                }
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  field.onChange(
+                                    val === ""
                                       ? 0
-                                      : e.target.valueAsNumber
-                                );
-                              }}
-                              className={`flex-1 ${
-                                !canEdit("aguaBebidas") ? "bg-gray-200" : ""
-                              }`}
-                              disabled={!canEdit("aguaBebidas")}
-                            />
+                                      : isNaN(e.target.valueAsNumber)
+                                        ? 0
+                                        : e.target.valueAsNumber
+                                  );
+                                }}
+                                className={`flex-1 ${styles.inputClassName}`}
+                                disabled={!canEdit("aguaBebidas")}
+                              />
                             {orderId && isCaptain && (
                               <label className="cursor-pointer">
                                 <Camera className="h-5 w-5 text-blue-600 hover:text-blue-800" />
@@ -1076,37 +1162,41 @@ export default function WorkOrderForm({
                           </div>
                         )}
                       </FormItem>
-                    )}
+                    );
+                  }}
                   />
                   <FormField
                     control={form.control}
                     name="gastoVarios"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Varios</FormLabel>
-                        <FormControl>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              type="number"
-                              {...field}
-                              value={
-                                field.value === 0 ? "" : (field.value ?? "")
-                              }
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                field.onChange(
-                                  val === ""
-                                    ? 0
-                                    : isNaN(e.target.valueAsNumber)
+                    render={({ field }) => {
+                      const styles = getFieldStyles("gastoVarios");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Varios
+                          </FormLabel>
+                          <FormControl>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="number"
+                                {...field}
+                                value={
+                                  field.value === 0 ? "" : (field.value ?? "")
+                                }
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  field.onChange(
+                                    val === ""
                                       ? 0
-                                      : e.target.valueAsNumber
-                                );
-                              }}
-                              className={`flex-1 ${
-                                !canEdit("gastoVarios") ? "bg-gray-200" : ""
-                              }`}
-                              disabled={!canEdit("gastoVarios")}
-                            />
+                                      : isNaN(e.target.valueAsNumber)
+                                        ? 0
+                                        : e.target.valueAsNumber
+                                  );
+                                }}
+                                className={`flex-1 ${styles.inputClassName}`}
+                                disabled={!canEdit("gastoVarios")}
+                              />
                             {orderId && isCaptain && (
                               <label className="cursor-pointer">
                                 <Camera className="h-5 w-5 text-blue-600 hover:text-blue-800" />
@@ -1145,296 +1235,386 @@ export default function WorkOrderForm({
                           </div>
                         )}
                       </FormItem>
-                    )}
+                    );
+                  }}
                   />
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   <FormField
                     control={form.control}
                     name="pagoRecibo"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                        <FormControl>
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={field.onChange}
-                            className="h-4 w-4 rounded border-gray-300"
-                          />
-                        </FormControl>
-                        <FormLabel className="font-normal">
-                          Pago Recibo
-                        </FormLabel>
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const styles = getFieldStyles("pagoRecibo");
+                      return (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                          <FormControl>
+                            <input
+                              type="checkbox"
+                              checked={field.value}
+                              onChange={field.onChange}
+                              disabled={!canEdit("pagoRecibo")}
+                              className={`h-4 w-4 rounded border-gray-300 ${
+                                !canEdit("pagoRecibo")
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : ""
+                              }`}
+                            />
+                          </FormControl>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Pago Recibo
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
                     name="pagarAlEmbarque"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Pagar al Embarque</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            readOnly
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            className="bg-gray-100 cursor-not-allowed"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const styles = getFieldStyles("pagarAlEmbarque");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Pagar al Embarque
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              readOnly
+                              value={field.value === 0 ? "" : (field.value ?? "")}
+                              className={styles.inputClassName}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
                     name="debidoABayside"
-                    render={({ field }) => (
-                      <FormItem className="md:col-span-2">
-                        <FormLabel className="font-bold text-lg text-green-700">
-                          Debido a Bayside
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            readOnly
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            className="bg-green-50 border-2 border-green-300 font-bold text-lg text-green-800 cursor-not-allowed"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const styles = getFieldStyles("debidoABayside");
+                      return (
+                        <FormItem className="md:col-span-2">
+                          <FormLabel className={`font-bold text-lg ${
+                            isCaptain ? styles.labelClassName : "text-green-700"
+                          }`}>
+                            {styles.icon}
+                            Debido a Bayside
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              readOnly
+                              value={field.value === 0 ? "" : (field.value ?? "")}
+                              className={`${
+                                isCaptain
+                                  ? styles.inputClassName
+                                  : "bg-green-50 border-2 border-green-300"
+                              } font-bold text-lg text-green-800 cursor-not-allowed`}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                 </div>
               </div>
 
               {/* ADMIN */}
-              <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100 space-y-4">
-                <h3 className="font-bold flex items-center gap-2 text-blue-700">
+              <div className="bg-green-50/50 p-4 rounded-lg border border-green-100 space-y-4">
+                <h3 className="font-bold flex items-center gap-2 text-green-700">
                   <DollarSign className="h-4 w-4" /> Administración
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <FormField
                     control={form.control}
                     name="pagoCapitana"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Pago Capitana</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
+                    render={({ field }) => {
+                      const styles = getFieldStyles("pagoCapitana");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Pago Capitana
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value === 0 ? "" : (field.value ?? "")}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === ""
                                     ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                                    : isNaN(e.target.valueAsNumber)
+                                      ? 0
+                                      : e.target.valueAsNumber
+                                );
+                              }}
+                              disabled={isCaptain}
+                              className={styles.inputClassName}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
                     name="pagoMarinero"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Pago Marinero</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
+                    render={({ field }) => {
+                      const styles = getFieldStyles("pagoMarinero");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Pago Marinero
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value === 0 ? "" : (field.value ?? "")}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === ""
                                     ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                                    : isNaN(e.target.valueAsNumber)
+                                      ? 0
+                                      : e.target.valueAsNumber
+                                );
+                              }}
+                              disabled={isCaptain}
+                              className={styles.inputClassName}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
                     name="tarifaHora"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tarifa por Hora</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
+                    render={({ field }) => {
+                      const styles = getFieldStyles("tarifaHora");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Tarifa por Hora
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value === 0 ? "" : (field.value ?? "")}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === ""
                                     ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                                    : isNaN(e.target.valueAsNumber)
+                                      ? 0
+                                      : e.target.valueAsNumber
+                                );
+                              }}
+                              disabled={isCaptain}
+                              className={styles.inputClassName}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
                     name="horasAcordadas"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Duración Acordada</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
+                    render={({ field }) => {
+                      const styles = getFieldStyles("horasAcordadas");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Duración Acordada
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value === 0 ? "" : (field.value ?? "")}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === ""
                                     ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                                    : isNaN(e.target.valueAsNumber)
+                                      ? 0
+                                      : e.target.valueAsNumber
+                                );
+                              }}
+                              disabled={isCaptain}
+                              className={styles.inputClassName}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t border-blue-100">
                   <FormField
                     control={form.control}
                     name="precioAcordado"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Precio Acordado</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
+                    render={({ field }) => {
+                      const styles = getFieldStyles("precioAcordado");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Precio Acordado
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value === 0 ? "" : (field.value ?? "")}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === ""
                                     ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                                    : isNaN(e.target.valueAsNumber)
+                                      ? 0
+                                      : e.target.valueAsNumber
+                                );
+                              }}
+                              disabled={isCaptain}
+                              className={styles.inputClassName}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
                     name="cargoExtra"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cargo Extra</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            readOnly
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            className="bg-gray-100 cursor-not-allowed"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const styles = getFieldStyles("cargoExtra");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Cargo Extra
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              readOnly
+                              value={field.value === 0 ? "" : (field.value ?? "")}
+                              className={styles.inputClassName}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
                     name="deposito"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Deposito</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
+                    render={({ field }) => {
+                      const styles = getFieldStyles("deposito");
+                      return (
+                        <FormItem>
+                          <FormLabel className={styles.labelClassName}>
+                            {styles.icon}
+                            Deposito
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value === 0 ? "" : (field.value ?? "")}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === ""
                                     ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                                    : isNaN(e.target.valueAsNumber)
+                                      ? 0
+                                      : e.target.valueAsNumber
+                                );
+                              }}
+                              disabled={isCaptain}
+                              className={styles.inputClassName}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
                     name="costoTotal"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-blue-800">
-                          Costo Total
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            readOnly
-                            className="bg-blue-100 font-bold"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const styles = getFieldStyles("costoTotal");
+                      return (
+                        <FormItem>
+                          <FormLabel className={`font-bold ${
+                            isCaptain ? styles.labelClassName : "text-blue-800"
+                          }`}>
+                            {styles.icon}
+                            Costo Total
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              readOnly
+                              className={`${
+                                isCaptain
+                                  ? styles.inputClassName
+                                  : "bg-blue-100"
+                              } font-bold`}
+                              {...field}
+                              value={field.value === 0 ? "" : (field.value ?? "")}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
                     name="saldoCliente"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-red-700">
-                          Saldo Cliente
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            readOnly
-                            className="bg-red-50 font-bold text-red-700"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      const styles = getFieldStyles("saldoCliente");
+                      return (
+                        <FormItem>
+                          <FormLabel className={`font-bold ${
+                            isCaptain ? styles.labelClassName : "text-red-700"
+                          }`}>
+                            {styles.icon}
+                            Saldo Cliente
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              readOnly
+                              className={`${
+                                isCaptain
+                                  ? styles.inputClassName
+                                  : "bg-red-50 text-red-700"
+                              } font-bold`}
+                              {...field}
+                              value={field.value === 0 ? "" : (field.value ?? "")}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
                   />
                 </div>
               </div>
@@ -1442,21 +1622,25 @@ export default function WorkOrderForm({
               <FormField
                 control={form.control}
                 name="detallesNotas"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notas</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        value={field.value ?? ""}
-                        disabled={!canEdit("detallesNotas")}
-                        className={
-                          !canEdit("detallesNotas") ? "bg-gray-200" : ""
-                        }
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const styles = getFieldStyles("detallesNotas");
+                  return (
+                    <FormItem>
+                      <FormLabel className={styles.labelClassName}>
+                        {styles.icon}
+                        Notas
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          value={field.value ?? ""}
+                          disabled={!canEdit("detallesNotas")}
+                          className={styles.inputClassName}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  );
+                }}
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
