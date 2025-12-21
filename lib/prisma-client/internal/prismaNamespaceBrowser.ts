@@ -138,8 +138,10 @@ export const WorkOrderScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   nombre: 'nombre',
+  cell: 'cell',
   fecha: 'fecha',
   horaSalida: 'horaSalida',
+  horaLlagado: 'horaLlagado',
   destino: 'destino',
   puntoEncuentro: 'puntoEncuentro',
   pasajeros: 'pasajeros',
@@ -152,9 +154,14 @@ export const WorkOrderScalarFieldEnum = {
   pagoMarinero: 'pagoMarinero',
   precioAcordado: 'precioAcordado',
   horasAcordadas: 'horasAcordadas',
+  tarifaHora: 'tarifaHora',
+  cargoExtra: 'cargoExtra',
   costoTotal: 'costoTotal',
   deposito: 'deposito',
-  saldoCliente: 'saldoCliente'
+  saldoCliente: 'saldoCliente',
+  pagoRecibo: 'pagoRecibo',
+  pagarAlEmbarque: 'pagarAlEmbarque',
+  debidoABayside: 'debidoABayside'
 } as const
 
 export type WorkOrderScalarFieldEnum = (typeof WorkOrderScalarFieldEnum)[keyof typeof WorkOrderScalarFieldEnum]

@@ -32,8 +32,10 @@ export async function createWorkOrder(data: any) {
     const order = await prisma.workOrder.create({
       data: {
         nombre: data.nombre,
-        fecha: new Date(data.fecha),
+        cell: data.cell,
+        fecha: data.fecha ? new Date(data.fecha) : undefined,
         horaSalida: data.horaSalida,
+        horaLlagado: data.horaLlagado,
         destino: data.destino,
         puntoEncuentro: data.puntoEncuentro,
         pasajeros: Math.floor(Number(data.pasajeros)),
@@ -46,6 +48,11 @@ export async function createWorkOrder(data: any) {
         pagoMarinero: Number(data.pagoMarinero) || 0,
         precioAcordado: Number(data.precioAcordado) || 0,
         horasAcordadas: Number(data.horasAcordadas) || 0,
+        tarifaHora: Number(data.tarifaHora) || 0,
+        cargoExtra: Number(data.cargoExtra) || 0,
+        pagoRecibo: Boolean(data.pagoRecibo) || false,
+        pagarAlEmbarque: Number(data.pagarAlEmbarque) || 0,
+        debidoABayside: Number(data.debidoABayside) || 0,
         costoTotal: Number(data.costoTotal),
         deposito: Number(data.deposito),
         saldoCliente: Number(data.saldoCliente),
@@ -102,6 +109,7 @@ export async function updateWorkOrder(id: number, data: any) {
     // This prevents passing UI-only fields like 'combustibleCost' to Prisma which causes errors.
     const updatePayload: any = {
       nombre: data.nombre,
+      cell: data.cell,
       fecha:
         data.fecha && typeof data.fecha === "string" && data.fecha.trim() !== ""
           ? new Date(data.fecha)
@@ -109,6 +117,7 @@ export async function updateWorkOrder(id: number, data: any) {
             ? null
             : undefined,
       horaSalida: data.horaSalida,
+      horaLlagado: data.horaLlagado,
       destino: data.destino,
       puntoEncuentro: data.puntoEncuentro,
       pasajeros: data.pasajeros ? Math.floor(Number(data.pasajeros)) : null,
@@ -121,6 +130,11 @@ export async function updateWorkOrder(id: number, data: any) {
       pagoMarinero: Number(data.pagoMarinero) || 0,
       precioAcordado: Number(data.precioAcordado) || 0,
       horasAcordadas: Number(data.horasAcordadas) || 0,
+      tarifaHora: Number(data.tarifaHora) || 0,
+      cargoExtra: Number(data.cargoExtra) || 0,
+      pagoRecibo: Boolean(data.pagoRecibo) || false,
+      pagarAlEmbarque: Number(data.pagarAlEmbarque) || 0,
+      debidoABayside: Number(data.debidoABayside) || 0,
       costoTotal: Number(data.costoTotal),
       deposito: Number(data.deposito),
       saldoCliente: Number(data.saldoCliente),

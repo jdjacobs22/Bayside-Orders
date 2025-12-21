@@ -74,8 +74,10 @@ model WorkOrder {
 
   // Fields
   nombre          String?
+  cell            String?   @map("cell")
   fecha           DateTime?
   horaSalida      String?   @map("hora_salida")
+  horaLlagado     String?   @map("hora_llegado")
   destino         String?
   puntoEncuentro  String?   @map("punto_encuentro")
   pasajeros       Int?
@@ -100,10 +102,17 @@ model WorkOrder {
   // New Admin fields
   precioAcordado  Float?   @default(0) @map("precio_acordado")
   horasAcordadas  Float?   @default(0) @map("horas_acordadas")
+  tarifaHora      Float?   @default(0) @map("tarifa_hora")
+  cargoExtra      Float?   @default(0) @map("cargo_extra")
   
   costoTotal      Float    @default(0) @map("costo_total")
   deposito        Float    @default(0)
-  saldoCliente    Float    @default(0) @map("saldo_cliente") 
+  saldoCliente    Float    @default(0) @map("saldo_cliente")
+  
+  // Captain report fields
+  pagoRecibo      Boolean? @default(false) @map("pago_recibo")
+  pagarAlEmbarque Float?   @default(0) @map("pagar_al_embarque")
+  debidoABayside  Float?   @default(0) @map("debido_a_bayside") 
 
   receipts        Receipt[]
 

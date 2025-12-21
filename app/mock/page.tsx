@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -12,7 +12,9 @@ import {
   User,
   DollarSign,
   Anchor,
+  Camera,
 } from "lucide-react";
+import { uploadReceipt, createDraftWorkOrder } from "@/app/actions/work-order";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -65,6 +67,15 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 export default function MockPage() {
+  const [orderId, setOrderId] = useState<number | null>(null);
+  const [receipts, setReceipts] = useState<any[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [currentGastoType, setCurrentGastoType] = useState<string | null>(null);
+  const [compressing, setCompressing] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -187,6 +198,183 @@ export default function MockPage() {
     pagoMarinero,
     setValue,
   ]);
+
+  // Initialize orderId on mount (create draft if needed)
+  useEffect(() => {
+    const initializeOrder = async () => {
+      if (!orderId) {
+        const result = await createDraftWorkOrder();
+        if (result.success && result.data) {
+          setOrderId(result.data.id);
+        }
+      }
+    };
+    initializeOrder();
+  }, [orderId]);
+
+  // Compress image function
+  const compressImage = async (file: File): Promise<File> => {
+    if (!file.type.startsWith("image/")) {
+      return file;
+    }
+
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      const blobUrl = URL.createObjectURL(file);
+
+      img.onload = () => {
+        URL.revokeObjectURL(blobUrl);
+        const maxDimension = 1920;
+        let { width, height } = img;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = (height / width) * maxDimension;
+            width = maxDimension;
+          } else {
+            width = (width / height) * maxDimension;
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: file.type,
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              reject(new Error("Compression failed"));
+            }
+          },
+          file.type,
+          0.7
+        );
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(blobUrl);
+        reject(new Error("Image load failed"));
+      };
+
+      img.src = blobUrl;
+    });
+  };
+
+  // Handle file selection
+  const handleFileSelect = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    gastoType: string
+  ) => {
+    if (e.target.files && e.target.files[0]) {
+      const originalFile = e.target.files[0];
+      e.target.value = "";
+
+      const needsCompression =
+        originalFile.type.startsWith("image/") &&
+        originalFile.size > 1024 * 1024;
+
+      if (needsCompression) {
+        const oldPreviewUrl = previewUrl;
+        setCurrentGastoType(gastoType);
+        setCompressing(true);
+        setPendingFile(null);
+
+        try {
+          const compressedFile = await compressImage(originalFile);
+          if (oldPreviewUrl) {
+            URL.revokeObjectURL(oldPreviewUrl);
+          }
+          setPendingFile(compressedFile);
+          setPreviewUrl(URL.createObjectURL(compressedFile));
+        } catch (err) {
+          console.error("Compression error:", err);
+          if (oldPreviewUrl) {
+            URL.revokeObjectURL(oldPreviewUrl);
+          }
+          setPendingFile(originalFile);
+          setPreviewUrl(URL.createObjectURL(originalFile));
+        } finally {
+          setCompressing(false);
+        }
+      } else {
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+          setPreviewUrl(null);
+        }
+        setPendingFile(null);
+        setCurrentGastoType(gastoType);
+        setPendingFile(originalFile);
+        setPreviewUrl(URL.createObjectURL(originalFile));
+      }
+    }
+  };
+
+  // Confirm upload
+  const confirmUpload = async () => {
+    if (!pendingFile || !orderId || !currentGastoType) return;
+
+    setUploading(true);
+
+    const cleanupState = () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setPendingFile(null);
+      setPreviewUrl(null);
+      setCurrentGastoType(null);
+      setUploading(false);
+    };
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", pendingFile);
+      formDataUpload.append("orderId", orderId.toString());
+      formDataUpload.append("gastoType", currentGastoType);
+
+      const res = await uploadReceipt(formDataUpload);
+
+      if (res.success) {
+        setReceipts((prev) => [...prev, res.data]);
+        cleanupState();
+      } else {
+        alert("Error al subir: " + res.error);
+        cleanupState();
+      }
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      alert("Error: " + (error?.message || "Error de conexión"));
+      cleanupState();
+    }
+  };
+
+  // Reject photo
+  const rejectPhoto = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPendingFile(null);
+    setPreviewUrl(null);
+    setCurrentGastoType(null);
+  };
+
+  // Get receipts by gasto type
+  const getReceiptsByGasto = (gastoType: string) => {
+    return receipts.filter((r) => r.gastoType === gastoType);
+  };
+
+  // Handle photo click for enlargement
+  const handlePhotoClick = (url: string) => {
+    setSelectedPhoto(url);
+  };
+
+  const closePhotoDialog = () => {
+    setSelectedPhoto(null);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
@@ -371,22 +559,62 @@ export default function MockPage() {
                       <FormItem>
                         <FormLabel>Combustible</FormLabel>
                         <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="number"
+                              {...field}
+                              value={
+                                field.value === 0 ? "" : (field.value ?? "")
+                              }
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === ""
                                     ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                          />
+                                    : isNaN(e.target.valueAsNumber)
+                                      ? 0
+                                      : e.target.valueAsNumber
+                                );
+                              }}
+                              className="flex-1"
+                            />
+                            {orderId && (
+                              <label className="cursor-pointer">
+                                <Camera className="h-5 w-5 text-blue-600 hover:text-blue-800" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  capture="environment"
+                                  onChange={(e) =>
+                                    handleFileSelect(e, "combustible")
+                                  }
+                                  className="hidden"
+                                  disabled={uploading}
+                                />
+                              </label>
+                            )}
+                          </div>
                         </FormControl>
+                        {getReceiptsByGasto("combustible").length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {getReceiptsByGasto("combustible").map(
+                              (r: any, i: number) => (
+                                <button
+                                  key={i}
+                                  type="button"
+                                  onClick={() => handlePhotoClick(r.url)}
+                                  className="block w-16 h-16 bg-gray-300 rounded overflow-hidden border hover:border-blue-500"
+                                >
+                                  <img
+                                    src={r.url}
+                                    alt="Receipt"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </button>
+                              )
+                            )}
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />
@@ -397,22 +625,60 @@ export default function MockPage() {
                       <FormItem>
                         <FormLabel>Hielo</FormLabel>
                         <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="number"
+                              {...field}
+                              value={
+                                field.value === 0 ? "" : (field.value ?? "")
+                              }
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === ""
                                     ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                          />
+                                    : isNaN(e.target.valueAsNumber)
+                                      ? 0
+                                      : e.target.valueAsNumber
+                                );
+                              }}
+                              className="flex-1"
+                            />
+                            {orderId && (
+                              <label className="cursor-pointer">
+                                <Camera className="h-5 w-5 text-blue-600 hover:text-blue-800" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  capture="environment"
+                                  onChange={(e) => handleFileSelect(e, "hielo")}
+                                  className="hidden"
+                                  disabled={uploading}
+                                />
+                              </label>
+                            )}
+                          </div>
                         </FormControl>
+                        {getReceiptsByGasto("hielo").length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {getReceiptsByGasto("hielo").map(
+                              (r: any, i: number) => (
+                                <button
+                                  key={i}
+                                  type="button"
+                                  onClick={() => handlePhotoClick(r.url)}
+                                  className="block w-16 h-16 bg-gray-300 rounded overflow-hidden border hover:border-blue-500"
+                                >
+                                  <img
+                                    src={r.url}
+                                    alt="Receipt"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </button>
+                              )
+                            )}
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />
@@ -423,22 +689,62 @@ export default function MockPage() {
                       <FormItem>
                         <FormLabel>Bebidas</FormLabel>
                         <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="number"
+                              {...field}
+                              value={
+                                field.value === 0 ? "" : (field.value ?? "")
+                              }
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === ""
                                     ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                          />
+                                    : isNaN(e.target.valueAsNumber)
+                                      ? 0
+                                      : e.target.valueAsNumber
+                                );
+                              }}
+                              className="flex-1"
+                            />
+                            {orderId && (
+                              <label className="cursor-pointer">
+                                <Camera className="h-5 w-5 text-blue-600 hover:text-blue-800" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  capture="environment"
+                                  onChange={(e) =>
+                                    handleFileSelect(e, "aguaBebidas")
+                                  }
+                                  className="hidden"
+                                  disabled={uploading}
+                                />
+                              </label>
+                            )}
+                          </div>
                         </FormControl>
+                        {getReceiptsByGasto("aguaBebidas").length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {getReceiptsByGasto("aguaBebidas").map(
+                              (r: any, i: number) => (
+                                <button
+                                  key={i}
+                                  type="button"
+                                  onClick={() => handlePhotoClick(r.url)}
+                                  className="block w-16 h-16 bg-gray-300 rounded overflow-hidden border hover:border-blue-500"
+                                >
+                                  <img
+                                    src={r.url}
+                                    alt="Receipt"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </button>
+                              )
+                            )}
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />
@@ -449,22 +755,62 @@ export default function MockPage() {
                       <FormItem>
                         <FormLabel>Varios</FormLabel>
                         <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="number"
+                              {...field}
+                              value={
+                                field.value === 0 ? "" : (field.value ?? "")
+                              }
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === ""
                                     ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                          />
+                                    : isNaN(e.target.valueAsNumber)
+                                      ? 0
+                                      : e.target.valueAsNumber
+                                );
+                              }}
+                              className="flex-1"
+                            />
+                            {orderId && (
+                              <label className="cursor-pointer">
+                                <Camera className="h-5 w-5 text-blue-600 hover:text-blue-800" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  capture="environment"
+                                  onChange={(e) =>
+                                    handleFileSelect(e, "gastoVarios")
+                                  }
+                                  className="hidden"
+                                  disabled={uploading}
+                                />
+                              </label>
+                            )}
+                          </div>
                         </FormControl>
+                        {getReceiptsByGasto("gastoVarios").length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {getReceiptsByGasto("gastoVarios").map(
+                              (r: any, i: number) => (
+                                <button
+                                  key={i}
+                                  type="button"
+                                  onClick={() => handlePhotoClick(r.url)}
+                                  className="block w-16 h-16 bg-gray-300 rounded overflow-hidden border hover:border-blue-500"
+                                >
+                                  <img
+                                    src={r.url}
+                                    alt="Receipt"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </button>
+                              )
+                            )}
+                          </div>
+                        )}
                       </FormItem>
                     )}
                   />
@@ -771,6 +1117,93 @@ export default function MockPage() {
               </Button>
             </form>
           </Form>
+
+          {/* Photo Preview Modal */}
+          {previewUrl && currentGastoType && !compressing && (
+            <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+                <div className="p-4 border-b">
+                  <h3 className="text-lg font-bold text-gray-800">
+                    Vista Previa de Comprobante
+                  </h3>
+                </div>
+                <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-50">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="max-w-full max-h-[60vh] object-contain"
+                  />
+                </div>
+                {pendingFile && (
+                  <div className="text-center text-xs text-gray-500 py-1 bg-gray-50">
+                    Tamaño: {(pendingFile.size / 1024 / 1024).toFixed(2)} MB
+                  </div>
+                )}
+                <div className="p-4 grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={rejectPhoto}
+                    className="w-full py-3 bg-red-600 text-white font-bold rounded shadow hover:bg-red-700"
+                  >
+                    Rechazar / Retomar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmUpload}
+                    disabled={uploading}
+                    className="w-full py-3 bg-green-600 text-white font-bold rounded shadow hover:bg-green-700 flex justify-center items-center"
+                  >
+                    {uploading ? "Subiendo..." : "Aprobar (Subir)"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Compressing Modal */}
+          {compressing && (
+            <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full text-center">
+                <div className="mb-4">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 mb-2">
+                  Comprimiendo imagen...
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Por favor espera mientras optimizamos la imagen para una carga
+                  más rápida.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Photo Enlargement Dialog */}
+          {selectedPhoto && (
+            <div
+              className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+              onClick={closePhotoDialog}
+            >
+              <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col">
+                <button
+                  type="button"
+                  onClick={closePhotoDialog}
+                  className="absolute -top-12 right-0 text-white hover:text-gray-300 text-4xl font-bold z-10"
+                  aria-label="Close"
+                >
+                  ×
+                </button>
+                <div className="bg-black rounded-lg overflow-hidden flex items-center justify-center">
+                  <img
+                    src={selectedPhoto}
+                    alt="Enlarged receipt"
+                    className="max-w-full max-h-[85vh] object-contain"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
