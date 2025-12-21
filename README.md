@@ -2,6 +2,14 @@ https://pub-e11ea1a241ff4f7cb63646ea9df528e4.r2.dev
 
 bayside-orders-kqk2h88wn-jim-jacobshomecs-projects.vercel.app
 
+Please modify @WorkOrderForm.tsx as follows :
+a. In the  Gastos section add fields entitled 'Hora de llagado' (digit clock input).  The captain can modify these fields.
+Change the section title from "Pagos (Solo  Admin)" to "Admin"
+b.  In Admin section add fields:  'Deposito' (number), 'Hora de Salir' (number), 'Tarifa por Hora' (number), 'Cargo Extra' (number), 'Debido al Salir' (number).  The captain cannot modify these fields.
+c.  The app should calculate both the 'Costo Total', 'Cargo Extra', 'Debido al Salir' and 'Saldo Cliente a Pagar' fields.  The 'Debido al Salir' field should equal Precio Acordad less Deposito.  The 'Cargo Extra' should equal to ((Hora al Salir - Hora de llegado) * Tarifa por Hora).  The 'Costo Total' field shall equal (Precio Acordado + Cargo Extra.  And the 'Saldo Cliente a Pagar' shall equal  'Costa Total' - ('Deposito' + 'Debido al Salir').
+
+
+
 https://baysidepv.com/contact-us/
 Simply Static WordPress plugin
 
