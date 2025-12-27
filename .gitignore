@@ -45,4 +45,5 @@ certificates
 /app/generated/prisma
 
 #Old not used files
+/components/ui/WorkOrderForm-Orig.tsx
 .Discarded-Files

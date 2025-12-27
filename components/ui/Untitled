@@ -302,130 +302,135 @@ export default function WorkOrderForm({
     }
 
     try {
-      // Check file size first - reject very large files immediately
-      const maxFileSize = 15 * 1024 * 1024; // 15MB (reduced from 20MB)
-      if (file.size > maxFileSize) {
-        throw new Error("File too large");
-      }
-
-      // Very aggressive settings for mobile - smaller size, lower quality
-      const maxDimension = 480; // Reduced from 640 to minimize memory
-      const quality = 0.4; // Reduced from 0.5 for smaller file size
-      let imageBitmap: ImageBitmap | null = null;
+      // Use createImageBitmap with options to reduce memory usage
+      // Specify max dimensions upfront to avoid loading full resolution
+      let imageBitmap: ImageBitmap;
 
       try {
-        // Try createImageBitmap with resize options (most memory-efficient)
+        // Try using createImageBitmap with resize options to reduce memory
+        // This tells the browser to decode at a smaller size if possible
+        const maxDim = 640;
         imageBitmap = await createImageBitmap(file, {
-          resizeWidth: maxDimension,
-          resizeHeight: maxDimension,
-          resizeQuality: "low", // Use 'low' instead of 'medium' for less memory
+          resizeWidth: maxDim,
+          resizeHeight: maxDim,
+          resizeQuality: "medium",
         });
       } catch (err) {
-        // If createImageBitmap with resize fails, try without resize options
-        // This still avoids loading full image into an Image element
-        try {
-          console.log(
-            "createImageBitmap with resize failed, trying without resize"
-          );
-          imageBitmap = await createImageBitmap(file);
-        } catch (err2) {
-          // If both fail, we need to use a different approach
-          // Don't use blob URL + Image as it loads full image into memory
-          console.error(
-            "createImageBitmap completely failed, skipping compression"
-          );
-          // Return original file but log warning
-          console.warn("Could not compress image - may cause memory issues");
-          throw new Error("Image compression not supported on this device");
-        }
+        // Fallback to blob URL method if createImageBitmap fails
+        console.log("createImageBitmap failed, using blob URL method");
+        const blobUrl = URL.createObjectURL(file);
+        const img = new Image();
+
+        return new Promise((resolve) => {
+          img.onload = () => {
+            URL.revokeObjectURL(blobUrl);
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            const maxDimension = 1280;
+            let { width, height } = img;
+
+            if (width > maxDimension || height > maxDimension) {
+              if (width > height) {
+                height = (height / width) * maxDimension;
+                width = maxDimension;
+              } else {
+                width = (width / height) * maxDimension;
+                height = maxDimension;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx?.drawImage(img, 0, 0, width, height);
+            img.src = "";
+
+            canvas.toBlob(
+              (blob) => {
+                canvas.width = 0;
+                canvas.height = 0;
+                if (blob) {
+                  resolve(
+                    new File([blob], file.name, {
+                      type: "image/jpeg",
+                      lastModified: Date.now(),
+                    })
+                  );
+                } else {
+                  resolve(file);
+                }
+              },
+              "image/jpeg",
+              0.5 // Quality: 0.5 = 50%
+            );
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(blobUrl);
+            resolve(file);
+          };
+          img.src = blobUrl;
+        });
       }
 
-      if (!imageBitmap) {
-        throw new Error("Failed to create image bitmap");
-      }
-
-      // Get dimensions and calculate new size
+      // Use very aggressive compression for mobile devices
+      // Max 640px on longest side to minimize memory usage
+      // This is small enough to work on low-memory devices
+      const maxDimension = 640;
       let { width, height } = imageBitmap;
 
-      // Always resize to maxDimension to minimize memory usage
-      if (width > height) {
-        if (width > maxDimension) {
+      // Always resize to reduce memory, even if smaller
+      if (width > maxDimension || height > maxDimension) {
+        if (width > height) {
           height = (height / width) * maxDimension;
           width = maxDimension;
-        }
-      } else {
-        if (height > maxDimension) {
+        } else {
           width = (width / height) * maxDimension;
           height = maxDimension;
         }
+      } else {
+        // Even if smaller, reduce by 25% to save memory
+        width = Math.floor(width * 0.75);
+        height = Math.floor(height * 0.75);
       }
 
-      // If already small, still reduce by 20% for extra memory savings
-      if (width <= maxDimension && height <= maxDimension) {
-        width = Math.floor(width * 0.8);
-        height = Math.floor(height * 0.8);
-      }
-
-      // Create canvas with exact dimensions needed
+      // Create canvas and draw
       const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d", {
-        willReadFrequently: false, // Hint to browser for memory optimization
-        alpha: false, // No alpha channel needed for JPEG
-      });
-
-      if (!ctx) {
-        imageBitmap.close();
-        throw new Error("Could not get canvas context");
-      }
-
-      canvas.width = Math.round(width);
-      canvas.height = Math.round(height);
-
-      // Draw image to canvas
-      ctx.drawImage(imageBitmap, 0, 0, Math.round(width), Math.round(height));
+      const ctx = canvas.getContext("2d");
+      canvas.width = width;
+      canvas.height = height;
+      ctx?.drawImage(imageBitmap, 0, 0, width, height);
 
       // Close imageBitmap immediately to free memory
       imageBitmap.close();
-      imageBitmap = null;
 
-      // Convert to blob with aggressive compression
-      return new Promise((resolve, reject) => {
-        try {
-          canvas.toBlob(
-            (blob) => {
-              // Clean up canvas immediately
-              canvas.width = 0;
-              canvas.height = 0;
+      // Convert to blob
+      return new Promise((resolve) => {
+        canvas.toBlob(
+          (blob) => {
+            // Clean up canvas immediately
+            canvas.width = 0;
+            canvas.height = 0;
 
-              // Force garbage collection hint (doesn't guarantee GC but helps)
-              if (blob) {
-                const compressedFile = new File(
-                  [blob],
-                  file.name.replace(/\.[^/.]+$/, ".jpg"),
-                  {
-                    type: "image/jpeg",
-                    lastModified: Date.now(),
-                  }
-                );
-                console.log(
-                  `Image compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB (${Math.round(width)}x${Math.round(height)})`
-                );
-                resolve(compressedFile);
-              } else {
-                reject(new Error("Failed to compress image"));
-              }
-            },
-            "image/jpeg",
-            quality // More aggressive compression
-          );
-        } catch (err) {
-          reject(err);
-        }
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              });
+              console.log(
+                `Image compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB (${Math.round(width)}x${Math.round(height)})`
+              );
+              resolve(compressedFile);
+            } else {
+              resolve(file);
+            }
+          },
+          "image/jpeg",
+          0.5 // Quality: 0.5 = 50% (very aggressive for mobile)
+        );
       });
     } catch (error) {
       console.error("Compression error:", error);
-      // Don't return original file - throw error so caller can handle it
-      throw error;
+      return file; // Return original on any error
     }
   };
 
@@ -453,8 +458,8 @@ export default function WorkOrderForm({
       const isImage = originalFile.type.startsWith("image/");
 
       if (isImage) {
-        // Check file size - reject files larger than 15MB to prevent memory issues
-        const maxFileSize = 15 * 1024 * 1024; // 15MB
+        // Check file size - reject files larger than 20MB to prevent memory issues
+        const maxFileSize = 20 * 1024 * 1024; // 20MB
         if (originalFile.size > maxFileSize) {
           alert(
             `El archivo es demasiado grande (${(originalFile.size / 1024 / 1024).toFixed(2)}MB). Por favor, use una imagen más pequeña.`
@@ -479,9 +484,8 @@ export default function WorkOrderForm({
           setUploading(true);
 
           try {
-            // Longer delay to allow browser to fully recover from camera app on mobile
-            // Camera apps can be very memory-intensive
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            // Brief delay to allow browser to recover from camera app on mobile
+            await new Promise((resolve) => setTimeout(resolve, 1000));
 
             // Compress the image
             const compressedFile = await compressImage(originalFile);
@@ -502,19 +506,7 @@ export default function WorkOrderForm({
             }
           } catch (err: any) {
             console.error("Mobile upload error:", err);
-            // Check for memory-related errors
-            const errorMessage = err?.message || "Error al procesar la imagen";
-            if (
-              errorMessage.includes("memory") ||
-              errorMessage.includes("Memory") ||
-              errorMessage.includes("quota")
-            ) {
-              alert(
-                "Error: Memoria insuficiente. Por favor, intente con una imagen más pequeña o reinicie la aplicación."
-              );
-            } else {
-              alert("Error: " + errorMessage);
-            }
+            alert("Error: " + (err?.message || "Error al procesar la imagen"));
           } finally {
             setCompressing(false);
             setUploading(false);
@@ -534,7 +526,7 @@ export default function WorkOrderForm({
 
         try {
           // Brief delay to allow browser to recover from camera app
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          await new Promise((resolve) => setTimeout(resolve, 200));
           const compressedFile = await compressImage(originalFile);
 
           const formDataUpload = new FormData();
@@ -552,18 +544,7 @@ export default function WorkOrderForm({
           }
         } catch (err: any) {
           console.error("Upload error:", err);
-          const errorMessage = err?.message || "Error al procesar la imagen";
-          if (
-            errorMessage.includes("memory") ||
-            errorMessage.includes("Memory") ||
-            errorMessage.includes("quota")
-          ) {
-            alert(
-              "Error: Memoria insuficiente. Por favor, intente con una imagen más pequeña."
-            );
-          } else {
-            alert("Error: " + errorMessage);
-          }
+          alert("Error: " + (err?.message || "Error al procesar la imagen"));
         } finally {
           setCompressing(false);
           setUploading(false);
