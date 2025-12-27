@@ -485,7 +485,7 @@ export default function WorkOrderForm({
 
           try {
             // Brief delay to allow browser to recover from camera app on mobile
-            await new Promise((resolve) => setTimeout(resolve, 200));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
 
             // Compress the image
             const compressedFile = await compressImage(originalFile);
