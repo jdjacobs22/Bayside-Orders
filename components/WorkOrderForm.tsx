@@ -311,11 +311,8 @@ export default function WorkOrderForm({
   }, [orderId, mode, form]);
 
   /**
-   * Compresses an image file using browser-image-compression to reduce size and memory usage.
-   * Helps prevent crashes on mobile devices when uploading high-resolution photos.
-   *
-   * @param file - The original image file.
-   * @returns A Promise that resolves to the compressed File object, or the original file if compression fails.
+   * Compresses an image file.
+   * Restored with aggressive settings to minimize memory usage.
    */
   const compressImage = async (file: File): Promise<File> => {
     // Skip compression for non-image files
@@ -324,12 +321,15 @@ export default function WorkOrderForm({
     }
 
     try {
+      // Debug: Alert start of compression
+      // alert(`Iniciando compresión...\nOriginal: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+
       const options = {
-        maxSizeMB: 0.8, // Aim for under 1MB
-        maxWidthOrHeight: 1280, // Good balance of quality and size
-        useWebWorker: true, // Offload to worker to keep UI responsive
+        maxSizeMB: 0.3, // Very aggressive compression (300KB)
+        maxWidthOrHeight: 800, // Reduced resolution
+        useWebWorker: true, // Critical for UI responsiveness
         fileType: "image/jpeg",
-        initialQuality: 0.6,
+        initialQuality: 0.5,
       };
 
       console.log(`Compressing image: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
@@ -340,11 +340,14 @@ export default function WorkOrderForm({
         `Image compressed successfully: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`
       );
 
+      // Debug: Alert success
+      // alert(`Compresión exitosa.\nNuevo tamaño: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
+
       return compressedFile;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Compression error:", error);
-      // Fallback: return original file if compression fails, but warn
-      console.warn("Returning original file due to compression error");
+      // alert(`Error en compresión: ${error.message}`);
+      // Fallback: return original file but warn user
       return file;
     }
   };
@@ -395,29 +398,33 @@ export default function WorkOrderForm({
           /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
           window.innerWidth <= 768;
 
-        // On mobile devices, skip preview entirely to avoid memory issues
-        // Compress and upload directly
+        // On mobile devices, delay processing to prevent OOM kills
         if (isMobile) {
           if (!orderId) {
             alert("Error: No se encontró el ID de la orden.");
             return;
           }
 
+          // IMMEDIATE DEBUG
+          // alert(`1. Archivo detectado: ${originalFile.name} (${(originalFile.size / 1024 / 1024).toFixed(2)} MB). Esperando estabilidad...`);
+
           setCompressing(true);
           setUploading(true);
 
           try {
-            // Longer delay to allow browser to fully recover from camera app on mobile
-            // Camera apps can be very memory-intensive
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            // CRITICAL FIX: 2 second delay to let browser recover memory after Camera app closes
+            // This prevents the "reload" crash
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+
+            // alert("2. Procesando imagen (2s delay finished)...");
 
             // Compress the image
             const compressedFile = await compressImage(originalFile);
 
-            // Upload directly without creating preview URL
+            // alert(`3. Subiendo archivo (${(compressedFile.size / 1024 / 1024).toFixed(2)} MB)...`);
+
+            // Upload directly
             const formDataUpload = new FormData();
-            // Important: Pass original filename to ensure server recognizes it as an image
-            // browser-image-compression might return a Blob or File with different name
             formDataUpload.append("file", compressedFile, originalFile.name);
             formDataUpload.append("orderId", orderId.toString());
             formDataUpload.append("gastoType", gastoType);
@@ -879,7 +886,7 @@ export default function WorkOrderForm({
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  capture="environment"
+                                  capture="environment" // Restored per user request
                                   onChange={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
@@ -949,7 +956,7 @@ export default function WorkOrderForm({
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  capture="environment"
+                                  capture="environment" // Restored per user request
                                   onChange={(e) => handleFileSelect(e, "hielo")}
                                   className="hidden"
                                   disabled={uploading}
@@ -1015,7 +1022,7 @@ export default function WorkOrderForm({
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  capture="environment"
+                                  capture="environment" // Restored per user request
                                   onChange={(e) =>
                                     handleFileSelect(e, "aguaBebidas")
                                   }
@@ -1083,7 +1090,7 @@ export default function WorkOrderForm({
                                 <input
                                   type="file"
                                   accept="image/*"
-                                  capture="environment"
+                                  capture="environment" // Restored per user request
                                   onChange={(e) =>
                                     handleFileSelect(e, "gastoVarios")
                                   }
