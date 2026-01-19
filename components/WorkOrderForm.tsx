@@ -14,6 +14,7 @@ import {
   Anchor,
   Camera,
 } from "lucide-react";
+import imageCompression from "browser-image-compression";
 import {
   uploadReceipt,
   getWorkOrder,
@@ -79,6 +80,14 @@ interface WorkOrderFormProps {
   orderId?: number;
 }
 
+/**
+ * Main form component for creating and editing work orders.
+ * Handles different modes: Admin Create, Admin Edit, and Captain Edit.
+ *
+ * @param props - Component properties
+ * @param props.mode - The operation mode of the form ("admin-create", "admin-edit", "captain-edit"). Defaults to "admin-create".
+ * @param props.orderId - Optional ID of the order to edit. Required for edit modes.
+ */
 export default function WorkOrderForm({
   mode = "admin-create",
   orderId: propOrderId,
@@ -103,8 +112,13 @@ export default function WorkOrderForm({
 
   // Field Access Logic
   const isCaptain = mode === "captain-edit";
-  // Captain can ONLY edit: Details/Notas, Combustible, Hielo, Agua/Bebidas, Gasto Varios, Hora de Llegado
-  // Admin can edit ALL.
+  /**
+   * Determines if a specific field can be edited based on the current user role (mode).
+   * Admins can edit all fields. Captains are restricted to specific fields.
+   *
+   * @param fieldName - The name of the field to check.
+   * @returns True if the field is editable, false otherwise.
+   */
   const canEdit = (fieldName: string) => {
     if (!isCaptain) return true; // Admin creates/edits all
     const allowed = [
@@ -166,7 +180,12 @@ export default function WorkOrderForm({
   const pagoCapitana = watch("pagoCapitana");
   const pagoMarinero = watch("pagoMarinero");
 
-  // Helper function to convert time string (HH:MM) to hours (decimal)
+  /**
+   * Helper function to convert time string (HH:MM) to hours (decimal).
+   *
+   * @param timeStr - The time string to convert (e.g., "10:30").
+   * @returns The time in decimal hours (e.g., 10.5), or 0 if invalid.
+   */
   const timeStringToHours = (timeStr: string | undefined): number => {
     if (!timeStr || !timeStr.includes(":")) return 0;
     const [hours, minutes] = timeStr.split(":").map(Number);
@@ -291,10 +310,13 @@ export default function WorkOrderForm({
     }
   }, [orderId, mode, form]);
 
-  // Compress image function
-  // Always compresses images to reduce memory usage on mobile devices
-  // Target: ~1MB or less for fast mobile uploads
-  // Uses aggressive compression settings and createImageBitmap for better memory efficiency
+  /**
+   * Compresses an image file using browser-image-compression to reduce size and memory usage.
+   * Helps prevent crashes on mobile devices when uploading high-resolution photos.
+   *
+   * @param file - The original image file.
+   * @returns A Promise that resolves to the compressed File object, or the original file if compression fails.
+   */
   const compressImage = async (file: File): Promise<File> => {
     // Skip compression for non-image files
     if (!file.type.startsWith("image/")) {
@@ -302,134 +324,40 @@ export default function WorkOrderForm({
     }
 
     try {
-      // Check file size first - reject very large files immediately
-      const maxFileSize = 15 * 1024 * 1024; // 15MB (reduced from 20MB)
-      if (file.size > maxFileSize) {
-        throw new Error("File too large");
-      }
+      const options = {
+        maxSizeMB: 0.8, // Aim for under 1MB
+        maxWidthOrHeight: 1280, // Good balance of quality and size
+        useWebWorker: true, // Offload to worker to keep UI responsive
+        fileType: "image/jpeg",
+        initialQuality: 0.6,
+      };
 
-      // Very aggressive settings for mobile - smaller size, lower quality
-      const maxDimension = 480; // Reduced from 640 to minimize memory
-      const quality = 0.4; // Reduced from 0.5 for smaller file size
-      let imageBitmap: ImageBitmap | null = null;
+      console.log(`Compressing image: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
 
-      try {
-        // Try createImageBitmap with resize options (most memory-efficient)
-        imageBitmap = await createImageBitmap(file, {
-          resizeWidth: maxDimension,
-          resizeHeight: maxDimension,
-          resizeQuality: "low", // Use 'low' instead of 'medium' for less memory
-        });
-      } catch (err) {
-        // If createImageBitmap with resize fails, try without resize options
-        // This still avoids loading full image into an Image element
-        try {
-          console.log(
-            "createImageBitmap with resize failed, trying without resize"
-          );
-          imageBitmap = await createImageBitmap(file);
-        } catch (err2) {
-          // If both fail, we need to use a different approach
-          // Don't use blob URL + Image as it loads full image into memory
-          console.error(
-            "createImageBitmap completely failed, skipping compression"
-          );
-          // Return original file but log warning
-          console.warn("Could not compress image - may cause memory issues");
-          throw new Error("Image compression not supported on this device");
-        }
-      }
+      const compressedFile = await imageCompression(file, options);
 
-      if (!imageBitmap) {
-        throw new Error("Failed to create image bitmap");
-      }
+      console.log(
+        `Image compressed successfully: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`
+      );
 
-      // Get dimensions and calculate new size
-      let { width, height } = imageBitmap;
-
-      // Always resize to maxDimension to minimize memory usage
-      if (width > height) {
-        if (width > maxDimension) {
-          height = (height / width) * maxDimension;
-          width = maxDimension;
-        }
-      } else {
-        if (height > maxDimension) {
-          width = (width / height) * maxDimension;
-          height = maxDimension;
-        }
-      }
-
-      // If already small, still reduce by 20% for extra memory savings
-      if (width <= maxDimension && height <= maxDimension) {
-        width = Math.floor(width * 0.8);
-        height = Math.floor(height * 0.8);
-      }
-
-      // Create canvas with exact dimensions needed
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d", {
-        willReadFrequently: false, // Hint to browser for memory optimization
-        alpha: false, // No alpha channel needed for JPEG
-      });
-
-      if (!ctx) {
-        imageBitmap.close();
-        throw new Error("Could not get canvas context");
-      }
-
-      canvas.width = Math.round(width);
-      canvas.height = Math.round(height);
-
-      // Draw image to canvas
-      ctx.drawImage(imageBitmap, 0, 0, Math.round(width), Math.round(height));
-
-      // Close imageBitmap immediately to free memory
-      imageBitmap.close();
-      imageBitmap = null;
-
-      // Convert to blob with aggressive compression
-      return new Promise((resolve, reject) => {
-        try {
-          canvas.toBlob(
-            (blob) => {
-              // Clean up canvas immediately
-              canvas.width = 0;
-              canvas.height = 0;
-
-              // Force garbage collection hint (doesn't guarantee GC but helps)
-              if (blob) {
-                const compressedFile = new File(
-                  [blob],
-                  file.name.replace(/\.[^/.]+$/, ".jpg"),
-                  {
-                    type: "image/jpeg",
-                    lastModified: Date.now(),
-                  }
-                );
-                console.log(
-                  `Image compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB (${Math.round(width)}x${Math.round(height)})`
-                );
-                resolve(compressedFile);
-              } else {
-                reject(new Error("Failed to compress image"));
-              }
-            },
-            "image/jpeg",
-            quality // More aggressive compression
-          );
-        } catch (err) {
-          reject(err);
-        }
-      });
+      return compressedFile;
     } catch (error) {
       console.error("Compression error:", error);
-      // Don't return original file - throw error so caller can handle it
-      throw error;
+      // Fallback: return original file if compression fails, but warn
+      console.warn("Returning original file due to compression error");
+      return file;
     }
   };
 
-  // Handle file selection
+  /**
+   * Handles the selection of a file for upload.
+   * Validates the file type and size.
+   * On mobile, it compresses and uploads the image immediately to avoid memory issues.
+   * On desktop, it also follows the immediate upload flow for consistency in this implementation.
+   *
+   * @param e - The change event from the file input.
+   * @param gastoType - The type of expense category the image belongs to.
+   */
   const handleFileSelect = async (
     e: React.ChangeEvent<HTMLInputElement>,
     gastoType: string
@@ -488,7 +416,9 @@ export default function WorkOrderForm({
 
             // Upload directly without creating preview URL
             const formDataUpload = new FormData();
-            formDataUpload.append("file", compressedFile);
+            // Important: Pass original filename to ensure server recognizes it as an image
+            // browser-image-compression might return a Blob or File with different name
+            formDataUpload.append("file", compressedFile, originalFile.name);
             formDataUpload.append("orderId", orderId.toString());
             formDataUpload.append("gastoType", gastoType);
 
@@ -538,7 +468,8 @@ export default function WorkOrderForm({
           const compressedFile = await compressImage(originalFile);
 
           const formDataUpload = new FormData();
-          formDataUpload.append("file", compressedFile);
+          // Important: Pass original filename to ensure server recognizes it as an image
+          formDataUpload.append("file", compressedFile, originalFile.name);
           formDataUpload.append("orderId", orderId.toString());
           formDataUpload.append("gastoType", gastoType);
 
@@ -575,21 +506,40 @@ export default function WorkOrderForm({
     }
   };
 
-  // Get receipts by gasto type
+  /**
+   * Filters the list of receipts to find those matching a specific expense category.
+   *
+   * @param gastoType - The expense category to filter by.
+   * @returns An array of receipt objects matching the category.
+   */
   const getReceiptsByGasto = (gastoType: string) => {
     return receipts.filter((r) => r.gastoType === gastoType);
   };
 
-  // Handle photo click for enlargement
+  /**
+   * Sets the selected photo to be displayed in the enlargement dialog.
+   *
+   * @param url - The URL of the photo to display.
+   */
   const handlePhotoClick = (url: string) => {
     setSelectedPhoto(url);
   };
 
+  /**
+   * Closes the photo enlargement dialog by clearing the selected photo.
+   */
   const closePhotoDialog = () => {
     setSelectedPhoto(null);
   };
 
-  // Form submission handler
+  /**
+   * Handles the form submission.
+   * Maps form values to the structure expected by the backend API.
+   * Calls the appropriate action (create or update) based on the mode.
+   * Handles success and error states, including navigation and UI feedback.
+   *
+   * @param data - The form data values.
+   */
   const onSubmit = async (data: FormValues) => {
     setLoading(true);
 
@@ -663,6 +613,10 @@ export default function WorkOrderForm({
     }
   };
 
+  /**
+   * Closes the success dialog and navigates back to the admin list.
+   * Resets the created order ID.
+   */
   const handleSuccessDialogClose = () => {
     setShowSuccessDialog(false);
     setCreatedOrderId(null);
@@ -915,9 +869,8 @@ export default function WorkOrderForm({
                                       : e.target.valueAsNumber
                                 );
                               }}
-                              className={`flex-1 ${
-                                !canEdit("combustible") ? "bg-gray-200" : ""
-                              }`}
+                              className={`flex-1 ${!canEdit("combustible") ? "bg-gray-200" : ""
+                                }`}
                               disabled={!canEdit("combustible")}
                             />
                             {orderId && isCaptain && (
@@ -986,9 +939,8 @@ export default function WorkOrderForm({
                                       : e.target.valueAsNumber
                                 );
                               }}
-                              className={`flex-1 ${
-                                !canEdit("hielo") ? "bg-gray-200" : ""
-                              }`}
+                              className={`flex-1 ${!canEdit("hielo") ? "bg-gray-200" : ""
+                                }`}
                               disabled={!canEdit("hielo")}
                             />
                             {orderId && isCaptain && (
@@ -1053,9 +1005,8 @@ export default function WorkOrderForm({
                                       : e.target.valueAsNumber
                                 );
                               }}
-                              className={`flex-1 ${
-                                !canEdit("aguaBebidas") ? "bg-gray-200" : ""
-                              }`}
+                              className={`flex-1 ${!canEdit("aguaBebidas") ? "bg-gray-200" : ""
+                                }`}
                               disabled={!canEdit("aguaBebidas")}
                             />
                             {orderId && isCaptain && (
@@ -1122,9 +1073,8 @@ export default function WorkOrderForm({
                                       : e.target.valueAsNumber
                                 );
                               }}
-                              className={`flex-1 ${
-                                !canEdit("gastoVarios") ? "bg-gray-200" : ""
-                              }`}
+                              className={`flex-1 ${!canEdit("gastoVarios") ? "bg-gray-200" : ""
+                                }`}
                               disabled={!canEdit("gastoVarios")}
                             />
                             {orderId && isCaptain && (
@@ -1201,9 +1151,8 @@ export default function WorkOrderForm({
                             type="number"
                             readOnly
                             value={field.value === 0 ? "" : (field.value ?? "")}
-                            className={`bg-gray-100 cursor-not-allowed ${
-                              isCaptain ? "opacity-75" : ""
-                            }`}
+                            className={`bg-gray-100 cursor-not-allowed ${isCaptain ? "opacity-75" : ""
+                              }`}
                           />
                         </FormControl>
                       </FormItem>
@@ -1215,9 +1164,8 @@ export default function WorkOrderForm({
                     render={({ field }) => (
                       <FormItem className="md:col-span-2">
                         <FormLabel
-                          className={`font-bold text-lg ${
-                            isCaptain ? "text-gray-600" : "text-green-700"
-                          }`}
+                          className={`font-bold text-lg ${isCaptain ? "text-gray-600" : "text-green-700"
+                            }`}
                         >
                           Debido a Bayside
                         </FormLabel>
@@ -1226,11 +1174,10 @@ export default function WorkOrderForm({
                             type="number"
                             readOnly
                             value={field.value === 0 ? "" : (field.value ?? "")}
-                            className={`${
-                              isCaptain
-                                ? "bg-gray-100 border-2 border-gray-300 text-gray-700"
-                                : "bg-green-50 border-2 border-green-300 text-green-800"
-                            } font-bold text-lg cursor-not-allowed`}
+                            className={`${isCaptain
+                              ? "bg-gray-100 border-2 border-gray-300 text-gray-700"
+                              : "bg-green-50 border-2 border-green-300 text-green-800"
+                              } font-bold text-lg cursor-not-allowed`}
                           />
                         </FormControl>
                       </FormItem>
@@ -1515,9 +1462,8 @@ export default function WorkOrderForm({
                 )}
                 <Button
                   type="submit"
-                  className={`w-full bg-blue-600 hover:bg-blue-700 py-6 text-lg ${
-                    mode === "admin-create" ? "" : "md:col-span-2"
-                  }`}
+                  className={`w-full bg-blue-600 hover:bg-blue-700 py-6 text-lg ${mode === "admin-create" ? "" : "md:col-span-2"
+                    }`}
                   disabled={loading}
                 >
                   {loading ? "Guardando..." : "Guardar Orden de Trabajo"}
