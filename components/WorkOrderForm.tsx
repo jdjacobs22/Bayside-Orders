@@ -325,20 +325,18 @@ export default function WorkOrderForm({
       // alert(`Iniciando compresión...\nOriginal: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
 
       const options = {
-        maxSizeMB: 0.3, // Very aggressive compression (300KB)
-        maxWidthOrHeight: 800, // Reduced resolution
+        maxSizeMB: 0.2, // Ultra aggressive for A53 (200KB)
+        maxWidthOrHeight: 600, // Reduced for A53 memory limits
         useWebWorker: true, // Critical for UI responsiveness
         fileType: "image/jpeg",
         initialQuality: 0.5,
       };
 
-      console.log(`Compressing image: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      // console.log(`Compressing image...`);
 
       const compressedFile = await imageCompression(file, options);
 
-      console.log(
-        `Image compressed successfully: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`
-      );
+      // console.log(`Image compressed successfully`);
 
       // Debug: Alert success
       // alert(`Compresión exitosa.\nNuevo tamaño: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
@@ -412,9 +410,9 @@ export default function WorkOrderForm({
           setUploading(true);
 
           try {
-            // CRITICAL FIX: 2 second delay to let browser recover memory after Camera app closes
+            // CRITICAL FIX: 2.5 second delay to let browser recover memory after Camera app closes (A53 specific)
             // This prevents the "reload" crash
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            await new Promise((resolve) => setTimeout(resolve, 2500));
 
             // alert("2. Procesando imagen (2s delay finished)...");
 
