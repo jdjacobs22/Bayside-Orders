@@ -9,10 +9,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FilePlus, List, Search, UserPlus } from "lucide-react";
+import { FilePlus, List, Search, UserPlus, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function AdminDashboard() {
+  const handlePrintNota = () => {
+    const pdfUrl = "/Nota_de_Pago_Bayside_PV.pdf";
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = pdfUrl;
+    document.body.appendChild(iframe);
+
+    iframe.onload = () => {
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 60000);
+    };
+  };
+
   const dashboardCards = [
     {
       href: "/admin/create",
@@ -46,6 +61,15 @@ export default function AdminDashboard() {
       gradient: "from-orange-500 to-orange-600",
       iconColor: "text-orange-600",
     },
+    {
+      action: handlePrintNota,
+      title: "Print Nota de Pago Bayside_PV",
+      description: "Send the Nota de Pago document to the printer.",
+      icon: Printer,
+      gradient: "from-gray-500 to-gray-600",
+      iconColor: "text-gray-600",
+      href: "#",
+    },
   ];
 
   return (
@@ -55,31 +79,48 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
           {dashboardCards.map((card) => {
             const Icon = card.icon;
+
+            const CardContentWrapper = (
+              <Card className="h-full transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border-2 hover:border-primary/20 cursor-pointer">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div
+                      className={cn(
+                        "p-3 rounded-lg bg-gradient-to-br",
+                        card.gradient,
+                        "bg-opacity-10"
+                      )}
+                    >
+                      <Icon className={cn("h-6 w-6", card.iconColor)} />
+                    </div>
+                  </div>
+                  <CardTitle className="text-xl mt-4 group-hover:text-primary transition-colors">
+                    {card.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base">
+                    {card.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            );
+
+            if (card.action) {
+              return (
+                <div
+                  key={card.title}
+                  onClick={card.action}
+                  className="group cursor-pointer"
+                >
+                  {CardContentWrapper}
+                </div>
+              );
+            }
+
             return (
               <Link key={card.href} href={card.href} className="group">
-                <Card className="h-full transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border-2 hover:border-primary/20 cursor-pointer">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div
-                        className={cn(
-                          "p-3 rounded-lg bg-gradient-to-br",
-                          card.gradient,
-                          "bg-opacity-10"
-                        )}
-                      >
-                        <Icon className={cn("h-6 w-6", card.iconColor)} />
-                      </div>
-                    </div>
-                    <CardTitle className="text-xl mt-4 group-hover:text-primary transition-colors">
-                      {card.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="text-base">
-                      {card.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
+                {CardContentWrapper}
               </Link>
             );
           })}

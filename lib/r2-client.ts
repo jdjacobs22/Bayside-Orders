@@ -19,19 +19,6 @@ interface UploadPhotoResult {
 
 /**
  * Upload a photo to Cloudflare R2
- *
- * File Path Strategy:
- * The application constructs the file path (key) programmatically to organize photos.
- * Pattern: `work-orders/[OrderId]/[ExpenseType]-[Timestamp]-[RandomId].[Extension]`
- *
- * Breakdown:
- * 1. Root Folder: `work-orders/` - All photos are stored under this main directory.
- * 2. Order Sub-folder: `[OrderId]/` - Photos are grouped by their specific Work Order ID.
- * 3. Filename: `[ExpenseType]-[Timestamp]-[RandomId].[Extension]`
- *    - Expense Type: The category (e.g., combustible, hielo). Defaults to "general".
- *    - Timestamp: Date.now() ensures chronological sorting and uniqueness.
- *    - Random ID: A short random string as a collision safeguard.
- *
  * @param formData - FormData containing "file", "orderId", and optional "gastoType"
  * @returns Upload result with URL and metadata
  */
