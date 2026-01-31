@@ -156,12 +156,19 @@ export const WorkOrderScalarFieldEnum = {
   horasAcordadas: 'horasAcordadas',
   tarifaHora: 'tarifaHora',
   cargoExtra: 'cargoExtra',
-  costoTotal: 'costoTotal',
+  totalClienteCost: 'totalClienteCost',
   deposito: 'deposito',
   saldoCliente: 'saldoCliente',
   pagoRecibo: 'pagoRecibo',
+  efectivo: 'efectivo',
+  transferir: 'transferir',
   pagarAlEmbarque: 'pagarAlEmbarque',
-  debidoABayside: 'debidoABayside'
+  debidoABayside: 'debidoABayside',
+  horasExtras: 'horasExtras',
+  paymentMethod: 'paymentMethod',
+  horasExtrasEfectivo: 'horasExtrasEfectivo',
+  horasExtrasTransferir: 'horasExtrasTransferir',
+  pagoHorasExtra: 'pagoHorasExtra'
 } as const
 
 export type WorkOrderScalarFieldEnum = (typeof WorkOrderScalarFieldEnum)[keyof typeof WorkOrderScalarFieldEnum]

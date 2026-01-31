@@ -60,7 +60,9 @@ const formSchema = z.object({
   aguaBebidas: z.number(),
   gastoVarios: z.number(),
   horasExtras: z.string().optional(), // Added Horas Extras field
-  pagoRecibo: z.boolean(),
+  pagoRecibo: z.number().int().max(99999),
+  efectivo: z.boolean(),
+  transferir: z.boolean(),
   pagarAlEmbarque: z.number(),
   debidoABayside: z.number(),
   pagoCapitana: z.number(),
@@ -69,9 +71,13 @@ const formSchema = z.object({
   horasAcordadas: z.number(),
   tarifaHora: z.number(),
   cargoExtra: z.number(),
-  costoTotal: z.number(),
+  totalClienteCost: z.number(),
   deposito: z.number(),
   saldoCliente: z.number(),
+  paymentMethod: z.enum(["efectivo", "transferir"]).nullable().optional(),
+  horasExtrasEfectivo: z.boolean(),
+  horasExtrasTransferir: z.boolean(),
+  pagoHorasExtra: z.number().int().max(99999),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -90,23 +96,13 @@ interface WorkOrderFormProps {
  * @param props.orderId - Optional ID of the order to edit. Required for edit modes.
  */
 export default function WorkOrderForm({
-  mode = "admin-create",
+  mode,
   orderId: propOrderId,
 }: WorkOrderFormProps) {
   const router = useRouter();
   // Initialize orderId immediately if propOrderId is provided
   const [orderId, setOrderId] = useState<number | null>(propOrderId || null);
 
-  // Payment method state for "Pagar al Embarque"
-  const [paymentMethod, setPaymentMethod] = useState<"efectivo" | "transferir" | null>(null);
-
-  const handlePaymentMethodChange = (method: "efectivo" | "transferir") => {
-    if (paymentMethod === method) {
-      setPaymentMethod(null); // Uncheck if already selected
-    } else {
-      setPaymentMethod(method); // Switch to new method
-    }
-  };
 
   // Effect to sync initial state if needed (optional, skipping for now as requested)
 
@@ -143,8 +139,12 @@ export default function WorkOrderForm({
       "gastoVarios",
       "horaLlagado",
       "pagoRecibo",
-      "horasExtras",
+      "efectivo",
+      "transferir",
       "pagarAlEmbarque",
+      "horasExtrasEfectivo",
+      "horasExtrasTransferir",
+      "pagoHorasExtra",
     ];
     return allowed.includes(fieldName);
   };
@@ -165,7 +165,9 @@ export default function WorkOrderForm({
       hielo: 0,
       aguaBebidas: 0,
       gastoVarios: 0,
-      pagoRecibo: false,
+      pagoRecibo: 0,
+      efectivo: false,
+      transferir: false,
       pagarAlEmbarque: 0,
       debidoABayside: 0,
       pagoCapitana: 0,
@@ -174,9 +176,14 @@ export default function WorkOrderForm({
       horasAcordadas: 0,
       tarifaHora: 0,
       cargoExtra: 0,
-      costoTotal: 0,
+      totalClienteCost: 0,
       deposito: 0,
       saldoCliente: 0,
+      horasExtras: "",
+      paymentMethod: null, // Initialize paymentMethod
+      horasExtrasEfectivo: false,
+      horasExtrasTransferir: false,
+      pagoHorasExtra: 0,
     },
   });
 
@@ -184,7 +191,6 @@ export default function WorkOrderForm({
   const precio = watch("precioAcordado");
   const extra = watch("cargoExtra");
   const deposito = watch("deposito");
-  const pagoRecibo = watch("pagoRecibo");
   const horaEmbarque = watch("horaEmbarque");
   const horaLlagado = watch("horaLlagado");
   const tarifaHora = watch("tarifaHora");
@@ -195,7 +201,15 @@ export default function WorkOrderForm({
   const gastoVarios = watch("gastoVarios");
   const pagoCapitana = watch("pagoCapitana");
   const pagoMarinero = watch("pagoMarinero");
+
   const horasExtrasStr = watch("horasExtras");
+  const pagoReciboVal = watch("pagoRecibo");
+  const pagoHorasExtra = watch("pagoHorasExtra");
+  const paymentMethod = watch("paymentMethod");
+  const horasExtrasEfectivo = watch("horasExtrasEfectivo");
+  const horasExtrasTransferir = watch("horasExtrasTransferir");
+  const efectivo = watch("efectivo");
+  const transferir = watch("transferir");
 
   /**
    * Helper function to convert time string (HH:MM) to hours (decimal).
@@ -209,34 +223,12 @@ export default function WorkOrderForm({
     return hours + (minutes || 0) / 60;
   };
 
-  // Calculate cargoExtra based on time difference
+  // Calculate cargoExtra based on horasExtras only
   useEffect(() => {
-    const horaEmbarqueHours = timeStringToHours(horaEmbarque);
-    const horaLlagadoHours = timeStringToHours(horaLlagado);
-    const horasAcordadasNum = Number(horasAcordadas) || 0;
-
-    if (
-      horaEmbarqueHours > 0 &&
-      horaLlagadoHours > 0 &&
-      horasAcordadasNum > 0
-    ) {
-      // Calculate expected end time: Hora de Embarque + Duración Acordada
-      const expectedEndTime = horaEmbarqueHours + horasAcordadasNum;
-
-      // Calculate extra time: Hora de Llegado - expected end time
-      const extraHours = horaLlagadoHours - expectedEndTime;
-
-      // Only charge extra if they went over the expected time
-      if (extraHours > 0) {
-        const cargoExtra = extraHours * (Number(tarifaHora) || 0);
-        setValue("cargoExtra", cargoExtra);
-      } else {
-        setValue("cargoExtra", 0);
-      }
-    } else {
-      setValue("cargoExtra", 0);
-    }
-  }, [horaEmbarque, horaLlagado, tarifaHora, horasAcordadas, setValue]);
+    const horasExtraNum = timeStringToHours(horasExtrasStr);
+    const cargoExtra = horasExtraNum * (Number(tarifaHora) || 0);
+    setValue("cargoExtra", cargoExtra);
+  }, [horasExtrasStr, tarifaHora, setValue]);
 
   // Calculate Precio Acordado = Tarifa * Duracion
   useEffect(() => {
@@ -244,49 +236,26 @@ export default function WorkOrderForm({
     setValue("precioAcordado", precio);
   }, [tarifaHora, horasAcordadas, setValue]);
 
-  // Calculate Costo Total and Financials
+  // Calculate totalClienteCost and Financials
   useEffect(() => {
-    // Costo Total = Precio Acordado + Cargo Extra + (Horas Extra * Tarifa)
-    const horasExtraNum = timeStringToHours(horasExtrasStr);
-    const costoHorasExtra = horasExtraNum * (Number(tarifaHora) || 0);
+    // totalClienteCost = precioAcordado + cargoExtra + gastoVarios
+    const total = (Number(precio) || 0) + (Number(extra) || 0) + (Number(gastoVarios) || 0);
+    setValue("totalClienteCost", total);
 
-    // Note: 'precio' here comes from watch("precioAcordado"), which is updated by the effect above.
-    // Ideally we'd calculate total from inputs directly to avoid race conditions, but this follows the flow.
-    // However, since we are calculating precioAcordado, let's use the inputs directly if possible or trust the watch.
-    // Trusting watch might have a 1-tick delay. 
-    // Let's rely on the inputs:
-    const calculatedPrecio = (Number(tarifaHora) || 0) * (Number(horasAcordadas) || 0);
-
-    const total = calculatedPrecio + (Number(extra) || 0) + costoHorasExtra;
-    setValue("costoTotal", total);
-
-    // Expenses Total
-    const expenses =
-      (Number(pagoCapitana) || 0) +
-      (Number(pagoMarinero) || 0) +
-      (Number(combustible) || 0) +
-      (Number(hielo) || 0) +
-      (Number(aguaBebidas) || 0) +
-      (Number(gastoVarios) || 0);
-
-    // Saldo Cliente = Costo Total - Expenses Total
-    const saldo = total - expenses;
+    // saldoCliente = totalClienteCost - deposito - pagoRecibo - pagoHorasExtra
+    const saldo = total - (Number(deposito) || 0) - (Number(pagoReciboVal) || 0) - (Number(pagoHorasExtra) || 0);
     setValue("saldoCliente", saldo);
 
     // Debido a Bayside = Saldo Cliente
     setValue("debidoABayside", saldo);
 
   }, [
-    tarifaHora,
-    horasAcordadas,
+    precio,
     extra,
-    horasExtrasStr,
-    pagoCapitana,
-    pagoMarinero,
-    combustible,
-    hielo,
-    aguaBebidas,
     gastoVarios,
+    deposito,
+    pagoReciboVal,
+    pagoHorasExtra,
     setValue
   ]);
 
@@ -312,18 +281,25 @@ export default function WorkOrderForm({
               hielo: data.hielo || 0,
               aguaBebidas: data.aguaBebidas || 0,
               gastoVarios: data.gastoVarios || 0,
-              pagoRecibo: data.pagoRecibo || false,
-              pagarAlEmbarque: data.pagarAlEmbarque || 0,
-              debidoABayside: data.debidoABayside || 0,
               pagoCapitana: data.pagoCapitana || 0,
               pagoMarinero: data.pagoMarinero || 0,
               precioAcordado: data.precioAcordado || 0,
               horasAcordadas: data.horasAcordadas || 0,
               tarifaHora: data.tarifaHora || 0,
               cargoExtra: data.cargoExtra || 0,
-              costoTotal: data.costoTotal || 0,
+              totalClienteCost: data.totalClienteCost || 0,
               deposito: data.deposito || 0,
               saldoCliente: data.saldoCliente || 0,
+              pagoRecibo: data.pagoRecibo || 0,
+              efectivo: data.efectivo || false,
+              transferir: data.transferir || false,
+              pagarAlEmbarque: data.pagarAlEmbarque || 0,
+              debidoABayside: data.debidoABayside || 0,
+              horasExtras: data.horasExtras || "",
+              paymentMethod: (data.paymentMethod as "efectivo" | "transferir") || null,
+              horasExtrasEfectivo: data.horasExtrasEfectivo || false,
+              horasExtrasTransferir: data.horasExtrasTransferir || false,
+              pagoHorasExtra: data.pagoHorasExtra || 0,
             });
             if (data.receipts) setReceipts(data.receipts);
           } else {
@@ -596,6 +572,8 @@ export default function WorkOrderForm({
         aguaBebidasCost: data.aguaBebidas,
         gastoVariosCost: data.gastoVarios,
         pagoRecibo: data.pagoRecibo,
+        efectivo: data.efectivo,
+        transferir: data.transferir,
         pagarAlEmbarque: data.pagarAlEmbarque,
         debidoABayside: data.debidoABayside,
         pagoCapitana: data.pagoCapitana,
@@ -604,9 +582,14 @@ export default function WorkOrderForm({
         horasAcordadas: data.horasAcordadas,
         tarifaHora: data.tarifaHora,
         cargoExtra: data.cargoExtra,
-        costoTotal: data.costoTotal,
+        totalClienteCost: data.totalClienteCost,
         deposito: data.deposito,
         saldoCliente: data.saldoCliente,
+        horasExtras: data.horasExtras,
+        paymentMethod: data.paymentMethod,
+        horasExtrasEfectivo: data.horasExtrasEfectivo,
+        horasExtrasTransferir: data.horasExtrasTransferir,
+        pagoHorasExtra: data.pagoHorasExtra,
       };
 
       let result;
@@ -858,6 +841,114 @@ export default function WorkOrderForm({
                   <Anchor className="h-4 w-4" /> Reporte de Capitana
                 </h3>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+
+                  {/* Pagar al Embarque Section */}
+                  <div className="col-span-2 md:col-span-5 border rounded-md p-4 space-y-4 mb-4">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Pagar al Embarque
+                    </label>
+
+                    <div className="flex flex-col md:flex-row gap-6">
+
+                      {/* Left: Payment Type (Checkboxes) */}
+                      <div className="flex flex-col gap-2">
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Pago Tipo
+                        </span>
+                        <div className="flex flex-col gap-3">
+                          <FormField
+                            control={form.control}
+                            name="efectivo"
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    checked={field.value}
+                                    onChange={(e) => {
+                                      const checked = e.target.checked;
+                                      field.onChange(checked);
+                                      if (checked) {
+                                        setValue("transferir", false);
+                                      }
+                                    }}
+                                    disabled={!canEdit("efectivo")}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-medium cursor-pointer">
+                                  Efectivo
+                                </FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="transferir"
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    checked={field.value}
+                                    onChange={(e) => {
+                                      const checked = e.target.checked;
+                                      field.onChange(checked);
+                                      if (checked) {
+                                        setValue("efectivo", false);
+                                      }
+                                    }}
+                                    disabled={!canEdit("transferir")}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-medium cursor-pointer">
+                                  Transferir
+                                </FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Right: Payment Receipt (Amount Input) */}
+                      <div className="flex-1 w-full relative">
+                        <FormField
+                          control={form.control}
+                          name="pagoRecibo"
+                          render={({ field }) => (
+                            <FormItem className="w-full">
+                              <FormLabel>Pago Recibo</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  placeholder="Monto"
+                                  {...field}
+                                  value={field.value === 0 ? "" : (field.value ?? "")}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    field.onChange(
+                                      val === ""
+                                        ? 0
+                                        : isNaN(e.target.valueAsNumber)
+                                          ? 0
+                                          : Math.floor(e.target.valueAsNumber)
+                                    );
+                                  }}
+                                  disabled={(!efectivo && !transferir) || !canEdit("pagoRecibo")}
+                                  className={`w-full min-w-[150px]
+                                    ${(!efectivo && !transferir) ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
+                                    ${isCaptain ? "opacity-75" : ""}
+                                  `}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </div>
                   <FormField
                     control={form.control}
                     name="horaLlagado"
@@ -1173,38 +1264,71 @@ export default function WorkOrderForm({
                     )}
                   />
 
-                  {/* Standalone Pago Recibo checkbox removed */}{/* Pagar al Embarque Section */}
-                  <div className="col-span-2 md:col-span-2 border rounded-md p-4 space-y-4">
+                  {/* Pago Horas Extras Section */}
+                  <div className="col-span-2 md:col-span-5 border rounded-md p-4 space-y-4 mb-4">
                     <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      Pagar al Embarque
+                      Pago Horas Extras
                     </label>
 
                     <div className="flex flex-col md:flex-row gap-6">
-
                       {/* Left: Payment Type (Checkboxes) */}
                       <div className="flex flex-col gap-2">
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Pago Tipo {/* Label changed as requested */}
-                        </label>
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Pago Tipo
+                        </span>
                         <div className="flex flex-col gap-3">
-                          <label className="flex items-center space-x-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              className="h-4 w-4 rounded border-gray-300"
-                              checked={paymentMethod === "efectivo"}
-                              onChange={() => handlePaymentMethodChange("efectivo")}
-                            />
-                            <span className="text-sm font-medium">Efectivo</span>
-                          </label>
-                          <label className="flex items-center space-x-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              className="h-4 w-4 rounded border-gray-300"
-                              checked={paymentMethod === "transferir"}
-                              onChange={() => handlePaymentMethodChange("transferir")}
-                            />
-                            <span className="text-sm font-medium">Transferir</span>
-                          </label>
+                          <FormField
+                            control={form.control}
+                            name="horasExtrasEfectivo"
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    checked={field.value}
+                                    onChange={(e) => {
+                                      const checked = e.target.checked;
+                                      field.onChange(checked);
+                                      if (checked) {
+                                        setValue("horasExtrasTransferir", false);
+                                      }
+                                    }}
+                                    disabled={!canEdit("horasExtrasEfectivo")}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-medium cursor-pointer">
+                                  Efectivo
+                                </FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="horasExtrasTransferir"
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300"
+                                    checked={field.value}
+                                    onChange={(e) => {
+                                      const checked = e.target.checked;
+                                      field.onChange(checked);
+                                      if (checked) {
+                                        setValue("horasExtrasEfectivo", false);
+                                      }
+                                    }}
+                                    disabled={!canEdit("horasExtrasTransferir")}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-medium cursor-pointer">
+                                  Transferir
+                                </FormLabel>
+                              </FormItem>
+                            )}
+                          />
                         </div>
                       </div>
 
@@ -1212,10 +1336,10 @@ export default function WorkOrderForm({
                       <div className="flex-1 w-full relative">
                         <FormField
                           control={form.control}
-                          name="pagarAlEmbarque"
+                          name="pagoHorasExtra"
                           render={({ field }) => (
                             <FormItem className="w-full">
-                              <FormLabel>Pago Recibo</FormLabel> {/* Label changed to Pago Recibo */}
+                              <FormLabel>Pago Recibo</FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
@@ -1229,12 +1353,12 @@ export default function WorkOrderForm({
                                         ? 0
                                         : isNaN(e.target.valueAsNumber)
                                           ? 0
-                                          : e.target.valueAsNumber
+                                          : Math.floor(e.target.valueAsNumber)
                                     );
                                   }}
-                                  disabled={!paymentMethod}
+                                  disabled={(!horasExtrasEfectivo && !horasExtrasTransferir) || !canEdit("pagoHorasExtra")}
                                   className={`w-full min-w-[150px]
-                                    ${!paymentMethod ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
+                                    ${(!horasExtrasEfectivo && !horasExtrasTransferir) ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
                                     ${isCaptain ? "opacity-75" : ""}
                                   `}
                                 />
@@ -1246,31 +1370,9 @@ export default function WorkOrderForm({
                       </div>
                     </div>
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="debidoABayside"
-                    render={({ field }) => (
-                      <FormItem className="md:col-span-2">
-                        <FormLabel
-                          className={`font-bold text-lg ${isCaptain ? "text-gray-600" : "text-green-700"
-                            }`}
-                        >
-                          Debido a Bayside
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            readOnly
-                            value={field.value === 0 ? "" : (field.value ?? "")}
-                            className={`${isCaptain
-                              ? "bg-gray-100 border-2 border-gray-300 text-gray-700"
-                              : "bg-green-50 border-2 border-green-300 text-green-800"
-                              } font-bold text-lg cursor-not-allowed`}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+
+
+
                 </div>
               </div>
 
@@ -1441,10 +1543,32 @@ export default function WorkOrderForm({
                   />
                   <FormField
                     control={form.control}
+                    name="totalClienteCost"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold underline decoration-blue-400 decoration-2 underline-offset-4">
+                          Costo Total
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            readOnly
+                            {...field}
+                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            className="bg-gray-200 font-bold"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name="deposito"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Deposito</FormLabel>
+                        <FormLabel className="flex items-center gap-1 text-blue-800">
+                          <DollarSign className="h-3 w-3" /> Deposito
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -1460,27 +1584,8 @@ export default function WorkOrderForm({
                                     : e.target.valueAsNumber
                               );
                             }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="costoTotal"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-blue-800">
-                          Costo Total
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            readOnly
-                            className="bg-blue-100 font-bold"
-                            {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            disabled={!canEdit("deposito")}
+                            className={!canEdit("deposito") ? "bg-gray-200" : ""}
                           />
                         </FormControl>
                       </FormItem>

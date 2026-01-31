@@ -105,14 +105,21 @@ model WorkOrder {
   tarifaHora      Float?   @default(0) @map("tarifa_hora")
   cargoExtra      Float?   @default(0) @map("cargo_extra")
   
-  costoTotal      Float    @default(0) @map("costo_total")
+  totalClienteCost Float    @default(0) @map("total_cliente_cost")
   deposito        Float    @default(0)
   saldoCliente    Float    @default(0) @map("saldo_cliente")
   
   // Captain report fields
-  pagoRecibo      Boolean? @default(false) @map("pago_recibo")
+  pagoRecibo      Float?   @default(0) @map("pago_recibo")
+  efectivo        Boolean? @default(false)
+  transferir      Boolean? @default(false)
   pagarAlEmbarque Float?   @default(0) @map("pagar_al_embarque")
   debidoABayside  Float?   @default(0) @map("debido_a_bayside") 
+  horasExtras     String?   @map("horas_extras")
+  paymentMethod   String?   @map("payment_method") 
+  horasExtrasEfectivo   Boolean? @default(false) @map("horas_extras_efectivo")
+  horasExtrasTransferir Boolean? @default(false) @map("horas_extras_transferir")
+  pagoHorasExtra        Float?   @default(0)     @map("pago_horas_extra")
 
   receipts        Receipt[]
 
