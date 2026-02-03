@@ -1,17 +1,14 @@
 import { z } from "zod";
 
-// Decimal validation for up to 5 digits
-export const createDecimal50SchemaPesos = (DecimalClass: any) => z
-  .instanceof(DecimalClass)
-  .or(z.number())
-  .or(z.string().regex(/^-?\d+(\.\d+)?$/)) 
-  .transform((val) => new DecimalClass(val));
+// Helper to handle both incoming Prisma.Decimal objects and UI string/number inputs
+const toNumber = z.preprocess((val) => {
+  if (val === "" || val === null || val === undefined) return 0;
+  if (typeof val === "object" && val && "toString" in val) return val.toString();
+  return val;
+}, z.coerce.number());
 
-export const createDecimal50SchemaHoras = (DecimalClass: any) => z
-  .instanceof(DecimalClass)
-  .or(z.number())
-  .or(z.string().regex(/^-?\d{1,2}(\.\d{1})?$/))
-  .transform((val) => new DecimalClass(val));
+export const createDecimal50SchemaPesos = () => toNumber;
+export const createDecimal50SchemaHoras = () => toNumber;
 
 export const Time24HourSchema = z.string().regex(
   /^([01]\d|2[0-3]):([0-5]\d)$/,
@@ -32,9 +29,9 @@ export const DateDMYSchema = z.string()
     message: "Esa fecha no existe"
   });
 
-export const getBaseSchema = (DecimalClass: any) => {
-  const DecimalPesos = createDecimal50SchemaPesos(DecimalClass);
-  const DecimalHoras = createDecimal50SchemaHoras(DecimalClass);
+export const getBaseSchema = () => {
+  const DecimalPesos = createDecimal50SchemaPesos();
+  const DecimalHoras = createDecimal50SchemaHoras();
 
   return z.object({
     nombre: z.string().optional(),
@@ -72,10 +69,10 @@ export const getBaseSchema = (DecimalClass: any) => {
   });
 };
 
-export const getAdminSchema = (DecimalClass: any) => {
-  const base = getBaseSchema(DecimalClass);
-  const DecimalPesos = createDecimal50SchemaPesos(DecimalClass);
-  const DecimalHoras = createDecimal50SchemaHoras(DecimalClass);
+export const getAdminSchema = () => {
+  const base = getBaseSchema();
+  const DecimalPesos = createDecimal50SchemaPesos();
+  const DecimalHoras = createDecimal50SchemaHoras();
 
   return base.extend({
     nombre: z.string().min(1, "Nombre requerido"),
@@ -90,17 +87,18 @@ export const getAdminSchema = (DecimalClass: any) => {
     deposito: DecimalPesos,
     pagoCapitana: DecimalPesos,
     pagoMarinero: DecimalPesos,
+    horasExtras: DecimalHoras.optional(),
   });
 };
 
-export const getCaptainSchema = (DecimalClass: any) => {
-  const base = getBaseSchema(DecimalClass);
+export const getCaptainSchema = () => {
+  const base = getBaseSchema();
   return base.superRefine((data, ctx) => {
     const saldo = Number(data.saldoCliente) || 0;
     if (saldo > 0) {
       if (!data.efectivo && !data.transferir) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: "Elige un método de pago para el saldo",
           path: ["efectivo"],
         });

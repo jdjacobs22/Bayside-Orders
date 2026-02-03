@@ -29,45 +29,47 @@ export type AggregateWorkOrder = {
 export type WorkOrderAvgAggregateOutputType = {
   id: number | null
   pasajeros: number | null
-  combustible: number | null
-  hielo: number | null
-  aguaBebidas: number | null
-  gastoVarios: number | null
-  pagoCapitana: number | null
-  pagoMarinero: number | null
-  precioAcordado: number | null
-  horasAcordadas: number | null
-  tarifaHora: number | null
-  cargoExtra: number | null
-  totalClienteCost: number | null
-  deposito: number | null
-  saldoCliente: number | null
-  pagoRecibo: number | null
-  pagarAlEmbarque: number | null
-  debidoABayside: number | null
-  pagoHorasExtra: number | null
+  combustible: runtime.Decimal | null
+  hielo: runtime.Decimal | null
+  aguaBebidas: runtime.Decimal | null
+  gastoVarios: runtime.Decimal | null
+  pagoCapitana: runtime.Decimal | null
+  pagoMarinero: runtime.Decimal | null
+  precioAcordado: runtime.Decimal | null
+  horasAcordadas: runtime.Decimal | null
+  tarifaHora: runtime.Decimal | null
+  cargoExtra: runtime.Decimal | null
+  totalClienteCost: runtime.Decimal | null
+  deposito: runtime.Decimal | null
+  saldoCliente: runtime.Decimal | null
+  pagoRecibo: runtime.Decimal | null
+  pagarAlEmbarque: runtime.Decimal | null
+  debidoABayside: runtime.Decimal | null
+  horasExtras: runtime.Decimal | null
+  pagoHorasExtra: runtime.Decimal | null
 }
 
 export type WorkOrderSumAggregateOutputType = {
   id: number | null
   pasajeros: number | null
-  combustible: number | null
-  hielo: number | null
-  aguaBebidas: number | null
-  gastoVarios: number | null
-  pagoCapitana: number | null
-  pagoMarinero: number | null
-  precioAcordado: number | null
-  horasAcordadas: number | null
-  tarifaHora: number | null
-  cargoExtra: number | null
-  totalClienteCost: number | null
-  deposito: number | null
-  saldoCliente: number | null
-  pagoRecibo: number | null
-  pagarAlEmbarque: number | null
-  debidoABayside: number | null
-  pagoHorasExtra: number | null
+  combustible: runtime.Decimal | null
+  hielo: runtime.Decimal | null
+  aguaBebidas: runtime.Decimal | null
+  gastoVarios: runtime.Decimal | null
+  pagoCapitana: runtime.Decimal | null
+  pagoMarinero: runtime.Decimal | null
+  precioAcordado: runtime.Decimal | null
+  horasAcordadas: runtime.Decimal | null
+  tarifaHora: runtime.Decimal | null
+  cargoExtra: runtime.Decimal | null
+  totalClienteCost: runtime.Decimal | null
+  deposito: runtime.Decimal | null
+  saldoCliente: runtime.Decimal | null
+  pagoRecibo: runtime.Decimal | null
+  pagarAlEmbarque: runtime.Decimal | null
+  debidoABayside: runtime.Decimal | null
+  horasExtras: runtime.Decimal | null
+  pagoHorasExtra: runtime.Decimal | null
 }
 
 export type WorkOrderMinAggregateOutputType = {
@@ -77,34 +79,34 @@ export type WorkOrderMinAggregateOutputType = {
   cell: string | null
   fecha: Date | null
   horaSalida: string | null
-  horaLlagado: string | null
+  horaLlegado: string | null
   destino: string | null
   puntoEncuentro: string | null
   pasajeros: number | null
   detallesNotas: string | null
-  combustible: number | null
-  hielo: number | null
-  aguaBebidas: number | null
-  gastoVarios: number | null
-  pagoCapitana: number | null
-  pagoMarinero: number | null
-  precioAcordado: number | null
-  horasAcordadas: number | null
-  tarifaHora: number | null
-  cargoExtra: number | null
-  totalClienteCost: number | null
-  deposito: number | null
-  saldoCliente: number | null
-  pagoRecibo: number | null
+  combustible: runtime.Decimal | null
+  hielo: runtime.Decimal | null
+  aguaBebidas: runtime.Decimal | null
+  gastoVarios: runtime.Decimal | null
+  pagoCapitana: runtime.Decimal | null
+  pagoMarinero: runtime.Decimal | null
+  precioAcordado: runtime.Decimal | null
+  horasAcordadas: runtime.Decimal | null
+  tarifaHora: runtime.Decimal | null
+  cargoExtra: runtime.Decimal | null
+  totalClienteCost: runtime.Decimal | null
+  deposito: runtime.Decimal | null
+  saldoCliente: runtime.Decimal | null
+  pagoRecibo: runtime.Decimal | null
   efectivo: boolean | null
   transferir: boolean | null
-  pagarAlEmbarque: number | null
-  debidoABayside: number | null
-  horasExtras: string | null
+  pagarAlEmbarque: runtime.Decimal | null
+  debidoABayside: runtime.Decimal | null
+  horasExtras: runtime.Decimal | null
   paymentMethod: string | null
   horasExtrasEfectivo: boolean | null
   horasExtrasTransferir: boolean | null
-  pagoHorasExtra: number | null
+  pagoHorasExtra: runtime.Decimal | null
 }
 
 export type WorkOrderMaxAggregateOutputType = {
@@ -114,34 +116,34 @@ export type WorkOrderMaxAggregateOutputType = {
   cell: string | null
   fecha: Date | null
   horaSalida: string | null
-  horaLlagado: string | null
+  horaLlegado: string | null
   destino: string | null
   puntoEncuentro: string | null
   pasajeros: number | null
   detallesNotas: string | null
-  combustible: number | null
-  hielo: number | null
-  aguaBebidas: number | null
-  gastoVarios: number | null
-  pagoCapitana: number | null
-  pagoMarinero: number | null
-  precioAcordado: number | null
-  horasAcordadas: number | null
-  tarifaHora: number | null
-  cargoExtra: number | null
-  totalClienteCost: number | null
-  deposito: number | null
-  saldoCliente: number | null
-  pagoRecibo: number | null
+  combustible: runtime.Decimal | null
+  hielo: runtime.Decimal | null
+  aguaBebidas: runtime.Decimal | null
+  gastoVarios: runtime.Decimal | null
+  pagoCapitana: runtime.Decimal | null
+  pagoMarinero: runtime.Decimal | null
+  precioAcordado: runtime.Decimal | null
+  horasAcordadas: runtime.Decimal | null
+  tarifaHora: runtime.Decimal | null
+  cargoExtra: runtime.Decimal | null
+  totalClienteCost: runtime.Decimal | null
+  deposito: runtime.Decimal | null
+  saldoCliente: runtime.Decimal | null
+  pagoRecibo: runtime.Decimal | null
   efectivo: boolean | null
   transferir: boolean | null
-  pagarAlEmbarque: number | null
-  debidoABayside: number | null
-  horasExtras: string | null
+  pagarAlEmbarque: runtime.Decimal | null
+  debidoABayside: runtime.Decimal | null
+  horasExtras: runtime.Decimal | null
   paymentMethod: string | null
   horasExtrasEfectivo: boolean | null
   horasExtrasTransferir: boolean | null
-  pagoHorasExtra: number | null
+  pagoHorasExtra: runtime.Decimal | null
 }
 
 export type WorkOrderCountAggregateOutputType = {
@@ -151,7 +153,7 @@ export type WorkOrderCountAggregateOutputType = {
   cell: number
   fecha: number
   horaSalida: number
-  horaLlagado: number
+  horaLlegado: number
   destino: number
   puntoEncuentro: number
   pasajeros: number
@@ -202,6 +204,7 @@ export type WorkOrderAvgAggregateInputType = {
   pagoRecibo?: true
   pagarAlEmbarque?: true
   debidoABayside?: true
+  horasExtras?: true
   pagoHorasExtra?: true
 }
 
@@ -224,6 +227,7 @@ export type WorkOrderSumAggregateInputType = {
   pagoRecibo?: true
   pagarAlEmbarque?: true
   debidoABayside?: true
+  horasExtras?: true
   pagoHorasExtra?: true
 }
 
@@ -234,7 +238,7 @@ export type WorkOrderMinAggregateInputType = {
   cell?: true
   fecha?: true
   horaSalida?: true
-  horaLlagado?: true
+  horaLlegado?: true
   destino?: true
   puntoEncuentro?: true
   pasajeros?: true
@@ -271,7 +275,7 @@ export type WorkOrderMaxAggregateInputType = {
   cell?: true
   fecha?: true
   horaSalida?: true
-  horaLlagado?: true
+  horaLlegado?: true
   destino?: true
   puntoEncuentro?: true
   pasajeros?: true
@@ -308,7 +312,7 @@ export type WorkOrderCountAggregateInputType = {
   cell?: true
   fecha?: true
   horaSalida?: true
-  horaLlagado?: true
+  horaLlegado?: true
   destino?: true
   puntoEncuentro?: true
   pasajeros?: true
@@ -432,34 +436,34 @@ export type WorkOrderGroupByOutputType = {
   cell: string | null
   fecha: Date | null
   horaSalida: string | null
-  horaLlagado: string | null
+  horaLlegado: string | null
   destino: string | null
   puntoEncuentro: string | null
   pasajeros: number | null
   detallesNotas: string | null
-  combustible: number | null
-  hielo: number | null
-  aguaBebidas: number | null
-  gastoVarios: number | null
-  pagoCapitana: number | null
-  pagoMarinero: number | null
-  precioAcordado: number | null
-  horasAcordadas: number | null
-  tarifaHora: number | null
-  cargoExtra: number | null
-  totalClienteCost: number
-  deposito: number
-  saldoCliente: number
-  pagoRecibo: number | null
+  combustible: runtime.Decimal | null
+  hielo: runtime.Decimal | null
+  aguaBebidas: runtime.Decimal | null
+  gastoVarios: runtime.Decimal | null
+  pagoCapitana: runtime.Decimal | null
+  pagoMarinero: runtime.Decimal | null
+  precioAcordado: runtime.Decimal | null
+  horasAcordadas: runtime.Decimal | null
+  tarifaHora: runtime.Decimal | null
+  cargoExtra: runtime.Decimal | null
+  totalClienteCost: runtime.Decimal
+  deposito: runtime.Decimal
+  saldoCliente: runtime.Decimal
+  pagoRecibo: runtime.Decimal | null
   efectivo: boolean | null
   transferir: boolean | null
-  pagarAlEmbarque: number | null
-  debidoABayside: number | null
-  horasExtras: string | null
+  pagarAlEmbarque: runtime.Decimal | null
+  debidoABayside: runtime.Decimal | null
+  horasExtras: runtime.Decimal | null
   paymentMethod: string | null
   horasExtrasEfectivo: boolean | null
   horasExtrasTransferir: boolean | null
-  pagoHorasExtra: number | null
+  pagoHorasExtra: runtime.Decimal | null
   _count: WorkOrderCountAggregateOutputType | null
   _avg: WorkOrderAvgAggregateOutputType | null
   _sum: WorkOrderSumAggregateOutputType | null
@@ -492,34 +496,34 @@ export type WorkOrderWhereInput = {
   cell?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   fecha?: Prisma.DateTimeNullableFilter<"WorkOrder"> | Date | string | null
   horaSalida?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
-  horaLlagado?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  horaLlegado?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   destino?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   puntoEncuentro?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   pasajeros?: Prisma.IntNullableFilter<"WorkOrder"> | number | null
   detallesNotas?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
-  combustible?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  hielo?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  aguaBebidas?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  gastoVarios?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  pagoCapitana?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  pagoMarinero?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  precioAcordado?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  horasAcordadas?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  tarifaHora?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  cargoExtra?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  totalClienteCost?: Prisma.FloatFilter<"WorkOrder"> | number
-  deposito?: Prisma.FloatFilter<"WorkOrder"> | number
-  saldoCliente?: Prisma.FloatFilter<"WorkOrder"> | number
-  pagoRecibo?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
+  combustible?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
   transferir?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
-  pagarAlEmbarque?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  debidoABayside?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  horasExtras?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  pagarAlEmbarque?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   horasExtrasEfectivo?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
   horasExtrasTransferir?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
-  pagoHorasExtra?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
+  pagoHorasExtra?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   receipts?: Prisma.ReceiptListRelationFilter
 }
 
@@ -530,7 +534,7 @@ export type WorkOrderOrderByWithRelationInput = {
   cell?: Prisma.SortOrderInput | Prisma.SortOrder
   fecha?: Prisma.SortOrderInput | Prisma.SortOrder
   horaSalida?: Prisma.SortOrderInput | Prisma.SortOrder
-  horaLlagado?: Prisma.SortOrderInput | Prisma.SortOrder
+  horaLlegado?: Prisma.SortOrderInput | Prisma.SortOrder
   destino?: Prisma.SortOrderInput | Prisma.SortOrder
   puntoEncuentro?: Prisma.SortOrderInput | Prisma.SortOrder
   pasajeros?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -571,34 +575,34 @@ export type WorkOrderWhereUniqueInput = Prisma.AtLeast<{
   cell?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   fecha?: Prisma.DateTimeNullableFilter<"WorkOrder"> | Date | string | null
   horaSalida?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
-  horaLlagado?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  horaLlegado?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   destino?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   puntoEncuentro?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   pasajeros?: Prisma.IntNullableFilter<"WorkOrder"> | number | null
   detallesNotas?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
-  combustible?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  hielo?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  aguaBebidas?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  gastoVarios?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  pagoCapitana?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  pagoMarinero?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  precioAcordado?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  horasAcordadas?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  tarifaHora?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  cargoExtra?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  totalClienteCost?: Prisma.FloatFilter<"WorkOrder"> | number
-  deposito?: Prisma.FloatFilter<"WorkOrder"> | number
-  saldoCliente?: Prisma.FloatFilter<"WorkOrder"> | number
-  pagoRecibo?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
+  combustible?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
   transferir?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
-  pagarAlEmbarque?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  debidoABayside?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
-  horasExtras?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  pagarAlEmbarque?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   horasExtrasEfectivo?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
   horasExtrasTransferir?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
-  pagoHorasExtra?: Prisma.FloatNullableFilter<"WorkOrder"> | number | null
+  pagoHorasExtra?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   receipts?: Prisma.ReceiptListRelationFilter
 }, "id">
 
@@ -609,7 +613,7 @@ export type WorkOrderOrderByWithAggregationInput = {
   cell?: Prisma.SortOrderInput | Prisma.SortOrder
   fecha?: Prisma.SortOrderInput | Prisma.SortOrder
   horaSalida?: Prisma.SortOrderInput | Prisma.SortOrder
-  horaLlagado?: Prisma.SortOrderInput | Prisma.SortOrder
+  horaLlegado?: Prisma.SortOrderInput | Prisma.SortOrder
   destino?: Prisma.SortOrderInput | Prisma.SortOrder
   puntoEncuentro?: Prisma.SortOrderInput | Prisma.SortOrder
   pasajeros?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -654,34 +658,34 @@ export type WorkOrderScalarWhereWithAggregatesInput = {
   cell?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   fecha?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkOrder"> | Date | string | null
   horaSalida?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
-  horaLlagado?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
+  horaLlegado?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   destino?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   puntoEncuentro?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   pasajeros?: Prisma.IntNullableWithAggregatesFilter<"WorkOrder"> | number | null
   detallesNotas?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
-  combustible?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  hielo?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  aguaBebidas?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  gastoVarios?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  pagoCapitana?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  pagoMarinero?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  precioAcordado?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  horasAcordadas?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  tarifaHora?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  cargoExtra?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  totalClienteCost?: Prisma.FloatWithAggregatesFilter<"WorkOrder"> | number
-  deposito?: Prisma.FloatWithAggregatesFilter<"WorkOrder"> | number
-  saldoCliente?: Prisma.FloatWithAggregatesFilter<"WorkOrder"> | number
-  pagoRecibo?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
+  combustible?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.BoolNullableWithAggregatesFilter<"WorkOrder"> | boolean | null
   transferir?: Prisma.BoolNullableWithAggregatesFilter<"WorkOrder"> | boolean | null
-  pagarAlEmbarque?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  debidoABayside?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
-  horasExtras?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
+  pagarAlEmbarque?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   horasExtrasEfectivo?: Prisma.BoolNullableWithAggregatesFilter<"WorkOrder"> | boolean | null
   horasExtrasTransferir?: Prisma.BoolNullableWithAggregatesFilter<"WorkOrder"> | boolean | null
-  pagoHorasExtra?: Prisma.FloatNullableWithAggregatesFilter<"WorkOrder"> | number | null
+  pagoHorasExtra?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type WorkOrderCreateInput = {
@@ -690,34 +694,34 @@ export type WorkOrderCreateInput = {
   cell?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
-  horaLlagado?: string | null
+  horaLlegado?: string | null
   destino?: string | null
   puntoEncuentro?: string | null
   pasajeros?: number | null
   detallesNotas?: string | null
-  combustible?: number | null
-  hielo?: number | null
-  aguaBebidas?: number | null
-  gastoVarios?: number | null
-  pagoCapitana?: number | null
-  pagoMarinero?: number | null
-  precioAcordado?: number | null
-  horasAcordadas?: number | null
-  tarifaHora?: number | null
-  cargoExtra?: number | null
-  totalClienteCost?: number
-  deposito?: number
-  saldoCliente?: number
-  pagoRecibo?: number | null
+  combustible?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
-  pagarAlEmbarque?: number | null
-  debidoABayside?: number | null
-  horasExtras?: string | null
+  pagarAlEmbarque?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: string | null
   horasExtrasEfectivo?: boolean | null
   horasExtrasTransferir?: boolean | null
-  pagoHorasExtra?: number | null
+  pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   receipts?: Prisma.ReceiptCreateNestedManyWithoutWorkOrderInput
 }
 
@@ -728,34 +732,34 @@ export type WorkOrderUncheckedCreateInput = {
   cell?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
-  horaLlagado?: string | null
+  horaLlegado?: string | null
   destino?: string | null
   puntoEncuentro?: string | null
   pasajeros?: number | null
   detallesNotas?: string | null
-  combustible?: number | null
-  hielo?: number | null
-  aguaBebidas?: number | null
-  gastoVarios?: number | null
-  pagoCapitana?: number | null
-  pagoMarinero?: number | null
-  precioAcordado?: number | null
-  horasAcordadas?: number | null
-  tarifaHora?: number | null
-  cargoExtra?: number | null
-  totalClienteCost?: number
-  deposito?: number
-  saldoCliente?: number
-  pagoRecibo?: number | null
+  combustible?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
-  pagarAlEmbarque?: number | null
-  debidoABayside?: number | null
-  horasExtras?: string | null
+  pagarAlEmbarque?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: string | null
   horasExtrasEfectivo?: boolean | null
   horasExtrasTransferir?: boolean | null
-  pagoHorasExtra?: number | null
+  pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   receipts?: Prisma.ReceiptUncheckedCreateNestedManyWithoutWorkOrderInput
 }
 
@@ -765,34 +769,34 @@ export type WorkOrderUpdateInput = {
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  horaLlagado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  aguaBebidas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  tarifaHora?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  cargoExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalClienteCost?: Prisma.FloatFieldUpdateOperationsInput | number
-  deposito?: Prisma.FloatFieldUpdateOperationsInput | number
-  saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
-  pagoRecibo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  combustible?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagarAlEmbarque?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  debidoABayside?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasExtras?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pagarAlEmbarque?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagoHorasExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   receipts?: Prisma.ReceiptUpdateManyWithoutWorkOrderNestedInput
 }
 
@@ -803,34 +807,34 @@ export type WorkOrderUncheckedUpdateInput = {
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  horaLlagado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  aguaBebidas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  tarifaHora?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  cargoExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalClienteCost?: Prisma.FloatFieldUpdateOperationsInput | number
-  deposito?: Prisma.FloatFieldUpdateOperationsInput | number
-  saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
-  pagoRecibo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  combustible?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagarAlEmbarque?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  debidoABayside?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasExtras?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pagarAlEmbarque?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagoHorasExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   receipts?: Prisma.ReceiptUncheckedUpdateManyWithoutWorkOrderNestedInput
 }
 
@@ -841,34 +845,34 @@ export type WorkOrderCreateManyInput = {
   cell?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
-  horaLlagado?: string | null
+  horaLlegado?: string | null
   destino?: string | null
   puntoEncuentro?: string | null
   pasajeros?: number | null
   detallesNotas?: string | null
-  combustible?: number | null
-  hielo?: number | null
-  aguaBebidas?: number | null
-  gastoVarios?: number | null
-  pagoCapitana?: number | null
-  pagoMarinero?: number | null
-  precioAcordado?: number | null
-  horasAcordadas?: number | null
-  tarifaHora?: number | null
-  cargoExtra?: number | null
-  totalClienteCost?: number
-  deposito?: number
-  saldoCliente?: number
-  pagoRecibo?: number | null
+  combustible?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
-  pagarAlEmbarque?: number | null
-  debidoABayside?: number | null
-  horasExtras?: string | null
+  pagarAlEmbarque?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: string | null
   horasExtrasEfectivo?: boolean | null
   horasExtrasTransferir?: boolean | null
-  pagoHorasExtra?: number | null
+  pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type WorkOrderUpdateManyMutationInput = {
@@ -877,34 +881,34 @@ export type WorkOrderUpdateManyMutationInput = {
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  horaLlagado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  aguaBebidas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  tarifaHora?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  cargoExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalClienteCost?: Prisma.FloatFieldUpdateOperationsInput | number
-  deposito?: Prisma.FloatFieldUpdateOperationsInput | number
-  saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
-  pagoRecibo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  combustible?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagarAlEmbarque?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  debidoABayside?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasExtras?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pagarAlEmbarque?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagoHorasExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type WorkOrderUncheckedUpdateManyInput = {
@@ -914,34 +918,34 @@ export type WorkOrderUncheckedUpdateManyInput = {
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  horaLlagado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  aguaBebidas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  tarifaHora?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  cargoExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalClienteCost?: Prisma.FloatFieldUpdateOperationsInput | number
-  deposito?: Prisma.FloatFieldUpdateOperationsInput | number
-  saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
-  pagoRecibo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  combustible?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagarAlEmbarque?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  debidoABayside?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasExtras?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pagarAlEmbarque?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagoHorasExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type WorkOrderCountOrderByAggregateInput = {
@@ -951,7 +955,7 @@ export type WorkOrderCountOrderByAggregateInput = {
   cell?: Prisma.SortOrder
   fecha?: Prisma.SortOrder
   horaSalida?: Prisma.SortOrder
-  horaLlagado?: Prisma.SortOrder
+  horaLlegado?: Prisma.SortOrder
   destino?: Prisma.SortOrder
   puntoEncuentro?: Prisma.SortOrder
   pasajeros?: Prisma.SortOrder
@@ -1000,6 +1004,7 @@ export type WorkOrderAvgOrderByAggregateInput = {
   pagoRecibo?: Prisma.SortOrder
   pagarAlEmbarque?: Prisma.SortOrder
   debidoABayside?: Prisma.SortOrder
+  horasExtras?: Prisma.SortOrder
   pagoHorasExtra?: Prisma.SortOrder
 }
 
@@ -1010,7 +1015,7 @@ export type WorkOrderMaxOrderByAggregateInput = {
   cell?: Prisma.SortOrder
   fecha?: Prisma.SortOrder
   horaSalida?: Prisma.SortOrder
-  horaLlagado?: Prisma.SortOrder
+  horaLlegado?: Prisma.SortOrder
   destino?: Prisma.SortOrder
   puntoEncuentro?: Prisma.SortOrder
   pasajeros?: Prisma.SortOrder
@@ -1047,7 +1052,7 @@ export type WorkOrderMinOrderByAggregateInput = {
   cell?: Prisma.SortOrder
   fecha?: Prisma.SortOrder
   horaSalida?: Prisma.SortOrder
-  horaLlagado?: Prisma.SortOrder
+  horaLlegado?: Prisma.SortOrder
   destino?: Prisma.SortOrder
   puntoEncuentro?: Prisma.SortOrder
   pasajeros?: Prisma.SortOrder
@@ -1096,6 +1101,7 @@ export type WorkOrderSumOrderByAggregateInput = {
   pagoRecibo?: Prisma.SortOrder
   pagarAlEmbarque?: Prisma.SortOrder
   debidoABayside?: Prisma.SortOrder
+  horasExtras?: Prisma.SortOrder
   pagoHorasExtra?: Prisma.SortOrder
 }
 
@@ -1112,20 +1118,20 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type DecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type NullableBoolFieldUpdateOperationsInput = {
@@ -1160,34 +1166,34 @@ export type WorkOrderCreateWithoutReceiptsInput = {
   cell?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
-  horaLlagado?: string | null
+  horaLlegado?: string | null
   destino?: string | null
   puntoEncuentro?: string | null
   pasajeros?: number | null
   detallesNotas?: string | null
-  combustible?: number | null
-  hielo?: number | null
-  aguaBebidas?: number | null
-  gastoVarios?: number | null
-  pagoCapitana?: number | null
-  pagoMarinero?: number | null
-  precioAcordado?: number | null
-  horasAcordadas?: number | null
-  tarifaHora?: number | null
-  cargoExtra?: number | null
-  totalClienteCost?: number
-  deposito?: number
-  saldoCliente?: number
-  pagoRecibo?: number | null
+  combustible?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
-  pagarAlEmbarque?: number | null
-  debidoABayside?: number | null
-  horasExtras?: string | null
+  pagarAlEmbarque?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: string | null
   horasExtrasEfectivo?: boolean | null
   horasExtrasTransferir?: boolean | null
-  pagoHorasExtra?: number | null
+  pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type WorkOrderUncheckedCreateWithoutReceiptsInput = {
@@ -1197,34 +1203,34 @@ export type WorkOrderUncheckedCreateWithoutReceiptsInput = {
   cell?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
-  horaLlagado?: string | null
+  horaLlegado?: string | null
   destino?: string | null
   puntoEncuentro?: string | null
   pasajeros?: number | null
   detallesNotas?: string | null
-  combustible?: number | null
-  hielo?: number | null
-  aguaBebidas?: number | null
-  gastoVarios?: number | null
-  pagoCapitana?: number | null
-  pagoMarinero?: number | null
-  precioAcordado?: number | null
-  horasAcordadas?: number | null
-  tarifaHora?: number | null
-  cargoExtra?: number | null
-  totalClienteCost?: number
-  deposito?: number
-  saldoCliente?: number
-  pagoRecibo?: number | null
+  combustible?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
-  pagarAlEmbarque?: number | null
-  debidoABayside?: number | null
-  horasExtras?: string | null
+  pagarAlEmbarque?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: string | null
   horasExtrasEfectivo?: boolean | null
   horasExtrasTransferir?: boolean | null
-  pagoHorasExtra?: number | null
+  pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type WorkOrderCreateOrConnectWithoutReceiptsInput = {
@@ -1249,34 +1255,34 @@ export type WorkOrderUpdateWithoutReceiptsInput = {
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  horaLlagado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  aguaBebidas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  tarifaHora?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  cargoExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalClienteCost?: Prisma.FloatFieldUpdateOperationsInput | number
-  deposito?: Prisma.FloatFieldUpdateOperationsInput | number
-  saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
-  pagoRecibo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  combustible?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagarAlEmbarque?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  debidoABayside?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasExtras?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pagarAlEmbarque?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagoHorasExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 export type WorkOrderUncheckedUpdateWithoutReceiptsInput = {
@@ -1286,34 +1292,34 @@ export type WorkOrderUncheckedUpdateWithoutReceiptsInput = {
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  horaLlagado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  combustible?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  hielo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  aguaBebidas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  gastoVarios?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoCapitana?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  pagoMarinero?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  precioAcordado?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasAcordadas?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  tarifaHora?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  cargoExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalClienteCost?: Prisma.FloatFieldUpdateOperationsInput | number
-  deposito?: Prisma.FloatFieldUpdateOperationsInput | number
-  saldoCliente?: Prisma.FloatFieldUpdateOperationsInput | number
-  pagoRecibo?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  combustible?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagarAlEmbarque?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  debidoABayside?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  horasExtras?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pagarAlEmbarque?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
-  pagoHorasExtra?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
 
@@ -1354,7 +1360,7 @@ export type WorkOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   cell?: boolean
   fecha?: boolean
   horaSalida?: boolean
-  horaLlagado?: boolean
+  horaLlegado?: boolean
   destino?: boolean
   puntoEncuentro?: boolean
   pasajeros?: boolean
@@ -1393,7 +1399,7 @@ export type WorkOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   cell?: boolean
   fecha?: boolean
   horaSalida?: boolean
-  horaLlagado?: boolean
+  horaLlegado?: boolean
   destino?: boolean
   puntoEncuentro?: boolean
   pasajeros?: boolean
@@ -1430,7 +1436,7 @@ export type WorkOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   cell?: boolean
   fecha?: boolean
   horaSalida?: boolean
-  horaLlagado?: boolean
+  horaLlegado?: boolean
   destino?: boolean
   puntoEncuentro?: boolean
   pasajeros?: boolean
@@ -1467,7 +1473,7 @@ export type WorkOrderSelectScalar = {
   cell?: boolean
   fecha?: boolean
   horaSalida?: boolean
-  horaLlagado?: boolean
+  horaLlegado?: boolean
   destino?: boolean
   puntoEncuentro?: boolean
   pasajeros?: boolean
@@ -1497,7 +1503,7 @@ export type WorkOrderSelectScalar = {
   pagoHorasExtra?: boolean
 }
 
-export type WorkOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "nombre" | "cell" | "fecha" | "horaSalida" | "horaLlagado" | "destino" | "puntoEncuentro" | "pasajeros" | "detallesNotas" | "combustible" | "hielo" | "aguaBebidas" | "gastoVarios" | "pagoCapitana" | "pagoMarinero" | "precioAcordado" | "horasAcordadas" | "tarifaHora" | "cargoExtra" | "totalClienteCost" | "deposito" | "saldoCliente" | "pagoRecibo" | "efectivo" | "transferir" | "pagarAlEmbarque" | "debidoABayside" | "horasExtras" | "paymentMethod" | "horasExtrasEfectivo" | "horasExtrasTransferir" | "pagoHorasExtra", ExtArgs["result"]["workOrder"]>
+export type WorkOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "nombre" | "cell" | "fecha" | "horaSalida" | "horaLlegado" | "destino" | "puntoEncuentro" | "pasajeros" | "detallesNotas" | "combustible" | "hielo" | "aguaBebidas" | "gastoVarios" | "pagoCapitana" | "pagoMarinero" | "precioAcordado" | "horasAcordadas" | "tarifaHora" | "cargoExtra" | "totalClienteCost" | "deposito" | "saldoCliente" | "pagoRecibo" | "efectivo" | "transferir" | "pagarAlEmbarque" | "debidoABayside" | "horasExtras" | "paymentMethod" | "horasExtrasEfectivo" | "horasExtrasTransferir" | "pagoHorasExtra", ExtArgs["result"]["workOrder"]>
 export type WorkOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   receipts?: boolean | Prisma.WorkOrder$receiptsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkOrderCountOutputTypeDefaultArgs<ExtArgs>
@@ -1517,34 +1523,34 @@ export type $WorkOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     cell: string | null
     fecha: Date | null
     horaSalida: string | null
-    horaLlagado: string | null
+    horaLlegado: string | null
     destino: string | null
     puntoEncuentro: string | null
     pasajeros: number | null
     detallesNotas: string | null
-    combustible: number | null
-    hielo: number | null
-    aguaBebidas: number | null
-    gastoVarios: number | null
-    pagoCapitana: number | null
-    pagoMarinero: number | null
-    precioAcordado: number | null
-    horasAcordadas: number | null
-    tarifaHora: number | null
-    cargoExtra: number | null
-    totalClienteCost: number
-    deposito: number
-    saldoCliente: number
-    pagoRecibo: number | null
+    combustible: runtime.Decimal | null
+    hielo: runtime.Decimal | null
+    aguaBebidas: runtime.Decimal | null
+    gastoVarios: runtime.Decimal | null
+    pagoCapitana: runtime.Decimal | null
+    pagoMarinero: runtime.Decimal | null
+    precioAcordado: runtime.Decimal | null
+    horasAcordadas: runtime.Decimal | null
+    tarifaHora: runtime.Decimal | null
+    cargoExtra: runtime.Decimal | null
+    totalClienteCost: runtime.Decimal
+    deposito: runtime.Decimal
+    saldoCliente: runtime.Decimal
+    pagoRecibo: runtime.Decimal | null
     efectivo: boolean | null
     transferir: boolean | null
-    pagarAlEmbarque: number | null
-    debidoABayside: number | null
-    horasExtras: string | null
+    pagarAlEmbarque: runtime.Decimal | null
+    debidoABayside: runtime.Decimal | null
+    horasExtras: runtime.Decimal | null
     paymentMethod: string | null
     horasExtrasEfectivo: boolean | null
     horasExtrasTransferir: boolean | null
-    pagoHorasExtra: number | null
+    pagoHorasExtra: runtime.Decimal | null
   }, ExtArgs["result"]["workOrder"]>
   composites: {}
 }
@@ -1975,34 +1981,34 @@ export interface WorkOrderFieldRefs {
   readonly cell: Prisma.FieldRef<"WorkOrder", 'String'>
   readonly fecha: Prisma.FieldRef<"WorkOrder", 'DateTime'>
   readonly horaSalida: Prisma.FieldRef<"WorkOrder", 'String'>
-  readonly horaLlagado: Prisma.FieldRef<"WorkOrder", 'String'>
+  readonly horaLlegado: Prisma.FieldRef<"WorkOrder", 'String'>
   readonly destino: Prisma.FieldRef<"WorkOrder", 'String'>
   readonly puntoEncuentro: Prisma.FieldRef<"WorkOrder", 'String'>
   readonly pasajeros: Prisma.FieldRef<"WorkOrder", 'Int'>
   readonly detallesNotas: Prisma.FieldRef<"WorkOrder", 'String'>
-  readonly combustible: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly hielo: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly aguaBebidas: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly gastoVarios: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly pagoCapitana: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly pagoMarinero: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly precioAcordado: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly horasAcordadas: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly tarifaHora: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly cargoExtra: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly totalClienteCost: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly deposito: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly saldoCliente: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly pagoRecibo: Prisma.FieldRef<"WorkOrder", 'Float'>
+  readonly combustible: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly hielo: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly aguaBebidas: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly gastoVarios: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly pagoCapitana: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly pagoMarinero: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly precioAcordado: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly horasAcordadas: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly tarifaHora: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly cargoExtra: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly totalClienteCost: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly deposito: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly saldoCliente: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly pagoRecibo: Prisma.FieldRef<"WorkOrder", 'Decimal'>
   readonly efectivo: Prisma.FieldRef<"WorkOrder", 'Boolean'>
   readonly transferir: Prisma.FieldRef<"WorkOrder", 'Boolean'>
-  readonly pagarAlEmbarque: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly debidoABayside: Prisma.FieldRef<"WorkOrder", 'Float'>
-  readonly horasExtras: Prisma.FieldRef<"WorkOrder", 'String'>
+  readonly pagarAlEmbarque: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly debidoABayside: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly horasExtras: Prisma.FieldRef<"WorkOrder", 'Decimal'>
   readonly paymentMethod: Prisma.FieldRef<"WorkOrder", 'String'>
   readonly horasExtrasEfectivo: Prisma.FieldRef<"WorkOrder", 'Boolean'>
   readonly horasExtrasTransferir: Prisma.FieldRef<"WorkOrder", 'Boolean'>
-  readonly pagoHorasExtra: Prisma.FieldRef<"WorkOrder", 'Float'>
+  readonly pagoHorasExtra: Prisma.FieldRef<"WorkOrder", 'Decimal'>
 }
     
 

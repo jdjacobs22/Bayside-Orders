@@ -43,44 +43,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Prisma } from "@/lib/prisma-client/browser";
+import { getAdminSchema, getCaptainSchema } from "@/lib/schemas";
 
 // 1. STYLED SCHEMA: Strict types for Linter compliance
-const formSchema = z.object({
-  nombre: z.string().min(1, "Nombre requerido"),
-  cell: z.string().min(1, "Celular requerido"),
-  fechaEmbarque: z.date().optional(),
-  horaEmbarque: z.string(),
-  destino: z.string().min(1),
-  puntoEncuentro: z.string().min(1),
-  pasajeros: z.number(),
-  detallesNotas: z.string().optional(),
-  horaLlagado: z.string().optional(),
-  combustible: z.number(),
-  hielo: z.number(),
-  aguaBebidas: z.number(),
-  gastoVarios: z.number(),
-  horasExtras: z.string().optional(), // Added Horas Extras field
-  pagoRecibo: z.number().int().max(99999),
-  efectivo: z.boolean(),
-  transferir: z.boolean(),
-  pagarAlEmbarque: z.number(),
-  debidoABayside: z.number(),
-  pagoCapitana: z.number(),
-  pagoMarinero: z.number(),
-  precioAcordado: z.number(),
-  horasAcordadas: z.number(),
-  tarifaHora: z.number(),
-  cargoExtra: z.number(),
-  totalClienteCost: z.number(),
-  deposito: z.number(),
-  saldoCliente: z.number(),
-  paymentMethod: z.enum(["efectivo", "transferir"]).nullable().optional(),
-  horasExtrasEfectivo: z.boolean(),
-  horasExtrasTransferir: z.boolean(),
-  pagoHorasExtra: z.number().int().max(99999),
-});
 
-type FormValues = z.infer<typeof formSchema>;
+const adminSchema = getAdminSchema();
+const captainSchema = getCaptainSchema();
+
+type FormValues = z.infer<ReturnType<typeof getAdminSchema>>;
 
 interface WorkOrderFormProps {
   mode?: "admin-create" | "admin-edit" | "captain-edit";
@@ -132,16 +103,15 @@ export default function WorkOrderForm({
   const canEdit = (fieldName: string) => {
     if (!isCaptain) return true; // Admin creates/edits all
     const allowed = [
-      "detallesNotas",
+      "horaLlegado",
       "combustible",
       "hielo",
       "aguaBebidas",
       "gastoVarios",
-      "horaLlagado",
-      "pagoRecibo",
+      "horasExtras",
       "efectivo",
       "transferir",
-      "pagarAlEmbarque",
+      "pagoRecibo",
       "horasExtrasEfectivo",
       "horasExtrasTransferir",
       "pagoHorasExtra",
@@ -149,8 +119,10 @@ export default function WorkOrderForm({
     return allowed.includes(fieldName);
   };
 
+  const activeSchema = isCaptain ? captainSchema : adminSchema;
+
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(activeSchema) as any,
     defaultValues: {
       nombre: "",
       cell: "",
@@ -160,7 +132,7 @@ export default function WorkOrderForm({
       puntoEncuentro: "",
       pasajeros: 0,
       detallesNotas: "",
-      horaLlagado: "",
+      horaLlegado: "",
       combustible: 0,
       hielo: 0,
       aguaBebidas: 0,
@@ -179,7 +151,7 @@ export default function WorkOrderForm({
       totalClienteCost: 0,
       deposito: 0,
       saldoCliente: 0,
-      horasExtras: "",
+      horasExtras: 0,
       paymentMethod: null, // Initialize paymentMethod
       horasExtrasEfectivo: false,
       horasExtrasTransferir: false,
@@ -192,7 +164,7 @@ export default function WorkOrderForm({
   const extra = watch("cargoExtra");
   const deposito = watch("deposito");
   const horaEmbarque = watch("horaEmbarque");
-  const horaLlagado = watch("horaLlagado");
+  const horaLlegado = watch("horaLlegado");
   const tarifaHora = watch("tarifaHora");
   const horasAcordadas = watch("horasAcordadas");
   const combustible = watch("combustible");
@@ -202,7 +174,7 @@ export default function WorkOrderForm({
   const pagoCapitana = watch("pagoCapitana");
   const pagoMarinero = watch("pagoMarinero");
 
-  const horasExtrasStr = watch("horasExtras");
+  const horasExtrasVal = watch("horasExtras");
   const pagoReciboVal = watch("pagoRecibo");
   const pagoHorasExtra = watch("pagoHorasExtra");
   const paymentMethod = watch("paymentMethod");
@@ -210,6 +182,7 @@ export default function WorkOrderForm({
   const horasExtrasTransferir = watch("horasExtrasTransferir");
   const efectivo = watch("efectivo");
   const transferir = watch("transferir");
+  const saldoCliente = watch("saldoCliente");
 
   /**
    * Helper function to convert time string (HH:MM) to hours (decimal).
@@ -225,29 +198,28 @@ export default function WorkOrderForm({
 
   // Calculate cargoExtra based on horasExtras only
   useEffect(() => {
-    const horasExtraNum = timeStringToHours(horasExtrasStr);
-    const cargoExtra = horasExtraNum * (Number(tarifaHora) || 0);
-    setValue("cargoExtra", cargoExtra);
-  }, [horasExtrasStr, tarifaHora, setValue]);
+    const cargo = (Number(tarifaHora) || 0) * (Number(horasExtrasVal) || 0);
+    setValue("cargoExtra", Math.floor(cargo));
+  }, [tarifaHora, horasExtrasVal, setValue]);
 
   // Calculate Precio Acordado = Tarifa * Duracion
   useEffect(() => {
     const precio = (Number(tarifaHora) || 0) * (Number(horasAcordadas) || 0);
-    setValue("precioAcordado", precio);
+    setValue("precioAcordado", Math.floor(precio));
   }, [tarifaHora, horasAcordadas, setValue]);
 
   // Calculate totalClienteCost and Financials
   useEffect(() => {
     // totalClienteCost = precioAcordado + cargoExtra + gastoVarios
     const total = (Number(precio) || 0) + (Number(extra) || 0) + (Number(gastoVarios) || 0);
-    setValue("totalClienteCost", total);
+    setValue("totalClienteCost", Math.floor(total));
 
     // saldoCliente = totalClienteCost - deposito - pagoRecibo - pagoHorasExtra
     const saldo = total - (Number(deposito) || 0) - (Number(pagoReciboVal) || 0) - (Number(pagoHorasExtra) || 0);
-    setValue("saldoCliente", saldo);
+    setValue("saldoCliente", Math.floor(saldo));
 
     // Debido a Bayside = Saldo Cliente
-    setValue("debidoABayside", saldo);
+    setValue("debidoABayside", Math.floor(saldo));
 
   }, [
     precio,
@@ -256,7 +228,7 @@ export default function WorkOrderForm({
     deposito,
     pagoReciboVal,
     pagoHorasExtra,
-    setValue
+    setValue,
   ]);
 
   // Load data for edit modes
@@ -270,13 +242,15 @@ export default function WorkOrderForm({
             form.reset({
               nombre: data.nombre || "",
               cell: data.cell || "",
-              fechaEmbarque: data.fecha ? new Date(data.fecha) : undefined,
+              fechaEmbarque: data.fecha
+                ? new Date(data.fecha).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                : "",
               horaEmbarque: data.horaSalida || "10:00",
               destino: data.destino || "",
               puntoEncuentro: data.puntoEncuentro || "",
               pasajeros: data.pasajeros || 0,
               detallesNotas: data.detallesNotas || "",
-              horaLlagado: data.horaLlagado || "",
+              horaLlegado: data.horaLlegado || "",
               combustible: data.combustible || 0,
               hielo: data.hielo || 0,
               aguaBebidas: data.aguaBebidas || 0,
@@ -556,52 +530,25 @@ export default function WorkOrderForm({
     try {
       // Map form data to match action expectations
       const submissionData: any = {
-        nombre: data.nombre,
-        cell: data.cell,
-        fecha: data.fechaEmbarque
-          ? data.fechaEmbarque.toISOString().split("T")[0]
+        ...data,
+        fechaEmbarque: data.fechaEmbarque
+          ? (data.fechaEmbarque instanceof Date
+            ? `${data.fechaEmbarque.getDate().toString().padStart(2, '0')}/${(data.fechaEmbarque.getMonth() + 1).toString().padStart(2, '0')}/${data.fechaEmbarque.getFullYear()}`
+            : data.fechaEmbarque)
           : undefined,
-        horaSalida: data.horaEmbarque,
-        horaLlagado: data.horaLlagado || undefined,
-        destino: data.destino,
-        puntoEncuentro: data.puntoEncuentro,
-        pasajeros: data.pasajeros,
-        detallesNotas: data.detallesNotas || undefined,
-        combustibleCost: data.combustible,
-        hieloCost: data.hielo,
-        aguaBebidasCost: data.aguaBebidas,
-        gastoVariosCost: data.gastoVarios,
-        pagoRecibo: data.pagoRecibo,
-        efectivo: data.efectivo,
-        transferir: data.transferir,
-        pagarAlEmbarque: data.pagarAlEmbarque,
-        debidoABayside: data.debidoABayside,
-        pagoCapitana: data.pagoCapitana,
-        pagoMarinero: data.pagoMarinero,
-        precioAcordado: data.precioAcordado,
-        horasAcordadas: data.horasAcordadas,
-        tarifaHora: data.tarifaHora,
-        cargoExtra: data.cargoExtra,
-        totalClienteCost: data.totalClienteCost,
-        deposito: data.deposito,
-        saldoCliente: data.saldoCliente,
-        horasExtras: data.horasExtras,
-        paymentMethod: data.paymentMethod,
-        horasExtrasEfectivo: data.horasExtrasEfectivo,
-        horasExtrasTransferir: data.horasExtrasTransferir,
-        pagoHorasExtra: data.pagoHorasExtra,
       };
 
+      // submissionData is now a plain object with native types
       let result;
       if (mode === "admin-create") {
-        result = await createWorkOrder(submissionData);
+        result = await createWorkOrder(submissionData, "admin");
       } else {
         if (!orderId) {
           alert("Falta ID de Orden");
           setLoading(false);
           return;
         }
-        result = await updateWorkOrder(orderId, submissionData);
+        result = await updateWorkOrder(orderId, submissionData, isCaptain ? "captain" : "admin");
       }
 
       if (result.success) {
@@ -792,7 +739,7 @@ export default function WorkOrderForm({
                               )}
                             >
                               {field.value ? (
-                                format(field.value, "PPP")
+                                format(new Date(field.value), "PPP")
                               ) : (
                                 <span>Seleccione fecha</span>
                               )}
@@ -803,7 +750,7 @@ export default function WorkOrderForm({
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             mode="single"
-                            selected={field.value}
+                            selected={field.value ? new Date(field.value) : undefined}
                             onSelect={field.onChange}
                             disabled={!canEdit("fechaEmbarque")}
                           />
@@ -812,27 +759,7 @@ export default function WorkOrderForm({
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="horaEmbarque"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Hora de Embarque</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="time"
-                          step="1800"
-                          {...field}
-                          value={field.value ?? ""}
-                          disabled={!canEdit("horaEmbarque")}
-                          className={
-                            !canEdit("horaEmbarque") ? "bg-gray-200" : ""
-                          }
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+
               </div>
 
               {/* CAPITANA */}
@@ -873,7 +800,7 @@ export default function WorkOrderForm({
                                         setValue("transferir", false);
                                       }
                                     }}
-                                    disabled={!canEdit("efectivo")}
+                                    disabled={Number(saldoCliente) <= 0 || !canEdit("efectivo")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -899,7 +826,7 @@ export default function WorkOrderForm({
                                         setValue("efectivo", false);
                                       }
                                     }}
-                                    disabled={!canEdit("transferir")}
+                                    disabled={Number(saldoCliente) <= 0 || !canEdit("transferir")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -924,7 +851,7 @@ export default function WorkOrderForm({
                                   type="number"
                                   placeholder="Monto"
                                   {...field}
-                                  value={field.value === 0 ? "" : (field.value ?? "")}
+                                  value={Number(field.value) === 0 ? "" : String(field.value)}
                                   onChange={(e) => {
                                     const val = e.target.value;
                                     field.onChange(
@@ -935,9 +862,9 @@ export default function WorkOrderForm({
                                           : Math.floor(e.target.valueAsNumber)
                                     );
                                   }}
-                                  disabled={(!efectivo && !transferir) || !canEdit("pagoRecibo")}
+                                  disabled={Number(saldoCliente) <= 0 || !canEdit("pagoRecibo")}
                                   className={`w-full min-w-[150px]
-                                    ${(!efectivo && !transferir) ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
+                                    ${Number(saldoCliente) <= 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
                                     ${isCaptain ? "opacity-75" : ""}
                                   `}
                                 />
@@ -951,7 +878,7 @@ export default function WorkOrderForm({
                   </div>
                   <FormField
                     control={form.control}
-                    name="horaLlagado"
+                    name="horaLlegado"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Hora de Llegado</FormLabel>
@@ -960,10 +887,10 @@ export default function WorkOrderForm({
                             type="time"
                             step="1800"
                             {...field}
-                            value={field.value ?? ""}
-                            disabled={!canEdit("horaLlagado")}
+                            value={(field.value as any) ?? ""}
+                            disabled={!canEdit("horaLlegado")}
                             className={
-                              !canEdit("horaLlagado") ? "bg-gray-200" : ""
+                              !canEdit("horaLlegado") ? "bg-gray-200" : ""
                             }
                           />
                         </FormControl>
@@ -982,7 +909,7 @@ export default function WorkOrderForm({
                               type="number"
                               {...field}
                               value={
-                                field.value === 0 ? "" : (field.value ?? "")
+                                field.value && Number(field.value) === 0 ? "" : (field.value?.toString() ?? "")
                               }
                               onChange={(e) => {
                                 const val = e.target.value;
@@ -1052,7 +979,7 @@ export default function WorkOrderForm({
                               type="number"
                               {...field}
                               value={
-                                field.value === 0 ? "" : (field.value ?? "")
+                                field.value && Number(field.value) === 0 ? "" : (field.value?.toString() ?? "")
                               }
                               onChange={(e) => {
                                 const val = e.target.value;
@@ -1118,7 +1045,7 @@ export default function WorkOrderForm({
                               type="number"
                               {...field}
                               value={
-                                field.value === 0 ? "" : (field.value ?? "")
+                                field.value && Number(field.value) === 0 ? "" : (field.value?.toString() ?? "")
                               }
                               onChange={(e) => {
                                 const val = e.target.value;
@@ -1186,7 +1113,7 @@ export default function WorkOrderForm({
                               type="number"
                               {...field}
                               value={
-                                field.value === 0 ? "" : (field.value ?? "")
+                                field.value && Number(field.value) === 0 ? "" : (field.value?.toString() ?? "")
                               }
                               onChange={(e) => {
                                 const val = e.target.value;
@@ -1253,10 +1180,21 @@ export default function WorkOrderForm({
                         <FormLabel>Horas Extras</FormLabel>
                         <FormControl>
                           <Input
-                            type="time"
+                            type="number"
+                            step="0.1"
                             {...field}
-                            value={field.value ?? ""}
-                            disabled={!canEdit("horasExtras")} // Assuming same permission logic applies, or fallback to general edit
+                            value={Number(field.value) === 0 ? "" : (field.value?.toString() ?? "")}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              field.onChange(
+                                val === ""
+                                  ? 0
+                                  : isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber
+                              );
+                            }}
+                            disabled={!canEdit("horasExtras")}
                             className={!canEdit("horasExtras") ? "bg-gray-200" : ""}
                           />
                         </FormControl>
@@ -1294,7 +1232,7 @@ export default function WorkOrderForm({
                                         setValue("horasExtrasTransferir", false);
                                       }
                                     }}
-                                    disabled={!canEdit("horasExtrasEfectivo")}
+                                    disabled={Number(horasExtrasVal) <= 0 || !canEdit("horasExtrasEfectivo")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -1320,7 +1258,7 @@ export default function WorkOrderForm({
                                         setValue("horasExtrasEfectivo", false);
                                       }
                                     }}
-                                    disabled={!canEdit("horasExtrasTransferir")}
+                                    disabled={Number(horasExtrasVal) <= 0 || !canEdit("horasExtrasTransferir")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -1345,7 +1283,7 @@ export default function WorkOrderForm({
                                   type="number"
                                   placeholder="Monto"
                                   {...field}
-                                  value={field.value === 0 ? "" : (field.value ?? "")}
+                                  value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
                                   onChange={(e) => {
                                     const val = e.target.value;
                                     field.onChange(
@@ -1356,9 +1294,9 @@ export default function WorkOrderForm({
                                           : Math.floor(e.target.valueAsNumber)
                                     );
                                   }}
-                                  disabled={(!horasExtrasEfectivo && !horasExtrasTransferir) || !canEdit("pagoHorasExtra")}
+                                  disabled={Number(horasExtrasVal) <= 0 || !canEdit("pagoHorasExtra")}
                                   className={`w-full min-w-[150px]
-                                    ${(!horasExtrasEfectivo && !horasExtrasTransferir) ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
+                                    ${Number(horasExtrasVal) <= 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
                                     ${isCaptain ? "opacity-75" : ""}
                                   `}
                                 />
@@ -1392,7 +1330,7 @@ export default function WorkOrderForm({
                           <Input
                             type="number"
                             {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
                             onChange={(e) => {
                               const val = e.target.value;
                               field.onChange(
@@ -1420,7 +1358,7 @@ export default function WorkOrderForm({
                           <Input
                             type="number"
                             {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
                             onChange={(e) => {
                               const val = e.target.value;
                               field.onChange(
@@ -1440,6 +1378,27 @@ export default function WorkOrderForm({
                   />
                   <FormField
                     control={form.control}
+                    name="horaEmbarque"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Hora de Embarque</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="time"
+                            step="1800"
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("horaEmbarque")}
+                            className={
+                              !canEdit("horaEmbarque") ? "bg-gray-200" : ""
+                            }
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
                     name="tarifaHora"
                     render={({ field }) => (
                       <FormItem>
@@ -1448,7 +1407,7 @@ export default function WorkOrderForm({
                           <Input
                             type="number"
                             {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
                             onChange={(e) => {
                               const val = e.target.value;
                               field.onChange(
@@ -1476,7 +1435,7 @@ export default function WorkOrderForm({
                           <Input
                             type="number"
                             {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
                             onChange={(e) => {
                               const val = e.target.value;
                               field.onChange(
@@ -1506,7 +1465,7 @@ export default function WorkOrderForm({
                           <Input
                             type="number"
                             {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            value={Number(field.value) === 0 ? "" : String(field.value)}
                             onChange={(e) => {
                               const val = e.target.value;
                               field.onChange(
@@ -1534,7 +1493,7 @@ export default function WorkOrderForm({
                           <Input
                             type="number"
                             readOnly
-                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            value={Number(field.value) === 0 ? "" : String(field.value)}
                             className="bg-gray-100 cursor-not-allowed"
                           />
                         </FormControl>
@@ -1554,7 +1513,7 @@ export default function WorkOrderForm({
                             type="number"
                             readOnly
                             {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            value={Number(field.value) === 0 ? "" : String(field.value)}
                             className="bg-gray-200 font-bold"
                           />
                         </FormControl>
@@ -1573,7 +1532,7 @@ export default function WorkOrderForm({
                           <Input
                             type="number"
                             {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            value={Number(field.value) === 0 ? "" : String(field.value)}
                             onChange={(e) => {
                               const val = e.target.value;
                               field.onChange(
@@ -1604,7 +1563,7 @@ export default function WorkOrderForm({
                             readOnly
                             className="bg-red-50 font-bold text-red-700"
                             {...field}
-                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            value={Number(field.value) === 0 ? "" : String(field.value)}
                           />
                         </FormControl>
                       </FormItem>

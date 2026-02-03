@@ -2,7 +2,63 @@
 
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@/lib/prisma-client/client";
 import { uploadPhotoToR2 } from "@/lib/r2-client";
+import { getAdminSchema, getCaptainSchema } from "@/lib/schemas";
+
+function parseDateDMY(dateStr: string | null | undefined): Date | undefined {
+  if (!dateStr || typeof dateStr !== "string") return undefined;
+  const parts = dateStr.split("/");
+  if (parts.length !== 3) return undefined;
+  const [day, month, year] = parts.map(Number);
+  if (isNaN(day) || isNaN(month) || isNaN(year)) return undefined;
+  const date = new Date(year, month - 1, day);
+  return date;
+}
+
+/**
+ * Recursively converts Prisma.Decimal objects to strings to ensure 
+ * the object can be passed from Server Components to Client Components.
+ */
+function serializePrisma(data: any): any {
+  if (data === null || data === undefined) return data;
+
+  const type = Object.prototype.toString.call(data);
+
+  // Handle Dates
+  if (type === "[object Date]") {
+    return data.toISOString();
+  }
+
+  // Handle Arrays
+  if (type === "[object Array]") {
+    return data.map((item: any) => serializePrisma(item));
+  }
+
+  // Handle Objects
+  if (typeof data === "object") {
+    // Detect Prisma.Decimal or any Decimal-like object
+    const isDecimal = Prisma.Decimal.isDecimal(data) || 
+                      data.constructor?.name === "Decimal" || 
+                      (typeof data.toFixed === "function" && typeof data.toNumber === "function") ||
+                      (data.d && Array.isArray(data.d) && typeof data.s === 'number');
+    
+    if (isDecimal) {
+      return Number(data.toString());
+    }
+
+    // Process all properties
+    const result: any = {};
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        result[key] = serializePrisma(data[key]);
+      }
+    }
+    return result;
+  }
+
+  return data;
+}
 
 // ... existing createWorkOrder ...
 // We can keep createWorkOrder for "saving" a new order if we want to support both flows,
@@ -19,54 +75,65 @@ export async function createDraftWorkOrder() {
         // All fields optional or default
       },
     });
-    return { success: true, data: order };
+    return { success: true, data: serializePrisma(order) };
   } catch (error: any) {
     console.error("Error creating draft:", error);
     return { success: false, error: error.message };
   }
 }
 
-export async function createWorkOrder(data: any) {
+export async function createWorkOrder(data: any, role: "admin" | "captain" = "admin") {
+  // Validate data based on role
+  const schema = role === "captain" ? getCaptainSchema() : getAdminSchema();
+  const validation = schema.safeParse(data);
+
+  if (!validation.success) {
+    return { 
+      success: false, 
+      error: "Validación fallida: " + validation.error.issues.map((e: any) => e.message).join(", ") 
+    };
+  }
   // ...
   try {
+    const validatedData = validation.data;
     const order = await prisma.workOrder.create({
       data: {
-        nombre: data.nombre,
-        cell: data.cell,
-        fecha: data.fecha ? new Date(data.fecha) : undefined,
-        horaSalida: data.horaSalida,
-        horaLlagado: data.horaLlagado,
-        destino: data.destino,
-        puntoEncuentro: data.puntoEncuentro,
-        pasajeros: Math.floor(Number(data.pasajeros)),
-        detallesNotas: data.detallesNotas,
-        combustible: Number(data.combustibleCost) || 0,
-        hielo: Number(data.hieloCost) || 0,
-        aguaBebidas: Number(data.aguaBebidasCost) || 0,
-        gastoVarios: Number(data.gastoVariosCost) || 0,
-        pagoCapitana: Number(data.pagoCapitana) || 0,
-        pagoMarinero: Number(data.pagoMarinero) || 0,
-        precioAcordado: Number(data.precioAcordado) || 0,
-        horasAcordadas: Number(data.horasAcordadas) || 0,
-        tarifaHora: Number(data.tarifaHora) || 0,
-        cargoExtra: Number(data.cargoExtra) || 0,
-        pagoRecibo: Number(data.pagoRecibo) || 0,
-        efectivo: data.efectivo ?? false,
-        transferir: data.transferir ?? false,
-        pagarAlEmbarque: Number(data.pagarAlEmbarque) || 0,
-        debidoABayside: Number(data.debidoABayside) || 0,
-        totalClienteCost: Number(data.totalClienteCost) || 0,
-        deposito: Number(data.deposito),
-        saldoCliente: Number(data.saldoCliente),
-        horasExtras: data.horasExtras || null,
-        paymentMethod: data.paymentMethod || null,
-        horasExtrasEfectivo: data.horasExtrasEfectivo ?? false,
-        horasExtrasTransferir: data.horasExtrasTransferir ?? false,
-        pagoHorasExtra: Number(data.pagoHorasExtra) || 0,
+        nombre: validatedData.nombre,
+        cell: validatedData.cell,
+        fecha: parseDateDMY(validatedData.fechaEmbarque),
+        horaSalida: validatedData.horaEmbarque,
+        horaLlegado: validatedData.horaLlegado,
+        destino: validatedData.destino,
+        puntoEncuentro: validatedData.puntoEncuentro,
+        pasajeros: validatedData.pasajeros ? Math.floor(Number(validatedData.pasajeros)) : null,
+        detallesNotas: validatedData.detallesNotas,
+        combustible: validatedData.combustible ? new Prisma.Decimal(validatedData.combustible as any) : 0,
+        hielo: validatedData.hielo ? new Prisma.Decimal(validatedData.hielo as any) : 0,
+        aguaBebidas: validatedData.aguaBebidas ? new Prisma.Decimal(validatedData.aguaBebidas as any) : 0,
+        gastoVarios: validatedData.gastoVarios ? new Prisma.Decimal(validatedData.gastoVarios as any) : 0,
+        pagoCapitana: validatedData.pagoCapitana ? new Prisma.Decimal(validatedData.pagoCapitana as any) : 0,
+        pagoMarinero: validatedData.pagoMarinero ? new Prisma.Decimal(validatedData.pagoMarinero as any) : 0,
+        precioAcordado: validatedData.precioAcordado ? new Prisma.Decimal(validatedData.precioAcordado as any) : 0,
+        horasAcordadas: validatedData.horasAcordadas ? new Prisma.Decimal(validatedData.horasAcordadas as any) : 0,
+        tarifaHora: validatedData.tarifaHora ? new Prisma.Decimal(validatedData.tarifaHora as any) : 0,
+        cargoExtra: validatedData.cargoExtra ? new Prisma.Decimal(validatedData.cargoExtra as any) : 0,
+        pagoRecibo: validatedData.pagoRecibo ? new Prisma.Decimal(validatedData.pagoRecibo as any) : 0,
+        efectivo: validatedData.efectivo ?? false,
+        transferir: validatedData.transferir ?? false,
+        pagarAlEmbarque: validatedData.pagarAlEmbarque ? new Prisma.Decimal(validatedData.pagarAlEmbarque as any) : 0,
+        debidoABayside: validatedData.debidoABayside ? new Prisma.Decimal(validatedData.debidoABayside as any) : 0,
+        totalClienteCost: validatedData.totalClienteCost ? new Prisma.Decimal(validatedData.totalClienteCost as any) : 0,
+        deposito: validatedData.deposito ? new Prisma.Decimal(validatedData.deposito as any) : 0,
+        saldoCliente: validatedData.saldoCliente ? new Prisma.Decimal(validatedData.saldoCliente as any) : 0,
+        horasExtras: validatedData.horasExtras ? new Prisma.Decimal(validatedData.horasExtras as any) : null,
+        paymentMethod: validatedData.paymentMethod || null,
+        horasExtrasEfectivo: validatedData.horasExtrasEfectivo ?? false,
+        horasExtrasTransferir: validatedData.horasExtrasTransferir ?? false,
+        pagoHorasExtra: validatedData.pagoHorasExtra ? new Prisma.Decimal(validatedData.pagoHorasExtra as any) : 0,
       },
     });
     revalidatePath("/admin/list");
-    return { success: true, data: order };
+    return { success: true, data: serializePrisma(order) };
   } catch (error: any) {
     console.error("Error creating order:", error);
     return { success: false, error: error.message };
@@ -79,7 +146,7 @@ export async function getWorkOrders() {
       orderBy: { id: "desc" },
       take: 100, // Limit for now
     });
-    return { success: true, data: orders };
+    return { success: true, data: serializePrisma(orders) };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
@@ -97,13 +164,24 @@ export async function getWorkOrder(id: number) {
       include: { receipts: true },
     });
     if (!order) return { success: false, error: "Order not found" };
-    return { success: true, data: order };
+    return { success: true, data: serializePrisma(order) };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
 }
 
-export async function updateWorkOrder(id: number, data: any) {
+export async function updateWorkOrder(id: number, data: any, role: "admin" | "captain" = "admin") {
+  // Validate data based on role
+  const schema = role === "captain" ? getCaptainSchema() : getAdminSchema();
+  const validation = schema.safeParse(data);
+
+  if (!validation.success) {
+    return { 
+      success: false, 
+      error: "Validación fallida: " + validation.error.issues.map((e: any) => e.message).join(", ") 
+    };
+  }
+
   try {
     // We might want to filter what fields can be updated based on role here too for security,
     // but existing plan implies Form logic + trust for now (or simple check).
@@ -114,44 +192,40 @@ export async function updateWorkOrder(id: number, data: any) {
     // We need to parse dates ensuring they are valid Date objects if present.
     // Explicitly map fields to match schema, similar to createWorkOrder
     // This prevents passing UI-only fields like 'combustibleCost' to Prisma which causes errors.
+    const validatedData = validation.data;
     const updatePayload: any = {
-      nombre: data.nombre,
-      cell: data.cell,
-      fecha:
-        data.fecha && typeof data.fecha === "string" && data.fecha.trim() !== ""
-          ? new Date(data.fecha)
-          : data.fecha === ""
-            ? null
-            : undefined,
-      horaSalida: data.horaSalida,
-      horaLlagado: data.horaLlagado,
-      destino: data.destino,
-      puntoEncuentro: data.puntoEncuentro,
-      pasajeros: data.pasajeros ? Math.floor(Number(data.pasajeros)) : null,
-      detallesNotas: data.detallesNotas,
-      combustible: Number(data.combustibleCost) || 0,
-      hielo: Number(data.hieloCost) || 0,
-      aguaBebidas: Number(data.aguaBebidasCost) || 0,
-      gastoVarios: Number(data.gastoVariosCost) || 0,
-      pagoCapitana: Number(data.pagoCapitana) || 0,
-      pagoMarinero: Number(data.pagoMarinero) || 0,
-      precioAcordado: Number(data.precioAcordado) || 0,
-      horasAcordadas: Number(data.horasAcordadas) || 0,
-      tarifaHora: Number(data.tarifaHora) || 0,
-      cargoExtra: Number(data.cargoExtra) || 0,
-      pagoRecibo: Number(data.pagoRecibo) || 0,
-      efectivo: data.efectivo ?? false,
-      transferir: data.transferir ?? false,
-      pagarAlEmbarque: Number(data.pagarAlEmbarque) || 0,
-      debidoABayside: Number(data.debidoABayside) || 0,
-      totalClienteCost: Number(data.totalClienteCost) || 0,
-      deposito: Number(data.deposito),
-      saldoCliente: Number(data.saldoCliente),
-      horasExtras: data.horasExtras || null,
-      paymentMethod: data.paymentMethod || null,
-      horasExtrasEfectivo: data.horasExtrasEfectivo ?? false,
-      horasExtrasTransferir: data.horasExtrasTransferir ?? false,
-      pagoHorasExtra: Number(data.pagoHorasExtra) || 0,
+      nombre: validatedData.nombre,
+      cell: validatedData.cell,
+      fecha: parseDateDMY(validatedData.fechaEmbarque),
+      horaSalida: validatedData.horaEmbarque,
+      horaLlegado: validatedData.horaLlegado,
+      destino: validatedData.destino,
+      puntoEncuentro: validatedData.puntoEncuentro,
+      pasajeros: validatedData.pasajeros ? Math.floor(Number(validatedData.pasajeros)) : undefined,
+      detallesNotas: validatedData.detallesNotas,
+      combustible: validatedData.combustible !== undefined ? new Prisma.Decimal(validatedData.combustible as any) : undefined,
+      hielo: validatedData.hielo !== undefined ? new Prisma.Decimal(validatedData.hielo as any) : undefined,
+      aguaBebidas: validatedData.aguaBebidas !== undefined ? new Prisma.Decimal(validatedData.aguaBebidas as any) : undefined,
+      gastoVarios: validatedData.gastoVarios !== undefined ? new Prisma.Decimal(validatedData.gastoVarios as any) : undefined,
+      pagoCapitana: validatedData.pagoCapitana !== undefined ? new Prisma.Decimal(validatedData.pagoCapitana as any) : undefined,
+      pagoMarinero: validatedData.pagoMarinero !== undefined ? new Prisma.Decimal(validatedData.pagoMarinero as any) : undefined,
+      precioAcordado: validatedData.precioAcordado !== undefined ? new Prisma.Decimal(validatedData.precioAcordado as any) : undefined,
+      horasAcordadas: validatedData.horasAcordadas !== undefined ? new Prisma.Decimal(validatedData.horasAcordadas as any) : undefined,
+      tarifaHora: validatedData.tarifaHora !== undefined ? new Prisma.Decimal(validatedData.tarifaHora as any) : undefined,
+      cargoExtra: validatedData.cargoExtra !== undefined ? new Prisma.Decimal(validatedData.cargoExtra as any) : undefined,
+      pagoRecibo: validatedData.pagoRecibo !== undefined ? new Prisma.Decimal(validatedData.pagoRecibo as any) : undefined,
+      efectivo: validatedData.efectivo,
+      transferir: validatedData.transferir,
+      pagarAlEmbarque: validatedData.pagarAlEmbarque !== undefined ? new Prisma.Decimal(validatedData.pagarAlEmbarque as any) : undefined,
+      debidoABayside: validatedData.debidoABayside !== undefined ? new Prisma.Decimal(validatedData.debidoABayside as any) : undefined,
+      totalClienteCost: validatedData.totalClienteCost !== undefined ? new Prisma.Decimal(validatedData.totalClienteCost as any) : undefined,
+      deposito: validatedData.deposito !== undefined ? new Prisma.Decimal(validatedData.deposito as any) : undefined,
+      saldoCliente: validatedData.saldoCliente !== undefined ? new Prisma.Decimal(validatedData.saldoCliente as any) : undefined,
+      horasExtras: validatedData.horasExtras !== undefined ? (validatedData.horasExtras ? new Prisma.Decimal(validatedData.horasExtras as any) : null) : undefined,
+      paymentMethod: validatedData.paymentMethod,
+      horasExtrasEfectivo: validatedData.horasExtrasEfectivo,
+      horasExtrasTransferir: validatedData.horasExtrasTransferir,
+      pagoHorasExtra: validatedData.pagoHorasExtra !== undefined ? new Prisma.Decimal(validatedData.pagoHorasExtra as any) : undefined,
     };
 
     // Remove undefined keys if any (though mapped above shouldn't be undefined if data has them)
@@ -171,7 +245,7 @@ export async function updateWorkOrder(id: number, data: any) {
       console.error("Revalidation error (non-fatal):", err);
     }
 
-    return { success: true, data: order };
+    return { success: true, data: serializePrisma(order) };
   } catch (e: any) {
     console.error("Update Order Error:", e);
     return { success: false, error: e.message };
@@ -199,6 +273,9 @@ export async function deleteWorkOrder(id: number) {
     await prisma.workOrder.delete({
       where: { id },
     });
+
+    // TODO: Delete receipts from S3
+    
 
     // Revalidate paths
     revalidatePath("/admin/list");
@@ -283,7 +360,7 @@ export async function uploadReceipt(formData: FormData) {
 
     revalidatePath(`/captain/order/${orderId}`);
     revalidatePath(`/admin/order/${orderId}`);
-    return { success: true, data: receipt };
+    return { success: true, data: serializePrisma(receipt) };
   } catch (e: any) {
     console.error("Upload receipt: Unexpected error", e);
     return {

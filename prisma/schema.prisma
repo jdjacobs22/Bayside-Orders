@@ -77,49 +77,42 @@ model WorkOrder {
   cell            String?   @map("cell")
   fecha           DateTime?
   horaSalida      String?   @map("hora_salida")
-  horaLlagado     String?   @map("hora_llegado")
+  horaLlegado     String?   @map("hora_llegado")
   destino         String?
   puntoEncuentro  String?   @map("punto_encuentro")
   pasajeros       Int?
-  detallesNotas   String?  @map("detalles_notas") // Details/Notes
-  
-  // Expenses/Checkbox items (Assuming Boolean for inclusion, or could be cost if detailed)
-  // Based on "Gasto Varios", these might be line items. Let's make them boolean flags for now or nullable strings if specific details needed.
-  // Re-reading: "Combustible, Hielo, Auga/Bebidas, Gasto Varios" 
-  // Often these are costs in a work order. Let's assume they are costs (Float) or simply "included" (Boolean). 
-  // Given "Costo Total" is at the end, these are likely components of the cost.
-  // Let's use Float for costs, defaulting to 0 if not present.
-  
-  combustible     Float?   @default(0)
-  hielo           Float?   @default(0)
-  aguaBebidas     Float?   @default(0) @map("agua_bebidas")
-  gastoVarios     Float?   @default(0) @map("gasto_varios")
-  
+  detallesNotas   String?   @map("detalles_notas")
+
+  combustible     Decimal?  @default(0) @db.Decimal(5, 0)
+  hielo           Decimal?  @default(0) @db.Decimal(5, 0)
+  aguaBebidas     Decimal?  @default(0) @map("agua_bebidas") @db.Decimal(5, 0)
+  gastoVarios     Decimal?  @default(0) @map("gasto_varios") @db.Decimal(5, 0)
+
   // Payments
-  pagoCapitana    Float?   @default(0) @map("pago_capitana")
-  pagoMarinero    Float?   @default(0) @map("pago_marinero")
-  
+  pagoCapitana    Decimal?  @default(0) @map("pago_capitana") @db.Decimal(5, 0)
+  pagoMarinero    Decimal?  @default(0) @map("pago_marinero") @db.Decimal(5, 0)
+
   // New Admin fields
-  precioAcordado  Float?   @default(0) @map("precio_acordado")
-  horasAcordadas  Float?   @default(0) @map("horas_acordadas")
-  tarifaHora      Float?   @default(0) @map("tarifa_hora")
-  cargoExtra      Float?   @default(0) @map("cargo_extra")
-  
-  totalClienteCost Float    @default(0) @map("total_cliente_cost")
-  deposito        Float    @default(0)
-  saldoCliente    Float    @default(0) @map("saldo_cliente")
-  
+  precioAcordado  Decimal?  @default(0) @map("precio_acordado") @db.Decimal(5, 0)
+  horasAcordadas  Decimal?  @default(0) @map("horas_acordadas") @db.Decimal(3, 1)
+  tarifaHora      Decimal?  @default(0) @map("tarifa_hora") @db.Decimal(5, 0)
+  cargoExtra      Decimal?  @default(0) @map("cargo_extra") @db.Decimal(5, 0)
+
+  totalClienteCost Decimal   @default(0) @map("total_cliente_cost") @db.Decimal(5, 0)
+  deposito        Decimal   @default(0) @db.Decimal(5, 0)
+  saldoCliente    Decimal   @default(0) @map("saldo_cliente") @db.Decimal(5, 0)
+
   // Captain report fields
-  pagoRecibo      Float?   @default(0) @map("pago_recibo")
-  efectivo        Boolean? @default(false)
-  transferir      Boolean? @default(false)
-  pagarAlEmbarque Float?   @default(0) @map("pagar_al_embarque")
-  debidoABayside  Float?   @default(0) @map("debido_a_bayside") 
-  horasExtras     String?   @map("horas_extras")
-  paymentMethod   String?   @map("payment_method") 
+  pagoRecibo      Decimal?  @default(0) @map("pago_recibo") @db.Decimal(5, 0)
+  efectivo        Boolean?  @default(false)
+  transferir      Boolean?  @default(false)
+  pagarAlEmbarque Decimal?  @default(0) @map("pagar_al_embarque") @db.Decimal(5, 0)
+  debidoABayside  Decimal?  @default(0) @map("debido_a_bayside") @db.Decimal(5, 0)
+  horasExtras     Decimal?  @map("horas_extras") @db.Decimal(3, 1)
+  paymentMethod   String?   @map("payment_method")
   horasExtrasEfectivo   Boolean? @default(false) @map("horas_extras_efectivo")
   horasExtrasTransferir Boolean? @default(false) @map("horas_extras_transferir")
-  pagoHorasExtra        Float?   @default(0)     @map("pago_horas_extra")
+  pagoHorasExtra        Decimal? @default(0)     @map("pago_horas_extra") @db.Decimal(5, 0)
 
   receipts        Receipt[]
 

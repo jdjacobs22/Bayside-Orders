@@ -141,7 +141,7 @@ export const WorkOrderScalarFieldEnum = {
   cell: 'cell',
   fecha: 'fecha',
   horaSalida: 'horaSalida',
-  horaLlagado: 'horaLlagado',
+  horaLlegado: 'horaLlegado',
   destino: 'destino',
   puntoEncuentro: 'puntoEncuentro',
   pasajeros: 'pasajeros',
