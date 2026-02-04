@@ -45,6 +45,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Prisma } from "@/lib/prisma-client/browser";
 import { getAdminSchema, getCaptainSchema } from "@/lib/schemas";
+import imageCompression from 'browser-image-compression';
 
 // 1. STYLED SCHEMA: Strict types for Linter compliance
 
@@ -293,7 +294,9 @@ export default function WorkOrderForm({
    * because it resizes the image DURING decoding, avoiding a high-res memory spike.
    * Perfect for devices like the Samsung A53 with massive camera sensors.
    */
-  const compressImage = async (file: File): Promise<File> => {
+
+  /* Comment out per Gemini */
+  /*const compressImage = async (file: File): Promise<File> => {
     if (!file.type.startsWith("image/")) return file;
 
     try {
@@ -340,10 +343,11 @@ export default function WorkOrderForm({
       throw new Error("Error comprimiendo imagen: " + (error.message || "Unknown error"));
     }
   };
+  */
 
-  /**
-   * Universal handler for file selection.
-   * Compresses and uploads immediately to minimize memory footprint.
+/**
+   * Refactored handler using browser-image-compression.
+   * This runs in a web worker to prevent UI thread crashes on Samsung devices.
    */
   const handleFileSelect = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -353,7 +357,7 @@ export default function WorkOrderForm({
     if (!e.target.files?.[0]) return;
 
     const originalFile = e.target.files[0];
-    e.target.value = ""; // Reset for re-selection
+    e.target.value = ""; // Reset input
 
     if (!originalFile.type.startsWith("image/")) {
       alert("Solo se permiten archivos de imagen");
@@ -365,28 +369,31 @@ export default function WorkOrderForm({
       return;
     }
 
-    // Samsung A53 / Mobile stability: Delay processing to let the camera release memory
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
-    const stabilityDelay = isMobile ? 2500 : 500;
-
     setCompressing(true);
     setUploading(true);
 
     try {
-      if (isMobile) {
-        // Give the browser breathing room after switching back from camera
-        await new Promise((resolve) => setTimeout(resolve, stabilityDelay));
-      }
+      // 1. Configure compression settings for Samsung A53 stability
+      const options = {
+        maxSizeMB: 0.8,          // Target ~800KB
+        maxWidthOrHeight: 1280,  // Downscale 64MP -> ~1.2MP
+        useWebWorker: true,      // Run in background thread
+        initialQuality: 0.7,     // Start at 70% quality
+        alwaysKeepResolution: true 
+      };
 
-      const compressedFile = await compressImage(originalFile);
+      // 2. Use the LIBRARY (imageCompression) instead of the missing function
+      const compressedBlob = await imageCompression(originalFile, options);
+      
+      // 3. Convert the result back to a File object
+      const compressedFile = new File([compressedBlob], originalFile.name, {
+        type: originalFile.type,
+        lastModified: Date.now(),
+      });
 
-      // Safety check: If for some reason we still have a huge file (shouldn't happen with the new logic which throws), abort).
-      if (compressedFile.size > 5 * 1024 * 1024) {
-        throw new Error("La imagen comprimida sigue siendo demasiado grande. Intente bajar la resolución de su cámara.");
-      }
-
+      // 4. Upload
       const formData = new FormData();
-      formData.append("file", compressedFile, originalFile.name);
+      formData.append("file", compressedFile);
       formData.append("orderId", orderId.toString());
       formData.append("gastoType", gastoType);
 
@@ -394,18 +401,19 @@ export default function WorkOrderForm({
 
       if (res.success) {
         setReceipts((prev) => [...prev, res.data]);
+        
+        // Force garbage collection if available (helps some Androids release memory)
+        if (typeof window !== 'undefined' && (window as any).gc) {
+          (window as any).gc();
+        }
+        
         alert("Imagen subida exitosamente");
       } else {
         alert("Error al subir: " + res.error);
       }
     } catch (err: any) {
-      console.error("Upload process error:", err);
-      const msg = err?.message || "";
-      if (msg.toLowerCase().includes("memory") || msg.toLowerCase().includes("quota") || msg.toLowerCase().includes("context")) {
-        alert("Error de memoria en el dispositivo. \n\nSolución: \n1. Cierre otras aplicaciones. \n2. Baje la resolución de su cámara. \n3. Reinicie el navegador.");
-      } else {
-        alert("Error: " + (msg || "Error al procesar la imagen"));
-      }
+      console.error("Compression/Upload error:", err);
+      alert("Error: " + (err.message || "No se pudo procesar la imagen."));
     } finally {
       setCompressing(false);
       setUploading(false);
