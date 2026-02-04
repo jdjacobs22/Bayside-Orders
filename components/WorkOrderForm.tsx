@@ -345,10 +345,10 @@ export default function WorkOrderForm({
   };
   */
 
-/**
-   * Refactored handler using browser-image-compression.
-   * This runs in a web worker to prevent UI thread crashes on Samsung devices.
-   */
+  /**
+     * Refactored handler using browser-image-compression.
+     * This runs in a web worker to prevent UI thread crashes on Samsung devices.
+     */
   const handleFileSelect = async (
     e: React.ChangeEvent<HTMLInputElement>,
     gastoType: string
@@ -379,12 +379,12 @@ export default function WorkOrderForm({
         maxWidthOrHeight: 1280,  // Downscale 64MP -> ~1.2MP
         useWebWorker: true,      // Run in background thread
         initialQuality: 0.7,     // Start at 70% quality
-        alwaysKeepResolution: true 
+        alwaysKeepResolution: true
       };
 
       // 2. Use the LIBRARY (imageCompression) instead of the missing function
       const compressedBlob = await imageCompression(originalFile, options);
-      
+
       // 3. Convert the result back to a File object
       const compressedFile = new File([compressedBlob], originalFile.name, {
         type: originalFile.type,
@@ -401,12 +401,12 @@ export default function WorkOrderForm({
 
       if (res.success) {
         setReceipts((prev) => [...prev, res.data]);
-        
+
         // Force garbage collection if available (helps some Androids release memory)
         if (typeof window !== 'undefined' && (window as any).gc) {
           (window as any).gc();
         }
-        
+
         alert("Imagen subida exitosamente");
       } else {
         alert("Error al subir: " + res.error);
@@ -691,6 +691,264 @@ export default function WorkOrderForm({
                   )}
                 />
 
+              </div>
+
+              {/* ADMIN */}
+              <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100 space-y-4">
+                <h3 className="font-bold flex items-center gap-2 text-blue-700">
+                  <DollarSign className="h-4 w-4" /> Administración
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="pagoCapitana"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Pago Capitana</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              field.onChange(
+                                val === ""
+                                  ? 0
+                                  : isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber
+                              );
+                            }}
+                            disabled={isCaptain}
+                            className={isCaptain ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="pagoMarinero"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Pago Marinero</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              field.onChange(
+                                val === ""
+                                  ? 0
+                                  : isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber
+                              );
+                            }}
+                            disabled={isCaptain}
+                            className={isCaptain ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="horaEmbarque"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Hora de Embarque</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="time"
+                            step="1800"
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("horaEmbarque")}
+                            className={
+                              !canEdit("horaEmbarque") ? "bg-gray-200" : ""
+                            }
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="tarifaHora"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tarifa por Hora</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              field.onChange(
+                                val === ""
+                                  ? 0
+                                  : isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber
+                              );
+                            }}
+                            disabled={isCaptain}
+                            className={isCaptain ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="horasAcordadas"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Duración Acordada</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              field.onChange(
+                                val === ""
+                                  ? 0
+                                  : isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber
+                              );
+                            }}
+                            disabled={isCaptain}
+                            className={isCaptain ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t border-blue-100">
+                  <FormField
+                    control={form.control}
+                    name="precioAcordado"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Precio Acordado</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={Number(field.value) === 0 ? "" : String(field.value)}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              field.onChange(
+                                val === ""
+                                  ? 0
+                                  : isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber
+                              );
+                            }}
+                            disabled={isCaptain}
+                            className={isCaptain ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="cargoExtra"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cargo Extra</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            readOnly
+                            value={Number(field.value) === 0 ? "" : String(field.value)}
+                            className="bg-gray-100 cursor-not-allowed"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="totalClienteCost"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold underline decoration-blue-400 decoration-2 underline-offset-4">
+                          Costo Total
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            readOnly
+                            {...field}
+                            value={Number(field.value) === 0 ? "" : String(field.value)}
+                            className="bg-gray-200 font-bold"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="deposito"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-1 text-blue-800">
+                          <DollarSign className="h-3 w-3" /> Deposito
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={Number(field.value) === 0 ? "" : String(field.value)}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              field.onChange(
+                                val === ""
+                                  ? 0
+                                  : isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber
+                              );
+                            }}
+                            disabled={!canEdit("deposito")}
+                            className={!canEdit("deposito") ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="saldoCliente"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold text-red-700">
+                          Saldo Cliente
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            readOnly
+                            className="bg-red-50 font-bold text-red-700"
+                            {...field}
+                            value={Number(field.value) === 0 ? "" : String(field.value)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
               {/* CAPITANA */}
@@ -1245,263 +1503,7 @@ export default function WorkOrderForm({
                 </div>
               </div>
 
-              {/* ADMIN */}
-              <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100 space-y-4">
-                <h3 className="font-bold flex items-center gap-2 text-blue-700">
-                  <DollarSign className="h-4 w-4" /> Administración
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="pagoCapitana"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Pago Capitana</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
-                                    ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="pagoMarinero"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Pago Marinero</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
-                                    ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="horaEmbarque"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Hora de Embarque</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="time"
-                            step="1800"
-                            {...field}
-                            value={field.value ?? ""}
-                            disabled={!canEdit("horaEmbarque")}
-                            className={
-                              !canEdit("horaEmbarque") ? "bg-gray-200" : ""
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="tarifaHora"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tarifa por Hora</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
-                                    ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="horasAcordadas"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Duración Acordada</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
-                                    ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t border-blue-100">
-                  <FormField
-                    control={form.control}
-                    name="precioAcordado"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Precio Acordado</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={Number(field.value) === 0 ? "" : String(field.value)}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
-                                    ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="cargoExtra"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Cargo Extra</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            readOnly
-                            value={Number(field.value) === 0 ? "" : String(field.value)}
-                            className="bg-gray-100 cursor-not-allowed"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="totalClienteCost"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold underline decoration-blue-400 decoration-2 underline-offset-4">
-                          Costo Total
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            readOnly
-                            {...field}
-                            value={Number(field.value) === 0 ? "" : String(field.value)}
-                            className="bg-gray-200 font-bold"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="deposito"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-1 text-blue-800">
-                          <DollarSign className="h-3 w-3" /> Deposito
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            {...field}
-                            value={Number(field.value) === 0 ? "" : String(field.value)}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              field.onChange(
-                                val === ""
-                                  ? 0
-                                  : isNaN(e.target.valueAsNumber)
-                                    ? 0
-                                    : e.target.valueAsNumber
-                              );
-                            }}
-                            disabled={!canEdit("deposito")}
-                            className={!canEdit("deposito") ? "bg-gray-200" : ""}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="saldoCliente"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold text-red-700">
-                          Saldo Cliente
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            readOnly
-                            className="bg-red-50 font-bold text-red-700"
-                            {...field}
-                            value={Number(field.value) === 0 ? "" : String(field.value)}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+
 
               <FormField
                 control={form.control}
