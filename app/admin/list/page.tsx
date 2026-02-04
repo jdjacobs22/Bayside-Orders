@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getWorkOrders, deleteWorkOrder } from "@/app/actions/work-order";
@@ -114,7 +116,7 @@ export default function AdminOrderList() {
                         <TableCell>{order.nombre || "-"}</TableCell>
                         <TableCell className="text-muted-foreground">
                           {order.fecha
-                            ? new Date(order.fecha).toLocaleDateString()
+                            ? format(new Date(order.fecha), "MMMM d, yyyy", { locale: es })
                             : "-"}
                         </TableCell>
                         <TableCell className="text-muted-foreground">-</TableCell>

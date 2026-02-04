@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { format } from "date-fns";
 import {
   CalendarIcon,
   Clock,
@@ -14,7 +15,6 @@ import {
   Anchor,
   Camera,
 } from "lucide-react";
-import imageCompression from "browser-image-compression";
 import {
   uploadReceipt,
   getWorkOrder,
@@ -242,9 +242,7 @@ export default function WorkOrderForm({
             form.reset({
               nombre: data.nombre || "",
               cell: data.cell || "",
-              fechaEmbarque: data.fecha
-                ? new Date(data.fecha).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
-                : "",
+              fechaEmbarque: data.fecha ? new Date(data.fecha) : undefined,
               horaEmbarque: data.horaSalida || "10:00",
               destino: data.destino || "",
               puntoEncuentro: data.puntoEncuentro || "",
@@ -290,203 +288,127 @@ export default function WorkOrderForm({
   }, [orderId, mode, form]);
 
   /**
-   * Compresses an image file.
-   * Restored with aggressive settings to minimize memory usage.
+   * Compresses an image file using native browser APIs (createImageBitmap).
+   * This is significantly more memory-efficient than library-based canvas operations
+   * because it resizes the image DURING decoding, avoiding a high-res memory spike.
+   * Perfect for devices like the Samsung A53 with massive camera sensors.
    */
   const compressImage = async (file: File): Promise<File> => {
-    // Skip compression for non-image files
-    if (!file.type.startsWith("image/")) {
-      return file;
-    }
+    if (!file.type.startsWith("image/")) return file;
 
     try {
-      // Debug: Alert start of compression
-      // alert(`Iniciando compresión...\nOriginal: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+      // 1. Create a bitmap that is already resized. 
+      // This tells the browser to decode only a small version into memory.
+      // Reduced to 640px for maximum safety on 4GB RAM devices (A53)
+      const imageBitmap = await createImageBitmap(file, {
+        resizeWidth: 640,
+        resizeQuality: 'medium'
+      });
 
-      const options = {
-        maxSizeMB: 0.2, // Ultra aggressive for A53 (200KB)
-        maxWidthOrHeight: 600, // Reduced for A53 memory limits
-        useWebWorker: true, // Critical for UI responsiveness
-        fileType: "image/jpeg",
-        initialQuality: 0.5,
-      };
+      // 2. Use a temporary canvas to export to JPEG
+      const canvas = document.createElement('canvas');
+      canvas.width = imageBitmap.width;
+      canvas.height = imageBitmap.height;
+      const ctx = canvas.getContext('2d', { alpha: false }); // Alpha false saves memory
 
-      // console.log(`Compressing image...`);
+      if (!ctx) {
+        imageBitmap.close();
+        throw new Error("Canvas context creation failed");
+      }
 
-      const compressedFile = await imageCompression(file, options);
+      ctx.drawImage(imageBitmap, 0, 0);
 
-      // console.log(`Image compressed successfully`);
+      // 3. Immediately close the bitmap to release GPU/system memory
+      imageBitmap.close();
 
-      // Debug: Alert success
-      // alert(`Compresión exitosa.\nNuevo tamaño: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
+      return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          // Explicitly clear canvas memory
+          canvas.width = 0;
+          canvas.height = 0;
 
-      return compressedFile;
+          if (blob) {
+            resolve(new File([blob], file.name, { type: "image/jpeg" }));
+          } else {
+            reject(new Error("Canvas toBlob failed"));
+          }
+        }, "image/jpeg", 0.6); // 60% quality is optimal for receipts
+      });
     } catch (error: any) {
-      console.error("Compression error:", error);
-      // alert(`Error en compresión: ${error.message}`);
-      // Fallback: return original file but warn user
-      return file;
+      console.error("Native compression error:", error);
+      // Ensure we clean up if possible
+      throw new Error("Error comprimiendo imagen: " + (error.message || "Unknown error"));
     }
   };
 
   /**
-   * Handles the selection of a file for upload.
-   * Validates the file type and size.
-   * On mobile, it compresses and uploads the image immediately to avoid memory issues.
-   * On desktop, it also follows the immediate upload flow for consistency in this implementation.
-   *
-   * @param e - The change event from the file input.
-   * @param gastoType - The type of expense category the image belongs to.
+   * Universal handler for file selection.
+   * Compresses and uploads immediately to minimize memory footprint.
    */
   const handleFileSelect = async (
     e: React.ChangeEvent<HTMLInputElement>,
     gastoType: string
   ) => {
     e.preventDefault();
-    e.stopPropagation();
+    if (!e.target.files?.[0]) return;
 
-    if (e.target.files && e.target.files[0]) {
-      const originalFile = e.target.files[0];
-      console.log("File selected:", {
-        gastoType,
-        fileName: originalFile.name,
-        size: originalFile.size,
-      });
+    const originalFile = e.target.files[0];
+    e.target.value = ""; // Reset for re-selection
 
-      // Reset input to allow selecting the same file again
-      e.target.value = "";
+    if (!originalFile.type.startsWith("image/")) {
+      alert("Solo se permiten archivos de imagen");
+      return;
+    }
 
-      // ALWAYS compress images to avoid memory issues on mobile devices
-      // Even small file sizes can have high resolution that causes memory problems
-      const isImage = originalFile.type.startsWith("image/");
+    if (!orderId) {
+      alert("Error: No se encontró el ID de la orden.");
+      return;
+    }
 
-      if (isImage) {
-        // Check file size - reject files larger than 15MB to prevent memory issues
-        const maxFileSize = 15 * 1024 * 1024; // 15MB
-        if (originalFile.size > maxFileSize) {
-          alert(
-            `El archivo es demasiado grande (${(originalFile.size / 1024 / 1024).toFixed(2)}MB). Por favor, use una imagen más pequeña.`
-          );
-          return;
-        }
+    // Samsung A53 / Mobile stability: Delay processing to let the camera release memory
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+    const stabilityDelay = isMobile ? 2500 : 500;
 
-        // Detect if we're on a mobile device
-        const isMobile =
-          /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
-          window.innerWidth <= 768;
+    setCompressing(true);
+    setUploading(true);
 
-        // On mobile devices, delay processing to prevent OOM kills
-        if (isMobile) {
-          if (!orderId) {
-            alert("Error: No se encontró el ID de la orden.");
-            return;
-          }
-
-          // IMMEDIATE DEBUG
-          // alert(`1. Archivo detectado: ${originalFile.name} (${(originalFile.size / 1024 / 1024).toFixed(2)} MB). Esperando estabilidad...`);
-
-          setCompressing(true);
-          setUploading(true);
-
-          try {
-            // CRITICAL FIX: 2.5 second delay to let browser recover memory after Camera app closes (A53 specific)
-            // This prevents the "reload" crash
-            await new Promise((resolve) => setTimeout(resolve, 2500));
-
-            // alert("2. Procesando imagen (2s delay finished)...");
-
-            // Compress the image
-            const compressedFile = await compressImage(originalFile);
-
-            // alert(`3. Subiendo archivo (${(compressedFile.size / 1024 / 1024).toFixed(2)} MB)...`);
-
-            // Upload directly
-            const formDataUpload = new FormData();
-            formDataUpload.append("file", compressedFile, originalFile.name);
-            formDataUpload.append("orderId", orderId.toString());
-            formDataUpload.append("gastoType", gastoType);
-
-            const res = await uploadReceipt(formDataUpload);
-
-            if (res.success) {
-              setReceipts((prev) => [...prev, res.data]);
-              alert("Imagen subida exitosamente");
-            } else {
-              alert("Error al subir: " + res.error);
-            }
-          } catch (err: any) {
-            console.error("Mobile upload error:", err);
-            // Check for memory-related errors
-            const errorMessage = err?.message || "Error al procesar la imagen";
-            if (
-              errorMessage.includes("memory") ||
-              errorMessage.includes("Memory") ||
-              errorMessage.includes("quota")
-            ) {
-              alert(
-                "Error: Memoria insuficiente. Por favor, intente con una imagen más pequeña o reinicie la aplicación."
-              );
-            } else {
-              alert("Error: " + errorMessage);
-            }
-          } finally {
-            setCompressing(false);
-            setUploading(false);
-          }
-          return;
-        }
-
-        // If somehow we get here on desktop (shouldn't happen since only captains upload),
-        // treat it the same as mobile - upload directly
-        if (!orderId) {
-          alert("Error: No se encontró el ID de la orden.");
-          return;
-        }
-
-        setCompressing(true);
-        setUploading(true);
-
-        try {
-          // Brief delay to allow browser to recover from camera app
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          const compressedFile = await compressImage(originalFile);
-
-          const formDataUpload = new FormData();
-          // Important: Pass original filename to ensure server recognizes it as an image
-          formDataUpload.append("file", compressedFile, originalFile.name);
-          formDataUpload.append("orderId", orderId.toString());
-          formDataUpload.append("gastoType", gastoType);
-
-          const res = await uploadReceipt(formDataUpload);
-
-          if (res.success) {
-            setReceipts((prev) => [...prev, res.data]);
-            alert("Imagen subida exitosamente");
-          } else {
-            alert("Error al subir: " + res.error);
-          }
-        } catch (err: any) {
-          console.error("Upload error:", err);
-          const errorMessage = err?.message || "Error al procesar la imagen";
-          if (
-            errorMessage.includes("memory") ||
-            errorMessage.includes("Memory") ||
-            errorMessage.includes("quota")
-          ) {
-            alert(
-              "Error: Memoria insuficiente. Por favor, intente con una imagen más pequeña."
-            );
-          } else {
-            alert("Error: " + errorMessage);
-          }
-        } finally {
-          setCompressing(false);
-          setUploading(false);
-        }
-      } else {
-        // Non-image files - reject them
-        alert("Solo se permiten archivos de imagen");
+    try {
+      if (isMobile) {
+        // Give the browser breathing room after switching back from camera
+        await new Promise((resolve) => setTimeout(resolve, stabilityDelay));
       }
+
+      const compressedFile = await compressImage(originalFile);
+
+      // Safety check: If for some reason we still have a huge file (shouldn't happen with the new logic which throws), abort).
+      if (compressedFile.size > 5 * 1024 * 1024) {
+        throw new Error("La imagen comprimida sigue siendo demasiado grande. Intente bajar la resolución de su cámara.");
+      }
+
+      const formData = new FormData();
+      formData.append("file", compressedFile, originalFile.name);
+      formData.append("orderId", orderId.toString());
+      formData.append("gastoType", gastoType);
+
+      const res = await uploadReceipt(formData);
+
+      if (res.success) {
+        setReceipts((prev) => [...prev, res.data]);
+        alert("Imagen subida exitosamente");
+      } else {
+        alert("Error al subir: " + res.error);
+      }
+    } catch (err: any) {
+      console.error("Upload process error:", err);
+      const msg = err?.message || "";
+      if (msg.toLowerCase().includes("memory") || msg.toLowerCase().includes("quota") || msg.toLowerCase().includes("context")) {
+        alert("Error de memoria en el dispositivo. \n\nSolución: \n1. Cierre otras aplicaciones. \n2. Baje la resolución de su cámara. \n3. Reinicie el navegador.");
+      } else {
+        alert("Error: " + (msg || "Error al procesar la imagen"));
+      }
+    } finally {
+      setCompressing(false);
+      setUploading(false);
     }
   };
 
@@ -739,7 +661,7 @@ export default function WorkOrderForm({
                               )}
                             >
                               {field.value ? (
-                                format(new Date(field.value), "PPP")
+                                format(new Date(field.value), "MMMM d, yyyy", { locale: es })
                               ) : (
                                 <span>Seleccione fecha</span>
                               )}
@@ -753,6 +675,7 @@ export default function WorkOrderForm({
                             selected={field.value ? new Date(field.value) : undefined}
                             onSelect={field.onChange}
                             disabled={!canEdit("fechaEmbarque")}
+                            locale={es}
                           />
                         </PopoverContent>
                       </Popover>
