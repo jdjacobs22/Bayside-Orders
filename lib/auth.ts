@@ -16,6 +16,10 @@ export const auth = betterAuth({
       },
     },
   },
+  session: {
+    expiresIn: 60 * 60, // 1 hour session limit
+    updateAge: 60 * 5, // Update session every 5 minutes
+  },
   trustedOrigins: (() => {
     const origins: string[] = [
       "http://localhost:3000",

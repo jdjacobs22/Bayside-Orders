@@ -46,6 +46,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Prisma } from "@/lib/prisma-client/browser";
 import { getAdminSchema, getCaptainSchema } from "@/lib/schemas";
 import imageCompression from 'browser-image-compression';
+import { toast } from "sonner";
 
 // 1. STYLED SCHEMA: Strict types for Linter compliance
 
@@ -72,6 +73,7 @@ export default function WorkOrderForm({
   orderId: propOrderId,
 }: WorkOrderFormProps) {
   const router = useRouter();
+
   // Initialize orderId immediately if propOrderId is provided
   const [orderId, setOrderId] = useState<number | null>(propOrderId || null);
 
@@ -91,6 +93,41 @@ export default function WorkOrderForm({
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
+
+  // DEBUGGING STATE
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
+
+  // Load logs from local storage on mount
+  useEffect(() => {
+    try {
+      const savedLogs = localStorage.getItem("photo_debug_logs");
+      if (savedLogs) {
+        setDebugLogs(JSON.parse(savedLogs));
+      }
+    } catch (e) {
+      console.error("Failed to load debug logs", e);
+    }
+  }, []);
+
+  const addDebugLog = (msg: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = `${timestamp}: ${msg}`;
+    console.log("DEBUG:", msg);
+    setDebugLogs((prev) => {
+      const newLogs = [...prev, logEntry];
+      try {
+        localStorage.setItem("photo_debug_logs", JSON.stringify(newLogs));
+      } catch (e) {
+        console.error("Failed to save log to local storage", e);
+      }
+      return newLogs;
+    });
+  };
+
+  const clearDebugLogs = () => {
+    setDebugLogs([]);
+    localStorage.removeItem("photo_debug_logs");
+  };
 
   // Field Access Logic
   const isCaptain = mode === "captain-edit";
@@ -276,13 +313,17 @@ export default function WorkOrderForm({
             });
             if (data.receipts) setReceipts(data.receipts);
           } else {
-            alert("Error cargando orden: " + res.error);
+            toast.error("Error", {
+              description: "Error cargando orden: " + res.error,
+            });
           }
           setLoading(false);
         })
         .catch((error) => {
           console.error("Error loading order:", error);
-          alert("Error cargando orden: " + error.message);
+          toast.error("Error", {
+            description: "Error cargando orden: " + error.message,
+          });
           setLoading(false);
         });
     }
@@ -295,55 +336,7 @@ export default function WorkOrderForm({
    * Perfect for devices like the Samsung A53 with massive camera sensors.
    */
 
-  /* Comment out per Gemini */
-  /*const compressImage = async (file: File): Promise<File> => {
-    if (!file.type.startsWith("image/")) return file;
 
-    try {
-      // 1. Create a bitmap that is already resized. 
-      // This tells the browser to decode only a small version into memory.
-      // Reduced to 640px for maximum safety on 4GB RAM devices (A53)
-      const imageBitmap = await createImageBitmap(file, {
-        resizeWidth: 640,
-        resizeQuality: 'medium'
-      });
-
-      // 2. Use a temporary canvas to export to JPEG
-      const canvas = document.createElement('canvas');
-      canvas.width = imageBitmap.width;
-      canvas.height = imageBitmap.height;
-      const ctx = canvas.getContext('2d', { alpha: false }); // Alpha false saves memory
-
-      if (!ctx) {
-        imageBitmap.close();
-        throw new Error("Canvas context creation failed");
-      }
-
-      ctx.drawImage(imageBitmap, 0, 0);
-
-      // 3. Immediately close the bitmap to release GPU/system memory
-      imageBitmap.close();
-
-      return new Promise((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          // Explicitly clear canvas memory
-          canvas.width = 0;
-          canvas.height = 0;
-
-          if (blob) {
-            resolve(new File([blob], file.name, { type: "image/jpeg" }));
-          } else {
-            reject(new Error("Canvas toBlob failed"));
-          }
-        }, "image/jpeg", 0.6); // 60% quality is optimal for receipts
-      });
-    } catch (error: any) {
-      console.error("Native compression error:", error);
-      // Ensure we clean up if possible
-      throw new Error("Error comprimiendo imagen: " + (error.message || "Unknown error"));
-    }
-  };
-  */
 
   /**
      * Refactored handler using browser-image-compression.
@@ -353,24 +346,42 @@ export default function WorkOrderForm({
     e: React.ChangeEvent<HTMLInputElement>,
     gastoType: string
   ) => {
-    e.preventDefault();
-    if (!e.target.files?.[0]) return;
+    // Prevent default isn't always needed for file inputs but kept for consistency
+    // e.preventDefault(); 
+
+    addDebugLog(`File input triggered for ${gastoType}`);
+
+    if (!e.target.files?.[0]) {
+      addDebugLog("No file selected or file selection cancelled");
+      return;
+    }
 
     const originalFile = e.target.files[0];
+
+    // Log file details immediately
+    addDebugLog(`File Selected: Name=${originalFile.name}, Size=${(originalFile.size / 1024 / 1024).toFixed(2)}MB, Type=${originalFile.type}`);
+
     e.target.value = ""; // Reset input
 
     if (!originalFile.type.startsWith("image/")) {
-      alert("Solo se permiten archivos de imagen");
+      addDebugLog("Invalid file type selected");
+      toast.error("Archivo inválido", {
+        description: "Solo se permiten archivos de imagen",
+      });
       return;
     }
 
     if (!orderId) {
-      alert("Error: No se encontró el ID de la orden.");
+      addDebugLog("Error: Missing Order ID");
+      toast.error("Error", {
+        description: "No se encontró el ID de la orden.",
+      });
       return;
     }
 
     setCompressing(true);
     setUploading(true);
+    addDebugLog("Starting compression process...");
 
     try {
       // 1. Configure compression settings for Samsung A53 stability
@@ -379,11 +390,19 @@ export default function WorkOrderForm({
         maxWidthOrHeight: 1280,  // Downscale 64MP -> ~1.2MP
         useWebWorker: true,      // Run in background thread
         initialQuality: 0.7,     // Start at 70% quality
-        alwaysKeepResolution: true
+        alwaysKeepResolution: true,
+        onProgress: (progress: number) => {
+          // Optional: excessive logging might slow it down, but helpful for hangs
+          // addDebugLog(`Compression progress: ${progress}%`); 
+        }
       };
 
-      // 2. Use the LIBRARY (imageCompression) instead of the missing function
+      addDebugLog(`Compression Options: ${JSON.stringify(options)}`);
+
+      // 2. Use the LIBRARY (imageCompression)
       const compressedBlob = await imageCompression(originalFile, options);
+
+      addDebugLog(`Compression success. New Size: ${(compressedBlob.size / 1024 / 1024).toFixed(2)}MB`);
 
       // 3. Convert the result back to a File object
       const compressedFile = new File([compressedBlob], originalFile.name, {
@@ -392,31 +411,45 @@ export default function WorkOrderForm({
       });
 
       // 4. Upload
+      addDebugLog("Preparing FormData for upload...");
       const formData = new FormData();
       formData.append("file", compressedFile);
       formData.append("orderId", orderId.toString());
       formData.append("gastoType", gastoType);
 
+      addDebugLog("Sending upload request to server...");
       const res = await uploadReceipt(formData);
 
       if (res.success) {
+        addDebugLog(`Upload success! Receipt ID: ${res.data?.id}`);
         setReceipts((prev) => [...prev, res.data]);
 
         // Force garbage collection if available (helps some Androids release memory)
         if (typeof window !== 'undefined' && (window as any).gc) {
+          addDebugLog("Triggering manual GC");
           (window as any).gc();
         }
 
-        alert("Imagen subida exitosamente");
+        toast.success("Éxito", {
+          description: "Imagen subida exitosamente",
+        });
       } else {
-        alert("Error al subir: " + res.error);
+        addDebugLog(`Upload failed server-side: ${res.error}`);
+        toast.error("Error al subir", {
+          description: res.error,
+        });
       }
     } catch (err: any) {
       console.error("Compression/Upload error:", err);
-      alert("Error: " + (err.message || "No se pudo procesar la imagen."));
+      addDebugLog(`EXCEPTION: ${err.message || JSON.stringify(err)}`);
+      addDebugLog(`Stack: ${err.stack}`);
+      toast.error("Error", {
+        description: err.message || "No se pudo procesar la imagen.",
+      });
     } finally {
       setCompressing(false);
       setUploading(false);
+      addDebugLog("Process finished (finally block).");
     }
   };
 
@@ -474,7 +507,9 @@ export default function WorkOrderForm({
         result = await createWorkOrder(submissionData, "admin");
       } else {
         if (!orderId) {
-          alert("Falta ID de Orden");
+          toast.error("Error", {
+            description: "Falta ID de Orden",
+          });
           setLoading(false);
           return;
         }
@@ -487,7 +522,9 @@ export default function WorkOrderForm({
           setCreatedOrderId(result.data?.id || null);
           setShowSuccessDialog(true);
         } else {
-          alert("Orden Actualizada!");
+          toast.success("Éxito", {
+            description: "Orden Actualizada!",
+          });
           if (mode === "captain-edit") {
             // Captain Flow: Only sign out here, after explicit "Guardar"
             await authClient.signOut();
@@ -497,11 +534,15 @@ export default function WorkOrderForm({
           }
         }
       } else {
-        alert("Error: " + result.error);
+        toast.error("Error", {
+          description: result.error,
+        });
       }
     } catch (error: any) {
       console.error("Submit error:", error);
-      alert("Error: " + (error?.message || "Error al guardar"));
+      toast.error("Error", {
+        description: error?.message || "Error al guardar",
+      });
     } finally {
       setLoading(false);
     }
@@ -542,162 +583,162 @@ export default function WorkOrderForm({
         <CardContent className="p-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              {/* CLIENTE INFO */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FormField
-                  control={form.control}
-                  name="nombre"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nombre</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          disabled={!canEdit("nombre")}
-                          className={!canEdit("nombre") ? "bg-gray-200" : ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="cell"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Cell</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          disabled={!canEdit("cell")}
-                          className={!canEdit("cell") ? "bg-gray-200" : ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="pasajeros"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>No. de Pasajeros</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          {...field}
-                          value={field.value === 0 ? "" : (field.value ?? "")}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            field.onChange(
-                              val === ""
-                                ? 0
-                                : isNaN(e.target.valueAsNumber)
-                                  ? 0
-                                  : e.target.valueAsNumber
-                            );
-                          }}
-                          disabled={!canEdit("pasajeros")}
-                          className={!canEdit("pasajeros") ? "bg-gray-200" : ""}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="destino"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Destino</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          disabled={!canEdit("destino")}
-                          className={!canEdit("destino") ? "bg-gray-200" : ""}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="puntoEncuentro"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Punto de Encuentro</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ""}
-                          disabled={!canEdit("puntoEncuentro")}
-                          className={
-                            !canEdit("puntoEncuentro") ? "bg-gray-200" : ""
-                          }
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b pb-6">
-                <FormField
-                  control={form.control}
-                  name="fechaEmbarque"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Fecha de Embarque</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              disabled={!canEdit("fechaEmbarque")}
-                              className={cn(
-                                "pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground",
-                                !canEdit("fechaEmbarque") && "bg-gray-200"
-                              )}
-                            >
-                              {field.value ? (
-                                format(new Date(field.value), "MMMM d, yyyy", { locale: es })
-                              ) : (
-                                <span>Seleccione fecha</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value ? new Date(field.value) : undefined}
-                            onSelect={field.onChange}
-                            disabled={!canEdit("fechaEmbarque")}
-                            locale={es}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  )}
-                />
-
-              </div>
 
               {/* ADMIN */}
               <div className="bg-blue-50/50 p-4 rounded-lg border border-blue-100 space-y-4">
                 <h3 className="font-bold flex items-center gap-2 text-blue-700">
                   <DollarSign className="h-4 w-4" /> Administración
                 </h3>
+                {/* CLIENTE INFO */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="nombre"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nombre</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("nombre")}
+                            className={!canEdit("nombre") ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="cell"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cell</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("cell")}
+                            className={!canEdit("cell") ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="pasajeros"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>No. de Pasajeros</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            {...field}
+                            value={field.value === 0 ? "" : (field.value ?? "")}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              field.onChange(
+                                val === ""
+                                  ? 0
+                                  : isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber
+                              );
+                            }}
+                            disabled={!canEdit("pasajeros")}
+                            className={!canEdit("pasajeros") ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="destino"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Destino</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("destino")}
+                            className={!canEdit("destino") ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="puntoEncuentro"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Punto de Encuentro</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("puntoEncuentro")}
+                            className={
+                              !canEdit("puntoEncuentro") ? "bg-gray-200" : ""
+                            }
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-b pb-6">
+                  <FormField
+                    control={form.control}
+                    name="fechaEmbarque"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Fecha de Embarque</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                disabled={!canEdit("fechaEmbarque")}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground",
+                                  !canEdit("fechaEmbarque") && "bg-gray-200"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(new Date(field.value), "MMMM d, yyyy", { locale: es })
+                                ) : (
+                                  <span>Seleccione fecha</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value ? new Date(field.value) : undefined}
+                              onSelect={field.onChange}
+                              disabled={!canEdit("fechaEmbarque")}
+                              locale={es}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </FormItem>
+                    )}
+                  />
+
+                </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <FormField
                     control={form.control}
@@ -1497,33 +1538,29 @@ export default function WorkOrderForm({
                       </div>
                     </div>
                   </div>
-
-
-
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="detallesNotas"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Notas</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          value={field.value ?? ""}
+                          disabled={!canEdit("detallesNotas")}
+                          className={
+                            !canEdit("detallesNotas") ? "bg-gray-200" : ""
+                          }
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
               </div>
-
-
-
-              <FormField
-                control={form.control}
-                name="detallesNotas"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notas</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        value={field.value ?? ""}
-                        disabled={!canEdit("detallesNotas")}
-                        className={
-                          !canEdit("detallesNotas") ? "bg-gray-200" : ""
-                        }
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {mode === "admin-create" && (
@@ -1578,29 +1615,64 @@ export default function WorkOrderForm({
           {/* Photo Enlargement Dialog */}
           {selectedPhoto && (
             <div
-              className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4 cursor-pointer"
               onClick={closePhotoDialog}
             >
-              <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col">
+              <div className="relative max-w-4xl max-h-screen">
+                <img
+                  src={selectedPhoto}
+                  alt="Enlarged receipt"
+                  className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                />
                 <button
-                  type="button"
                   onClick={closePhotoDialog}
-                  className="absolute -top-12 right-0 text-white hover:text-gray-300 text-4xl font-bold z-10"
-                  aria-label="Close"
+                  className="absolute top-[-40px] right-0 text-white hover:text-gray-300"
                 >
-                  ×
+                  <span className="text-4xl">&times;</span>
                 </button>
-                <div className="bg-black rounded-lg overflow-hidden flex items-center justify-center">
-                  <img
-                    src={selectedPhoto}
-                    alt="Enlarged receipt"
-                    className="max-w-full max-h-[85vh] object-contain"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
               </div>
             </div>
           )}
+
+          {/* DEBUG LOGS SECTION */}
+          {(debugLogs.length > 0) && (
+            <div className="mt-8 p-4 bg-black text-green-400 font-mono text-xs rounded-lg overflow-hidden border-2 border-green-700">
+              <div className="flex justify-between items-center mb-2 border-b border-green-800 pb-2">
+                <h4 className="font-bold">DEBUG LOGS (Samsung Fix Info)</h4>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={clearDebugLogs}
+                    className="px-2 py-1 bg-red-900 hover:bg-red-700 text-white rounded text-xs"
+                  >
+                    CLEAR
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const text = debugLogs.join('\n');
+                      navigator.clipboard.writeText(text);
+                      toast.success("Logs copied to clipboard");
+                    }}
+                    className="px-2 py-1 bg-green-900 hover:bg-blue-700 text-white rounded text-xs"
+                  >
+                    COPY
+                  </button>
+                </div>
+              </div>
+              <div className="max-h-60 overflow-y-auto whitespace-pre-wrap flex flex-col-reverse">
+                {/* Reversed order to show new at top conceptually if we want, but usually log bottom is new. 
+                    Let's just map them. flex-col-reverse keeps bottom anchored? No, standard map is fine.
+                */}
+                {debugLogs.map((log, i) => (
+                  <div key={i} className="border-b border-green-900/30 py-1">
+                    {log}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
 
           {/* Success Dialog for Order Creation */}
           {showSuccessDialog && createdOrderId && (
@@ -1641,6 +1713,6 @@ export default function WorkOrderForm({
           )}
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 }
