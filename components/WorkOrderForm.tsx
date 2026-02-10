@@ -60,6 +60,8 @@ interface WorkOrderFormProps {
   orderId?: number;
 }
 
+
+
 /**
  * Main form component for creating and editing work orders.
  * Handles different modes: Admin Create, Admin Edit, and Captain Edit.
@@ -94,6 +96,10 @@ export default function WorkOrderForm({
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
 
+  // USE TOGGLE TO ENABLE DEBUGGING
+  const debugMode = false;
+  // TODO: Correct code to enable toggle debugging
+  // const [debugMode, setDebugMode] = useState(true);
   // DEBUGGING STATE
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
 
@@ -1635,7 +1641,7 @@ export default function WorkOrderForm({
           )}
 
           {/* DEBUG LOGS SECTION */}
-          {(debugLogs.length > 0) && (
+          {debugMode && debugLogs.length > 0 && (
             <div className="mt-8 p-4 bg-black text-green-400 font-mono text-xs rounded-lg overflow-hidden border-2 border-green-700">
               <div className="flex justify-between items-center mb-2 border-b border-green-800 pb-2">
                 <h4 className="font-bold">DEBUG LOGS (Samsung Fix Info)</h4>
@@ -1712,6 +1718,19 @@ export default function WorkOrderForm({
             </div>
           )}
         </CardContent>
+        {/* Footer Debug Toggle */}
+        <div className="py-2 px-6 flex justify-end">
+          <button
+            type="button"
+            // TODO: Implement debug mode
+            //onClick={toggleDebugMode}
+            // onClick={() => setDebugMode((prev) => !prev)}
+            className={`text-xs flex items-center gap-1 ${debugMode ? "text-red-500 font-bold" : "text-gray-300 hover:text-gray-500"}`}
+            title="Toggle Debug Mode"
+          >
+            <span className="text-lg">🐞</span> {debugMode ? "Debug ON" : "Debug OFF"}
+          </button>
+        </div>
       </Card>
     </div >
   );

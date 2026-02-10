@@ -43,6 +43,7 @@ next-env.d.ts
 
 certificates
 /app/generated/prisma
+bayside docs.md
 
 #Old not used files
 /components/ui/WorkOrderForm-Orig.tsx

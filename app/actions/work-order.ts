@@ -270,6 +270,8 @@ export async function deleteWorkOrder(id: number) {
     }
 
     // Delete the order (receipts will be cascade deleted due to schema onDelete: Cascade)
+    // TODO: Delete receipts from S3
+    
     await prisma.workOrder.delete({
       where: { id },
     });

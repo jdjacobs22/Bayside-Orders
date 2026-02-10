@@ -13,21 +13,6 @@ import { FilePlus, List, Search, UserPlus, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function AdminDashboard() {
-  const handlePrintNota = () => {
-    const pdfUrl = "/Nota_de_Pago_Bayside_PV.pdf";
-    const iframe = document.createElement("iframe");
-    iframe.style.display = "none";
-    iframe.src = pdfUrl;
-    document.body.appendChild(iframe);
-
-    iframe.onload = () => {
-      iframe.contentWindow?.print();
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-      }, 60000);
-    };
-  };
-
   const dashboardCards = [
     {
       href: "/admin/create",
@@ -62,13 +47,12 @@ export default function AdminDashboard() {
       iconColor: "text-orange-600",
     },
     {
-      action: handlePrintNota,
-      title: "Print Nota de Pago Bayside_PV",
-      description: "Send the Nota de Pago document to the printer.",
+      href: "/admin/print",
+      title: "Print Nota de Pago Bayside PV",
+      description: "Fill out the Nota de Pago form and generate an email.",
       icon: Printer,
       gradient: "from-gray-500 to-gray-600",
       iconColor: "text-gray-600",
-      href: "#",
     },
   ];
 
@@ -105,18 +89,6 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
             );
-
-            if (card.action) {
-              return (
-                <div
-                  key={card.title}
-                  onClick={card.action}
-                  className="group cursor-pointer"
-                >
-                  {CardContentWrapper}
-                </div>
-              );
-            }
 
             return (
               <Link key={card.href} href={card.href} className="group">

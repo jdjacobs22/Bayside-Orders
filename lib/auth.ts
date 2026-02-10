@@ -17,8 +17,8 @@ export const auth = betterAuth({
     },
   },
   session: {
-    expiresIn: 60 * 60, // 1 hour session limit
-    updateAge: 60 * 5, // Update session every 5 minutes
+    expiresIn: 60 * 30, // 30 minutes session limit
+    updateAge: 60 * 1, // Update session every 1 minute
   },
   trustedOrigins: (() => {
     const origins: string[] = [
