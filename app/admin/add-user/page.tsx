@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, UserPlus } from "lucide-react";
 
 export default function AdminCreateUser() {
@@ -76,14 +76,17 @@ export default function AdminCreateUser() {
                             <div className="space-y-2">
                                 <Label htmlFor="role">Role</Label>
                                 <Select
-                                    id="role"
                                     value={formData.role}
-                                    onChange={(e) => setFormData({ ...formData, role: e.target.value as "admin" | "captain" | "user" })}
-                                    className="h-11"
+                                    onValueChange={(value) => setFormData({ ...formData, role: value as "admin" | "captain" | "user" })}
                                 >
-                                    <option value="user">User</option>
-                                    <option value="captain">Captain</option>
-                                    <option value="admin">Admin</option>
+                                    <SelectTrigger id="role" className="h-11">
+                                        <SelectValue placeholder="Select a role" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="user">User</SelectItem>
+                                        <SelectItem value="captain">Captain</SelectItem>
+                                        <SelectItem value="admin">Admin</SelectItem>
+                                    </SelectContent>
                                 </Select>
                             </div>
 
