@@ -16,17 +16,8 @@ import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 
 function LandingPageContent() {
-  // Check for signout before initial render to prevent flash of credentials
-  // Use a key that changes on signout to force remount of inputs with blank values
-  const [formKey, setFormKey] = useState(() => {
-    // Check sessionStorage synchronously during initialization
-    if (typeof window !== "undefined") {
-      return sessionStorage.getItem("justSignedOut") === "true"
-        ? Date.now().toString()
-        : "default";
-    }
-    return "default";
-  });
+  const [isHidingForSignOut, setIsHidingForSignOut] = useState(false);
+  const [formKey, setFormKey] = useState("default");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -42,9 +33,18 @@ function LandingPageContent() {
       typeof window !== "undefined" &&
       sessionStorage.getItem("justSignedOut") === "true";
 
-    // Clear the sessionStorage flag if it exists (already handled by initial formKey)
+    // If we just signed out, trigger the "Gate" to prevent autofill flash
     if (justSignedOut) {
+      setIsHidingForSignOut(true);
+      setFormKey(Date.now().toString());
       sessionStorage.removeItem("justSignedOut");
+
+      // Hide inputs for 100ms to allow browser autofill to fail gracefully
+      const hideTimeout = setTimeout(() => {
+        setIsHidingForSignOut(false);
+      }, 100);
+
+      return () => clearTimeout(hideTimeout);
     }
 
     // Clear state immediately
@@ -166,15 +166,15 @@ function LandingPageContent() {
               <Input
                 key={`email-${formKey}`}
                 ref={emailInputRef}
-                id="email"
-                name="email"
+                id={isHidingForSignOut ? "hidden-email" : "email"}
+                name={isHidingForSignOut ? `email-${formKey}` : "email"}
                 type="email"
                 required
-                autoComplete="off"
-                value={email}
+                autoComplete="new-password"
+                value={isHidingForSignOut ? "" : email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="h-11"
+                className={`h-11 ${isHidingForSignOut ? "opacity-0 invisible" : ""}`}
               />
             </div>
             <div className="space-y-2">
@@ -182,15 +182,15 @@ function LandingPageContent() {
               <Input
                 key={`password-${formKey}`}
                 ref={passwordInputRef}
-                id="password"
-                name="password"
+                id={isHidingForSignOut ? "hidden-password" : "password"}
+                name={isHidingForSignOut ? `password-${formKey}` : "password"}
                 type="password"
                 required
-                autoComplete="off"
-                value={password}
+                autoComplete="new-password"
+                value={isHidingForSignOut ? "" : password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className="h-11"
+                className={`h-11 ${isHidingForSignOut ? "opacity-0 invisible" : ""}`}
               />
             </div>
             <Button

@@ -19,6 +19,10 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 30, // 30 minutes session limit
     updateAge: 60 * 1, // Update session every 1 minute
+    freshAge: 0, // Disable "fresh" session persistence to force re-auth
+  },
+  cookie: {
+    maxAge: 60 * 30, // Match cookie life to session life strictly
   },
   trustedOrigins: (() => {
     const origins: string[] = [
