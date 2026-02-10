@@ -18,7 +18,11 @@ export async function sendReceiptEmail(data: {
   email: string;
 }) {
   try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
     const { folio, fecha, cliente, concepto, balance, pagoFinal, formaPago, recibio, email } = data;
+
+    console.log(`[EmailAction] Starting send to: ${email}`);
+    console.log(`[EmailAction] API Key present: ${!!process.env.RESEND_API_KEY}`);
 
     // 1. Check if the logo file exists to avoid crashing
     const logoRelPath = "public/Bayside_PV_Logo.jpg";
@@ -31,16 +35,17 @@ export async function sendReceiptEmail(data: {
       attachments.push({
         filename: "Bayside_PV_Logo.jpg",
         content: logoBase64,
-        contentId: "logo",
+        content_id: "logo", // Changed from contentId to content_id
+        disposition: "inline",
       } as any);
-      console.log("Logo attached successfully.");
+      console.log("[EmailAction] Logo attached successfully.");
     } else {
-      console.warn("Logo not found at:", logoPath);
+      console.warn("[EmailAction] Logo not found at:", logoPath);
     }
 
-    console.log(`Attempting to send email to ${email} via Resend...`);
+    console.log(`[EmailAction] Attempting to send email via Resend...`);
 
-    const { data: resData, error } = await resend.emails.send({
+    const response = await resend.emails.send({
       from: "Bayside PV <contact@bayside.jacobshome.com>", 
       to: [email],
       subject: `Nota de Pago Bayside PV - Folio: ${folio}`,
@@ -137,15 +142,15 @@ export async function sendReceiptEmail(data: {
       `,
     });
 
-    if (error) {
-      console.error("Resend API Error details:", JSON.stringify(error, null, 2));
-      return { success: false, error: `${error.name}: ${error.message}` };
+    if (response.error) {
+      console.error("[EmailAction] Resend API Error:", JSON.stringify(response.error, null, 2));
+      return { success: false, error: `${response.error.name}: ${response.error.message}` };
     }
 
-    console.log("Email sent successfully! ID:", resData?.id);
-    return { success: true, data: resData };
+    console.log("[EmailAction] Email sent successfully! ID:", response.data?.id);
+    return { success: true, data: response.data };
   } catch (error: any) {
-    console.error("Email server action Exception:", error);
+    console.error("[EmailAction] Exception:", error);
     return { success: false, error: error.message || "Failed to send email" };
   }
 }
