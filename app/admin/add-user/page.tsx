@@ -10,16 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, UserPlus } from "lucide-react";
+import { Loader2, UserPlus, Eye, EyeOff } from "lucide-react";
 
 export default function AdminCreateUser() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         nombre: "",
         apellido: "",
         email: "",
         cell: "",
+        password: "",
         role: "captain" as "admin" | "captain",
     });
 
@@ -30,6 +32,7 @@ export default function AdminCreateUser() {
         const res = await createUser(formData);
 
         if (res.success && res.data) {
+            alert(`User created successfully!\nVerified in DB: ${res.verifiedInDb ? 'YES' : 'NO'}`);
             router.push("/admin");
         } else {
             alert("Error creating user: " + res.error);
@@ -104,6 +107,33 @@ export default function AdminCreateUser() {
                                     className="h-11"
                                     autoComplete="new-user-cell"
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="create-user-password">Contraseña</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="create-user-password"
+                                        type={showPassword ? "text" : "password"}
+                                        required
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                        placeholder="Contraseña"
+                                        className="h-11 pr-10"
+                                        autoComplete="new-password"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                                        tabIndex={-1}
+                                    >
+                                        {showPassword ? (
+                                            <EyeOff className="h-5 w-5" />
+                                        ) : (
+                                            <Eye className="h-5 w-5" />
+                                        )}
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="space-y-2">

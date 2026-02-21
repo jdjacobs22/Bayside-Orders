@@ -175,6 +175,12 @@ function LandingPageContent() {
                 value={isHidingForSignOut ? "" : email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSignIn();
+                  }
+                }}
                 className={`h-11 ${isHidingForSignOut ? "opacity-0 invisible" : ""}`}
               />
             </div>
@@ -190,6 +196,12 @@ function LandingPageContent() {
                 autoComplete="new-password"
                 value={isHidingForSignOut ? "" : password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSignIn();
+                  }
+                }}
                 placeholder="Enter your password"
                 className={`h-11 ${isHidingForSignOut ? "opacity-0 invisible" : ""}`}
               />

@@ -121,7 +121,7 @@ model WorkOrder {
   pagoHorasExtra        Decimal? @default(0)     @map("pago_horas_extra") @db.Decimal(5, 0)
   
   captainId       String?   @map("captain_id")
-  captain         User?     @relation("CaptainOrders", fields: [captainId], references: [id])
+  captain         User?     @relation("CaptainOrders", fields: [captainId], references: [id], onDelete: SetNull)
 
   receipts        Receipt[]
 

@@ -101,6 +101,7 @@ export default function WorkOrderForm({
   const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
   const [apellidosList, setApellidosList] = useState<string[]>([]);
   const [nombresList, setNombresList] = useState<string[]>([]);
+  const [discoveredCaptainId, setDiscoveredCaptainId] = useState<string | null>(null);
 
   // USE TOGGLE TO ENABLE DEBUGGING
   const debugMode = false;
@@ -284,8 +285,7 @@ export default function WorkOrderForm({
     async function fetchDetails() {
       if (!nombreCliente || !apellidoCliente) return;
 
-      // Only fetch if email or cell is empty
-      if (form.getValues("email") && form.getValues("cell")) return;
+
 
       const res = await getClientDetails(nombreCliente, apellidoCliente);
       if (res.success) {
@@ -297,7 +297,10 @@ export default function WorkOrderForm({
           if (!form.getValues("cell") && res.data.cell) {
             setValue("cell", res.data.cell);
           }
+          // Set discovered ID for captain/client matching
+          setDiscoveredCaptainId((res.data as any).id || null);
         } else {
+          setDiscoveredCaptainId(null);
           // If both fields have values but no user matches, show error
           if (nombreCliente.trim() && apellidoCliente.trim()) {
             toast.error("Error", {
@@ -403,8 +406,8 @@ export default function WorkOrderForm({
               horasExtrasEfectivo: data.horasExtrasEfectivo || false,
               horasExtrasTransferir: data.horasExtrasTransferir || false,
               pagoHorasExtra: data.pagoHorasExtra || 0,
-              captainId: (data as any).captainId || "unassigned",
             });
+            setDiscoveredCaptainId(data.captainId || null);
             if (data.receipts) setReceipts(data.receipts);
           } else {
             toast.error("Error", {
@@ -605,6 +608,7 @@ export default function WorkOrderForm({
             ? `${data.fechaEmbarque.getDate().toString().padStart(2, '0')}/${(data.fechaEmbarque.getMonth() + 1).toString().padStart(2, '0')}/${data.fechaEmbarque.getFullYear()}`
             : data.fechaEmbarque)
           : undefined,
+        captainId: discoveredCaptainId,
       };
 
       // submissionData is now a plain object with native types

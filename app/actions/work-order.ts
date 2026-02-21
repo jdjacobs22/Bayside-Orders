@@ -161,6 +161,7 @@ export async function createWorkOrder(data: any, role: "admin" | "captain" = "ad
         horasExtrasEfectivo: validatedData.horasExtrasEfectivo ?? false,
         horasExtrasTransferir: validatedData.horasExtrasTransferir ?? false,
         pagoHorasExtra: validatedData.pagoHorasExtra ? new Prisma.Decimal(validatedData.pagoHorasExtra as any) : 0,
+        captainId: role === "admin" && validatedData.captainId ? validatedData.captainId : undefined,
       },
     });
     try {
@@ -410,6 +411,7 @@ export async function getClientDetails(nombre: string, apellido: string) {
         apellido: { equals: apellido.trim(), mode: 'insensitive' }
       },
       select: {
+        id: true,
         email: true,
         cell: true
       }

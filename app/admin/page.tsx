@@ -30,11 +30,11 @@ export default function AdminDashboard() {
     },
     {
       href: "/admin/users",
-      title: "List All Users",
-      description: "View and manage all registered captains and administrators.",
+      title: "Manage & Delete Users",
+      description: "View and manage all registered users, or remove them from the system.",
       icon: Users,
-      gradient: "from-yellow-500 to-yellow-600",
-      iconColor: "text-yellow-600",
+      gradient: "from-red-500 to-red-600",
+      iconColor: "text-red-600",
     },
     {
       href: "/admin/search",
