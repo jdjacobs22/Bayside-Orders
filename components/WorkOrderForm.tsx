@@ -208,7 +208,6 @@ export default function WorkOrderForm({
       horasExtrasEfectivo: false,
       horasExtrasTransferir: false,
       pagoHorasExtra: 0,
-      captainId: "unassigned",
     },
   });
 
@@ -606,7 +605,6 @@ export default function WorkOrderForm({
             ? `${data.fechaEmbarque.getDate().toString().padStart(2, '0')}/${(data.fechaEmbarque.getMonth() + 1).toString().padStart(2, '0')}/${data.fechaEmbarque.getFullYear()}`
             : data.fechaEmbarque)
           : undefined,
-        captainId: (data as any).captainId === "unassigned" ? null : (data as any).captainId,
       };
 
       // submissionData is now a plain object with native types
@@ -704,7 +702,7 @@ export default function WorkOrderForm({
                     name="nombre"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nombre</FormLabel>
+                        <FormLabel>Nombre del Capitana</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -728,7 +726,7 @@ export default function WorkOrderForm({
                     name="apellido"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Apellido</FormLabel>
+                        <FormLabel>Apellido del Capitana</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -769,23 +767,6 @@ export default function WorkOrderForm({
                 {/* ASIGNACIÓN Y PASAJEROS */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Captain Select moved to replace Name Input */}
-                  <FormField
-                    control={form.control}
-                    name="captainId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Asignar Capitana</FormLabel>
-                        <FormControl>
-                          <CaptainSelect
-                            value={field.value ?? "unassigned"}
-                            onValueChange={field.onChange}
-                            disabled={isCaptain}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                   <FormField
                     control={form.control}
                     name="cell"

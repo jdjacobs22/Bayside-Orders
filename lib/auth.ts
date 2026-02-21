@@ -38,6 +38,8 @@ export const auth = betterAuth({
       "http://localhost:3000",
       "http://localhost:8765", // Local development on port 8765
       "http://10.0.0.10:8765", // Local server address
+      "http://192.168.1.135:8765", // Local server address Apex Gym
+      "http://192.168.1.135:3000", // Local server address
       // Add specific Vercel deployment URL
       "https://bayside-orders-srfn16hpk-jim-jacobshomecs-projects.vercel.app",
     ];
