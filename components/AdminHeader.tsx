@@ -31,7 +31,7 @@ export default function AdminHeader({
         <div className="flex items-center gap-3">
           {rightActions}
           {showBackButton && (
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="default" size="sm" asChild className="bg-blue-600 hover:bg-blue-700 text-white font-semibold">
               <Link href={backHref} className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 {backLabel}

@@ -24,7 +24,7 @@ function LandingPageContent() {
   const searchParams = useSearchParams();
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
 
   // Clear form fields on mount, especially after sign-out
   useEffect(() => {
@@ -95,11 +95,9 @@ function LandingPageContent() {
   }, [session, router]);
 
   const handleSignIn = async () => {
+    if (isPending || session) return; // Prevent double sign-in or sign-in during check
+
     console.log("Attempting sign in with", email);
-    console.log(
-      "Current origin:",
-      typeof window !== "undefined" ? window.location.origin : "server"
-    );
     try {
       const result = await authClient.signIn.email({
         email,
@@ -108,37 +106,40 @@ function LandingPageContent() {
 
       console.log("Sign-in result:", result);
 
-      // Check for errors in the result
       if (result?.error) {
         console.error("Sign-in error:", result.error);
         alert("Login Failed: " + result.error.message);
         return;
       }
 
-      // Sign-in successful - get user role from result or use a default redirect
       const user = result?.data?.user as any;
       const userRole = user?.role;
 
-      console.log("Sign-in successful, user role:", userRole);
-
-      // Use window.location.href to force full page reload with new session cookie
-      // This ensures the middleware can properly read the session
       if (userRole === "admin") {
         window.location.href = "/admin";
-      } else if (userRole === "captain") {
-        window.location.href = "/captain";
       } else {
-        // Fallback: redirect to captain by default, middleware will handle role check
         window.location.href = "/captain";
       }
     } catch (err: any) {
+      // Ignore AbortError which happens when the user is being redirected
+      if (err.name === 'AbortError' || err.message?.includes('fetch')) {
+        console.log("Sign-in fetch aborted or network error during redirect - ignoring alert");
+        return;
+      }
       console.error("Unexpected error in signIn", err);
-      // Check if error has a message property (better-auth may throw errors)
-      const errorMessage =
-        err?.error?.message || err?.message || "Please try again";
+      const errorMessage = err?.error?.message || err?.message || "Please try again";
       alert("Login Failed: " + errorMessage);
     }
   };
+
+  if (isPending || (session && !isHidingForSignOut)) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 p-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p className="mt-4 text-slate-600 font-medium">Validando sesión...</p>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

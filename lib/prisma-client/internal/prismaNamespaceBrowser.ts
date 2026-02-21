@@ -78,9 +78,12 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  nombre: 'nombre',
+  apellido: 'apellido',
   email: 'email',
   emailVerified: 'emailVerified',
   role: 'role',
+  cell: 'cell',
   image: 'image',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -138,6 +141,8 @@ export const WorkOrderScalarFieldEnum = {
   id: 'id',
   createdAt: 'createdAt',
   nombre: 'nombre',
+  apellido: 'apellido',
+  email: 'email',
   cell: 'cell',
   fecha: 'fecha',
   horaSalida: 'horaSalida',
@@ -168,7 +173,8 @@ export const WorkOrderScalarFieldEnum = {
   paymentMethod: 'paymentMethod',
   horasExtrasEfectivo: 'horasExtrasEfectivo',
   horasExtrasTransferir: 'horasExtrasTransferir',
-  pagoHorasExtra: 'pagoHorasExtra'
+  pagoHorasExtra: 'pagoHorasExtra',
+  captainId: 'captainId'
 } as const
 
 export type WorkOrderScalarFieldEnum = (typeof WorkOrderScalarFieldEnum)[keyof typeof WorkOrderScalarFieldEnum]

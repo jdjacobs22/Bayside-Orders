@@ -11,6 +11,9 @@ async function main() {
         email: "admin@bayside.com",
         password: "password123",
         name: "Admin User",
+        nombre: "Admin",
+        apellido: "Base",
+        cell: "0000000000",
         role: "admin",
       },
     });
@@ -26,6 +29,9 @@ async function main() {
         email: "captain@bayside.com",
         password: "password123",
         name: "Captain User",
+        nombre: "Captain",
+        apellido: "Test",
+        cell: "1111111111",
         role: "captain",
       },
     });

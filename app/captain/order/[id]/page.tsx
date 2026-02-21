@@ -32,7 +32,7 @@ export default function CaptainOrderView() {
     <div className="min-h-screen bg-gray-50">
       {/* Mobile-friendly header */}
       <div className="bg-white p-4 shadow mb-4 flex justify-between items-center sticky top-0 z-10">
-        <Link href="/captain" className="text-blue-600 font-bold">
+        <Link href="/captain" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-bold text-sm shadow-sm transition-colors">
           &larr; Back
         </Link>
         <h1 className="font-bold text-lg">Order #{id}</h1>

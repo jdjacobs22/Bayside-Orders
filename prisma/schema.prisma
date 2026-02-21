@@ -9,15 +9,19 @@ datasource db {
 
 model User {
   id            String    @id @default(cuid())
-  name          String
+  name          String?
+  nombre        String
+  apellido      String
   email         String
   emailVerified Boolean
-  role          Role      @default(user)
+  role          Role      @default(captain)
+  cell          String
   image         String?
   createdAt     DateTime
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  assignedOrders WorkOrder[] @relation("CaptainOrders")
 
   @@unique([email])
   @@map("user")
@@ -74,6 +78,8 @@ model WorkOrder {
 
   // Fields
   nombre          String?
+  apellido        String?
+  email           String?
   cell            String?   @map("cell")
   fecha           DateTime?
   horaSalida      String?   @map("hora_salida")
@@ -113,6 +119,9 @@ model WorkOrder {
   horasExtrasEfectivo   Boolean? @default(false) @map("horas_extras_efectivo")
   horasExtrasTransferir Boolean? @default(false) @map("horas_extras_transferir")
   pagoHorasExtra        Decimal? @default(0)     @map("pago_horas_extra") @db.Decimal(5, 0)
+  
+  captainId       String?   @map("captain_id")
+  captain         User?     @relation("CaptainOrders", fields: [captainId], references: [id])
 
   receipts        Receipt[]
 
@@ -140,5 +149,4 @@ model Receipt {
 enum Role {
   admin
   captain
-  user
 }

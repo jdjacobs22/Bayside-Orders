@@ -113,7 +113,7 @@ export default function AdminOrderList() {
                             #{order.id}
                           </Link>
                         </TableCell>
-                        <TableCell>{order.nombre || "-"}</TableCell>
+                        <TableCell>{order.nombre || ""} {order.apellido || ""}</TableCell>
                         <TableCell className="text-muted-foreground">
                           {order.fecha
                             ? format(new Date(order.fecha), "MMMM d, yyyy", { locale: es })

@@ -35,6 +35,8 @@ export const getBaseSchema = () => {
 
   return z.object({
     nombre: z.string().optional(),
+    apellido: z.string().optional(),
+    email: z.string().optional(),
     cell: z.string().optional(),
     fechaEmbarque: z.any().optional(), // Flexible for UI
     horaEmbarque: z.string().optional(),
@@ -66,6 +68,8 @@ export const getBaseSchema = () => {
     horasExtrasEfectivo: z.boolean().default(false),
     horasExtrasTransferir: z.boolean().default(false),
     pagoHorasExtra: DecimalPesos.optional(),
+    captainId: z.string().optional(),
+    captainName: z.string().optional(), // For UI convenience
   });
 };
 
@@ -76,6 +80,8 @@ export const getAdminSchema = () => {
 
   return base.extend({
     nombre: z.string().min(1, "Nombre requerido"),
+    apellido: z.string().min(1, "Apellido requerido"),
+    email: z.string().email("Email inválido").min(1, "Email requerido"),
     cell: z.string().min(1, "Celular requerido"),
     fechaEmbarque: z.any().refine(val => !!val, "Fecha requerida"),
     horaEmbarque: Time24HourSchema,

@@ -5,6 +5,9 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@/lib/prisma-client/client";
 import { uploadPhotoToR2 } from "@/lib/r2-client";
 import { getAdminSchema, getCaptainSchema } from "@/lib/schemas";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+
 
 function parseDateDMY(dateStr: string | null | undefined): Date | undefined {
   if (!dateStr || typeof dateStr !== "string") return undefined;
@@ -38,13 +41,18 @@ function serializePrisma(data: any): any {
   // Handle Objects
   if (typeof data === "object") {
     // Detect Prisma.Decimal or any Decimal-like object
-    const isDecimal = Prisma.Decimal.isDecimal(data) || 
-                      data.constructor?.name === "Decimal" || 
-                      (typeof data.toFixed === "function" && typeof data.toNumber === "function") ||
-                      (data.d && Array.isArray(data.d) && typeof data.s === 'number');
+    // Broaden detection to be safer
+    const isDecimal = data && (
+      (typeof Prisma !== 'undefined' && (Prisma as any).Decimal?.isDecimal?.(data)) ||
+      data.constructor?.name === "Decimal" || 
+      (typeof data.toFixed === "function" && typeof data.toNumber === "function") ||
+      (data.d && Array.isArray(data.d) && typeof data.s === 'number')
+    );
     
     if (isDecimal) {
-      return Number(data.toString());
+      const val = data.toString();
+      const num = Number(val);
+      return isNaN(num) ? val : num; // Return string if Number() fails
     }
 
     // Process all properties
@@ -60,16 +68,28 @@ function serializePrisma(data: any): any {
   return data;
 }
 
-// ... existing createWorkOrder ...
-// We can keep createWorkOrder for "saving" a new order if we want to support both flows,
-// OR createWorkOrder becomes "updateWorkOrder" effectively if we always start with draft.
-// But the user might want a "Save" button that conceptually "creates" it if they fill it out.
-// However, with Draft flow, we likely just UPDATE data into the existing ID.
-// So createWorkOrder might become obsolete or handle the first Save.
-// Let's add createDraft and keep createWorkOrder for now unless we refactor completely.
+// createDraftWorkOrder is commented out. It was intended to create a blank order to get an ID for early photo uploads.
 
+// Helper to get session and validate role
+async function getSession() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+  return session;
+}
+
+/*
 export async function createDraftWorkOrder() {
   try {
+    const session = await getSession();
+    // Only admins can create drafts (adjust if needed)
+    if (session.user.role !== "admin") {
+        throw new Error("Unauthorized: Only admins can create drafts");
+    }
+
     const order = await prisma.workOrder.create({
       data: {
         // All fields optional or default
@@ -81,6 +101,7 @@ export async function createDraftWorkOrder() {
     return { success: false, error: error.message };
   }
 }
+*/
 
 export async function createWorkOrder(data: any, role: "admin" | "captain" = "admin") {
   // Validate data based on role
@@ -95,10 +116,20 @@ export async function createWorkOrder(data: any, role: "admin" | "captain" = "ad
   }
   // ...
   try {
+    const session = await getSession();
+    // Validate role permissions - Create is generally Admin only, but if Captains can create:
+    if (role === "captain" && session.user.role !== "captain") throw new Error("Role mismatch");
+    if (role === "admin" && session.user.role !== "admin") throw new Error("Role mismatch");
+    
+    // Additional security: Maybe captains can only create if assigned? 
+    // For now assuming existing flow is correct, but let's enforce role check.
+    
     const validatedData = validation.data;
     const order = await prisma.workOrder.create({
       data: {
         nombre: validatedData.nombre,
+        apellido: validatedData.apellido,
+        email: validatedData.email,
         cell: validatedData.cell,
         fecha: parseDateDMY(validatedData.fechaEmbarque),
         horaSalida: validatedData.horaEmbarque,
@@ -132,7 +163,11 @@ export async function createWorkOrder(data: any, role: "admin" | "captain" = "ad
         pagoHorasExtra: validatedData.pagoHorasExtra ? new Prisma.Decimal(validatedData.pagoHorasExtra as any) : 0,
       },
     });
-    revalidatePath("/admin/list");
+    try {
+      revalidatePath("/admin/list");
+    } catch (err) {
+      console.error("Revalidation error (non-fatal):", err);
+    }
     return { success: true, data: serializePrisma(order) };
   } catch (error: any) {
     console.error("Error creating order:", error);
@@ -142,7 +177,15 @@ export async function createWorkOrder(data: any, role: "admin" | "captain" = "ad
 
 export async function getWorkOrders() {
   try {
+    const session = await getSession();
+    
+    const whereClause: any = {};
+    if (session.user.role === "captain") {
+        whereClause.captainId = session.user.id;
+    }
+
     const orders = await prisma.workOrder.findMany({
+      where: whereClause,
       orderBy: { id: "desc" },
       take: 100, // Limit for now
     });
@@ -159,11 +202,24 @@ export async function getWorkOrder(id: number) {
       return { success: false, error: "ID de orden inválido" };
     }
 
+    const session = await getSession();
+
     const order = await prisma.workOrder.findUnique({
       where: { id },
       include: { receipts: true },
     });
     if (!order) return { success: false, error: "Order not found" };
+
+    // RBAC Check
+    if (session.user.role === "captain") {
+        if (order.captainId !== session.user.id) {
+            return { success: false, error: "Unauthorized: You do not have access to this order." };
+        }
+    } else if (session.user.role !== "admin") {
+        // Fallback for any other future roles, though only captain/admin exist now
+        return { success: false, error: "Unauthorized" };
+    }
+
     return { success: true, data: serializePrisma(order) };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -183,6 +239,24 @@ export async function updateWorkOrder(id: number, data: any, role: "admin" | "ca
   }
 
   try {
+    const session = await getSession();
+
+    // Verify access before update
+    const existingOrder = await prisma.workOrder.findUnique({ 
+        where: { id },
+        select: { captainId: true } 
+    });
+    
+    if (!existingOrder) return { success: false, error: "Order not found" };
+
+    if (session.user.role === "captain") {
+        if (existingOrder.captainId !== session.user.id) {
+             return { success: false, error: "Unauthorized: You cannot edit this order." };
+        }
+    } else if (session.user.role !== "admin") {
+         return { success: false, error: "Unauthorized" };
+    }
+
     // We might want to filter what fields can be updated based on role here too for security,
     // but existing plan implies Form logic + trust for now (or simple check).
     // Since we pass data generically, we trust the caller has filtered or we update what's sent.
@@ -195,6 +269,8 @@ export async function updateWorkOrder(id: number, data: any, role: "admin" | "ca
     const validatedData = validation.data;
     const updatePayload: any = {
       nombre: validatedData.nombre,
+      apellido: validatedData.apellido,
+      email: validatedData.email,
       cell: validatedData.cell,
       fecha: parseDateDMY(validatedData.fechaEmbarque),
       horaSalida: validatedData.horaEmbarque,
@@ -226,6 +302,7 @@ export async function updateWorkOrder(id: number, data: any, role: "admin" | "ca
       horasExtrasEfectivo: validatedData.horasExtrasEfectivo,
       horasExtrasTransferir: validatedData.horasExtrasTransferir,
       pagoHorasExtra: validatedData.pagoHorasExtra !== undefined ? new Prisma.Decimal(validatedData.pagoHorasExtra as any) : undefined,
+      captainId: role === "admin" && validatedData.captainId !== undefined ? validatedData.captainId : undefined,
     };
 
     // Remove undefined keys if any (though mapped above shouldn't be undefined if data has them)
@@ -254,6 +331,10 @@ export async function updateWorkOrder(id: number, data: any, role: "admin" | "ca
 
 export async function deleteWorkOrder(id: number) {
   try {
+    const session = await getSession();
+    if (session.user.role !== "admin") {
+        return { success: false, error: "Unauthorized: Only admins can delete orders" };
+    }
     // Validate that id is a valid number
     if (!id || isNaN(id) || !Number.isInteger(id)) {
       return { success: false, error: "ID de orden inválido" };
@@ -292,6 +373,73 @@ export async function deleteWorkOrder(id: number) {
   }
 }
 
+export async function getClientApellidosByNombre(nombre: string) {
+  if (!nombre || nombre.trim().length === 0) return { success: true, data: [] };
+  
+  try {
+    const trimmedNombre = nombre.trim();
+    
+    // Only fetch from User table as requested
+    const users = await prisma.user.findMany({
+      where: { nombre: { startsWith: trimmedNombre, mode: 'insensitive' } },
+      select: { apellido: true },
+      distinct: ['apellido'],
+    });
+
+    const userApellidos = users.map(u => u.apellido).filter(Boolean);
+    
+    // deduplicate
+    const combined = Array.from(new Set(userApellidos));
+    combined.sort((a, b) => a.localeCompare(b));
+
+    return { success: true, data: combined };
+  } catch (error: any) {
+    console.error("Error fetching apellidos by nombre:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getClientDetails(nombre: string, apellido: string) {
+  if (!nombre || !apellido) return { success: false, error: "Missing name or last name" };
+  
+  try {
+    // Only check User table as requested
+    const clientData = await prisma.user.findFirst({
+      where: {
+        nombre: { equals: nombre.trim(), mode: 'insensitive' },
+        apellido: { equals: apellido.trim(), mode: 'insensitive' }
+      },
+      select: {
+        email: true,
+        cell: true
+      }
+    });
+
+    return { success: true, data: clientData };
+  } catch (error: any) {
+    console.error("Error fetching client details:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getUniqueNombresFromUsers() {
+  try {
+    const users = await prisma.user.findMany({
+      select: { nombre: true },
+      distinct: ['nombre'],
+    });
+
+    const userNombres = users.map(u => u.nombre).filter(Boolean);
+    const combined = Array.from(new Set(userNombres));
+    combined.sort((a, b) => a.localeCompare(b));
+
+    return { success: true, data: combined };
+  } catch (error: any) {
+    console.error("Error fetching unique nombres from users:", error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function uploadReceipt(formData: FormData) {
   try {
     const file = formData.get("file") as File;
@@ -304,6 +452,25 @@ export async function uploadReceipt(formData: FormData) {
         orderId,
       });
       return { success: false, error: "Missing file or order ID" };
+    }
+
+    // Auth check for upload
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+    if (!session) {
+        return { success: false, error: "Unauthorized" };
+    }
+    
+    // Verify ownership if captain
+    if (session.user.role === "captain") {
+        const order = await prisma.workOrder.findUnique({ 
+            where: { id: orderId },
+            select: { captainId: true }
+        });
+        if (!order || order.captainId !== session.user.id) {
+            return { success: false, error: "Unauthorized: You cannot upload to this order." };
+        }
     }
 
     // Validate file size (50MB limit to match Next.js config)

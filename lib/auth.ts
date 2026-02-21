@@ -14,6 +14,15 @@ export const auth = betterAuth({
       role: {
         type: "string",
       },
+      nombre: {
+        type: "string",
+      },
+      apellido: {
+        type: "string",
+      },
+      cell: {
+        type: "string",
+      },
     },
   },
   session: {

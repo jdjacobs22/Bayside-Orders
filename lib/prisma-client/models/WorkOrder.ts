@@ -76,6 +76,8 @@ export type WorkOrderMinAggregateOutputType = {
   id: number | null
   createdAt: Date | null
   nombre: string | null
+  apellido: string | null
+  email: string | null
   cell: string | null
   fecha: Date | null
   horaSalida: string | null
@@ -107,12 +109,15 @@ export type WorkOrderMinAggregateOutputType = {
   horasExtrasEfectivo: boolean | null
   horasExtrasTransferir: boolean | null
   pagoHorasExtra: runtime.Decimal | null
+  captainId: string | null
 }
 
 export type WorkOrderMaxAggregateOutputType = {
   id: number | null
   createdAt: Date | null
   nombre: string | null
+  apellido: string | null
+  email: string | null
   cell: string | null
   fecha: Date | null
   horaSalida: string | null
@@ -144,12 +149,15 @@ export type WorkOrderMaxAggregateOutputType = {
   horasExtrasEfectivo: boolean | null
   horasExtrasTransferir: boolean | null
   pagoHorasExtra: runtime.Decimal | null
+  captainId: string | null
 }
 
 export type WorkOrderCountAggregateOutputType = {
   id: number
   createdAt: number
   nombre: number
+  apellido: number
+  email: number
   cell: number
   fecha: number
   horaSalida: number
@@ -181,6 +189,7 @@ export type WorkOrderCountAggregateOutputType = {
   horasExtrasEfectivo: number
   horasExtrasTransferir: number
   pagoHorasExtra: number
+  captainId: number
   _all: number
 }
 
@@ -235,6 +244,8 @@ export type WorkOrderMinAggregateInputType = {
   id?: true
   createdAt?: true
   nombre?: true
+  apellido?: true
+  email?: true
   cell?: true
   fecha?: true
   horaSalida?: true
@@ -266,12 +277,15 @@ export type WorkOrderMinAggregateInputType = {
   horasExtrasEfectivo?: true
   horasExtrasTransferir?: true
   pagoHorasExtra?: true
+  captainId?: true
 }
 
 export type WorkOrderMaxAggregateInputType = {
   id?: true
   createdAt?: true
   nombre?: true
+  apellido?: true
+  email?: true
   cell?: true
   fecha?: true
   horaSalida?: true
@@ -303,12 +317,15 @@ export type WorkOrderMaxAggregateInputType = {
   horasExtrasEfectivo?: true
   horasExtrasTransferir?: true
   pagoHorasExtra?: true
+  captainId?: true
 }
 
 export type WorkOrderCountAggregateInputType = {
   id?: true
   createdAt?: true
   nombre?: true
+  apellido?: true
+  email?: true
   cell?: true
   fecha?: true
   horaSalida?: true
@@ -340,6 +357,7 @@ export type WorkOrderCountAggregateInputType = {
   horasExtrasEfectivo?: true
   horasExtrasTransferir?: true
   pagoHorasExtra?: true
+  captainId?: true
   _all?: true
 }
 
@@ -433,6 +451,8 @@ export type WorkOrderGroupByOutputType = {
   id: number
   createdAt: Date
   nombre: string | null
+  apellido: string | null
+  email: string | null
   cell: string | null
   fecha: Date | null
   horaSalida: string | null
@@ -464,6 +484,7 @@ export type WorkOrderGroupByOutputType = {
   horasExtrasEfectivo: boolean | null
   horasExtrasTransferir: boolean | null
   pagoHorasExtra: runtime.Decimal | null
+  captainId: string | null
   _count: WorkOrderCountAggregateOutputType | null
   _avg: WorkOrderAvgAggregateOutputType | null
   _sum: WorkOrderSumAggregateOutputType | null
@@ -493,6 +514,8 @@ export type WorkOrderWhereInput = {
   id?: Prisma.IntFilter<"WorkOrder"> | number
   createdAt?: Prisma.DateTimeFilter<"WorkOrder"> | Date | string
   nombre?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  apellido?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  email?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   cell?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   fecha?: Prisma.DateTimeNullableFilter<"WorkOrder"> | Date | string | null
   horaSalida?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
@@ -524,6 +547,8 @@ export type WorkOrderWhereInput = {
   horasExtrasEfectivo?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
   horasExtrasTransferir?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
   pagoHorasExtra?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captainId?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  captain?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   receipts?: Prisma.ReceiptListRelationFilter
 }
 
@@ -531,6 +556,8 @@ export type WorkOrderOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   nombre?: Prisma.SortOrderInput | Prisma.SortOrder
+  apellido?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
   cell?: Prisma.SortOrderInput | Prisma.SortOrder
   fecha?: Prisma.SortOrderInput | Prisma.SortOrder
   horaSalida?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -562,6 +589,8 @@ export type WorkOrderOrderByWithRelationInput = {
   horasExtrasEfectivo?: Prisma.SortOrderInput | Prisma.SortOrder
   horasExtrasTransferir?: Prisma.SortOrderInput | Prisma.SortOrder
   pagoHorasExtra?: Prisma.SortOrderInput | Prisma.SortOrder
+  captainId?: Prisma.SortOrderInput | Prisma.SortOrder
+  captain?: Prisma.UserOrderByWithRelationInput
   receipts?: Prisma.ReceiptOrderByRelationAggregateInput
 }
 
@@ -572,6 +601,8 @@ export type WorkOrderWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.WorkOrderWhereInput | Prisma.WorkOrderWhereInput[]
   createdAt?: Prisma.DateTimeFilter<"WorkOrder"> | Date | string
   nombre?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  apellido?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  email?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   cell?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   fecha?: Prisma.DateTimeNullableFilter<"WorkOrder"> | Date | string | null
   horaSalida?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
@@ -603,6 +634,8 @@ export type WorkOrderWhereUniqueInput = Prisma.AtLeast<{
   horasExtrasEfectivo?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
   horasExtrasTransferir?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
   pagoHorasExtra?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captainId?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  captain?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   receipts?: Prisma.ReceiptListRelationFilter
 }, "id">
 
@@ -610,6 +643,8 @@ export type WorkOrderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   nombre?: Prisma.SortOrderInput | Prisma.SortOrder
+  apellido?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
   cell?: Prisma.SortOrderInput | Prisma.SortOrder
   fecha?: Prisma.SortOrderInput | Prisma.SortOrder
   horaSalida?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -641,6 +676,7 @@ export type WorkOrderOrderByWithAggregationInput = {
   horasExtrasEfectivo?: Prisma.SortOrderInput | Prisma.SortOrder
   horasExtrasTransferir?: Prisma.SortOrderInput | Prisma.SortOrder
   pagoHorasExtra?: Prisma.SortOrderInput | Prisma.SortOrder
+  captainId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.WorkOrderCountOrderByAggregateInput
   _avg?: Prisma.WorkOrderAvgOrderByAggregateInput
   _max?: Prisma.WorkOrderMaxOrderByAggregateInput
@@ -655,6 +691,8 @@ export type WorkOrderScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"WorkOrder"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"WorkOrder"> | Date | string
   nombre?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
+  apellido?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
+  email?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   cell?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   fecha?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkOrder"> | Date | string | null
   horaSalida?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
@@ -686,11 +724,14 @@ export type WorkOrderScalarWhereWithAggregatesInput = {
   horasExtrasEfectivo?: Prisma.BoolNullableWithAggregatesFilter<"WorkOrder"> | boolean | null
   horasExtrasTransferir?: Prisma.BoolNullableWithAggregatesFilter<"WorkOrder"> | boolean | null
   pagoHorasExtra?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captainId?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
 }
 
 export type WorkOrderCreateInput = {
   createdAt?: Date | string
   nombre?: string | null
+  apellido?: string | null
+  email?: string | null
   cell?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
@@ -722,6 +763,7 @@ export type WorkOrderCreateInput = {
   horasExtrasEfectivo?: boolean | null
   horasExtrasTransferir?: boolean | null
   pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captain?: Prisma.UserCreateNestedOneWithoutAssignedOrdersInput
   receipts?: Prisma.ReceiptCreateNestedManyWithoutWorkOrderInput
 }
 
@@ -729,6 +771,8 @@ export type WorkOrderUncheckedCreateInput = {
   id?: number
   createdAt?: Date | string
   nombre?: string | null
+  apellido?: string | null
+  email?: string | null
   cell?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
@@ -760,12 +804,15 @@ export type WorkOrderUncheckedCreateInput = {
   horasExtrasEfectivo?: boolean | null
   horasExtrasTransferir?: boolean | null
   pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captainId?: string | null
   receipts?: Prisma.ReceiptUncheckedCreateNestedManyWithoutWorkOrderInput
 }
 
 export type WorkOrderUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -797,6 +844,7 @@ export type WorkOrderUpdateInput = {
   horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captain?: Prisma.UserUpdateOneWithoutAssignedOrdersNestedInput
   receipts?: Prisma.ReceiptUpdateManyWithoutWorkOrderNestedInput
 }
 
@@ -804,6 +852,8 @@ export type WorkOrderUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -835,6 +885,7 @@ export type WorkOrderUncheckedUpdateInput = {
   horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captainId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   receipts?: Prisma.ReceiptUncheckedUpdateManyWithoutWorkOrderNestedInput
 }
 
@@ -842,6 +893,8 @@ export type WorkOrderCreateManyInput = {
   id?: number
   createdAt?: Date | string
   nombre?: string | null
+  apellido?: string | null
+  email?: string | null
   cell?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
@@ -873,11 +926,14 @@ export type WorkOrderCreateManyInput = {
   horasExtrasEfectivo?: boolean | null
   horasExtrasTransferir?: boolean | null
   pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captainId?: string | null
 }
 
 export type WorkOrderUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -915,6 +971,8 @@ export type WorkOrderUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -946,12 +1004,25 @@ export type WorkOrderUncheckedUpdateManyInput = {
   horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captainId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type WorkOrderListRelationFilter = {
+  every?: Prisma.WorkOrderWhereInput
+  some?: Prisma.WorkOrderWhereInput
+  none?: Prisma.WorkOrderWhereInput
+}
+
+export type WorkOrderOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type WorkOrderCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   nombre?: Prisma.SortOrder
+  apellido?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   cell?: Prisma.SortOrder
   fecha?: Prisma.SortOrder
   horaSalida?: Prisma.SortOrder
@@ -983,6 +1054,7 @@ export type WorkOrderCountOrderByAggregateInput = {
   horasExtrasEfectivo?: Prisma.SortOrder
   horasExtrasTransferir?: Prisma.SortOrder
   pagoHorasExtra?: Prisma.SortOrder
+  captainId?: Prisma.SortOrder
 }
 
 export type WorkOrderAvgOrderByAggregateInput = {
@@ -1012,6 +1084,8 @@ export type WorkOrderMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   nombre?: Prisma.SortOrder
+  apellido?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   cell?: Prisma.SortOrder
   fecha?: Prisma.SortOrder
   horaSalida?: Prisma.SortOrder
@@ -1043,12 +1117,15 @@ export type WorkOrderMaxOrderByAggregateInput = {
   horasExtrasEfectivo?: Prisma.SortOrder
   horasExtrasTransferir?: Prisma.SortOrder
   pagoHorasExtra?: Prisma.SortOrder
+  captainId?: Prisma.SortOrder
 }
 
 export type WorkOrderMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   nombre?: Prisma.SortOrder
+  apellido?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   cell?: Prisma.SortOrder
   fecha?: Prisma.SortOrder
   horaSalida?: Prisma.SortOrder
@@ -1080,6 +1157,7 @@ export type WorkOrderMinOrderByAggregateInput = {
   horasExtrasEfectivo?: Prisma.SortOrder
   horasExtrasTransferir?: Prisma.SortOrder
   pagoHorasExtra?: Prisma.SortOrder
+  captainId?: Prisma.SortOrder
 }
 
 export type WorkOrderSumOrderByAggregateInput = {
@@ -1108,6 +1186,48 @@ export type WorkOrderSumOrderByAggregateInput = {
 export type WorkOrderScalarRelationFilter = {
   is?: Prisma.WorkOrderWhereInput
   isNot?: Prisma.WorkOrderWhereInput
+}
+
+export type WorkOrderCreateNestedManyWithoutCaptainInput = {
+  create?: Prisma.XOR<Prisma.WorkOrderCreateWithoutCaptainInput, Prisma.WorkOrderUncheckedCreateWithoutCaptainInput> | Prisma.WorkOrderCreateWithoutCaptainInput[] | Prisma.WorkOrderUncheckedCreateWithoutCaptainInput[]
+  connectOrCreate?: Prisma.WorkOrderCreateOrConnectWithoutCaptainInput | Prisma.WorkOrderCreateOrConnectWithoutCaptainInput[]
+  createMany?: Prisma.WorkOrderCreateManyCaptainInputEnvelope
+  connect?: Prisma.WorkOrderWhereUniqueInput | Prisma.WorkOrderWhereUniqueInput[]
+}
+
+export type WorkOrderUncheckedCreateNestedManyWithoutCaptainInput = {
+  create?: Prisma.XOR<Prisma.WorkOrderCreateWithoutCaptainInput, Prisma.WorkOrderUncheckedCreateWithoutCaptainInput> | Prisma.WorkOrderCreateWithoutCaptainInput[] | Prisma.WorkOrderUncheckedCreateWithoutCaptainInput[]
+  connectOrCreate?: Prisma.WorkOrderCreateOrConnectWithoutCaptainInput | Prisma.WorkOrderCreateOrConnectWithoutCaptainInput[]
+  createMany?: Prisma.WorkOrderCreateManyCaptainInputEnvelope
+  connect?: Prisma.WorkOrderWhereUniqueInput | Prisma.WorkOrderWhereUniqueInput[]
+}
+
+export type WorkOrderUpdateManyWithoutCaptainNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkOrderCreateWithoutCaptainInput, Prisma.WorkOrderUncheckedCreateWithoutCaptainInput> | Prisma.WorkOrderCreateWithoutCaptainInput[] | Prisma.WorkOrderUncheckedCreateWithoutCaptainInput[]
+  connectOrCreate?: Prisma.WorkOrderCreateOrConnectWithoutCaptainInput | Prisma.WorkOrderCreateOrConnectWithoutCaptainInput[]
+  upsert?: Prisma.WorkOrderUpsertWithWhereUniqueWithoutCaptainInput | Prisma.WorkOrderUpsertWithWhereUniqueWithoutCaptainInput[]
+  createMany?: Prisma.WorkOrderCreateManyCaptainInputEnvelope
+  set?: Prisma.WorkOrderWhereUniqueInput | Prisma.WorkOrderWhereUniqueInput[]
+  disconnect?: Prisma.WorkOrderWhereUniqueInput | Prisma.WorkOrderWhereUniqueInput[]
+  delete?: Prisma.WorkOrderWhereUniqueInput | Prisma.WorkOrderWhereUniqueInput[]
+  connect?: Prisma.WorkOrderWhereUniqueInput | Prisma.WorkOrderWhereUniqueInput[]
+  update?: Prisma.WorkOrderUpdateWithWhereUniqueWithoutCaptainInput | Prisma.WorkOrderUpdateWithWhereUniqueWithoutCaptainInput[]
+  updateMany?: Prisma.WorkOrderUpdateManyWithWhereWithoutCaptainInput | Prisma.WorkOrderUpdateManyWithWhereWithoutCaptainInput[]
+  deleteMany?: Prisma.WorkOrderScalarWhereInput | Prisma.WorkOrderScalarWhereInput[]
+}
+
+export type WorkOrderUncheckedUpdateManyWithoutCaptainNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkOrderCreateWithoutCaptainInput, Prisma.WorkOrderUncheckedCreateWithoutCaptainInput> | Prisma.WorkOrderCreateWithoutCaptainInput[] | Prisma.WorkOrderUncheckedCreateWithoutCaptainInput[]
+  connectOrCreate?: Prisma.WorkOrderCreateOrConnectWithoutCaptainInput | Prisma.WorkOrderCreateOrConnectWithoutCaptainInput[]
+  upsert?: Prisma.WorkOrderUpsertWithWhereUniqueWithoutCaptainInput | Prisma.WorkOrderUpsertWithWhereUniqueWithoutCaptainInput[]
+  createMany?: Prisma.WorkOrderCreateManyCaptainInputEnvelope
+  set?: Prisma.WorkOrderWhereUniqueInput | Prisma.WorkOrderWhereUniqueInput[]
+  disconnect?: Prisma.WorkOrderWhereUniqueInput | Prisma.WorkOrderWhereUniqueInput[]
+  delete?: Prisma.WorkOrderWhereUniqueInput | Prisma.WorkOrderWhereUniqueInput[]
+  connect?: Prisma.WorkOrderWhereUniqueInput | Prisma.WorkOrderWhereUniqueInput[]
+  update?: Prisma.WorkOrderUpdateWithWhereUniqueWithoutCaptainInput | Prisma.WorkOrderUpdateWithWhereUniqueWithoutCaptainInput[]
+  updateMany?: Prisma.WorkOrderUpdateManyWithWhereWithoutCaptainInput | Prisma.WorkOrderUpdateManyWithWhereWithoutCaptainInput[]
+  deleteMany?: Prisma.WorkOrderScalarWhereInput | Prisma.WorkOrderScalarWhereInput[]
 }
 
 export type NullableIntFieldUpdateOperationsInput = {
@@ -1160,9 +1280,11 @@ export type WorkOrderUpdateOneRequiredWithoutReceiptsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkOrderUpdateToOneWithWhereWithoutReceiptsInput, Prisma.WorkOrderUpdateWithoutReceiptsInput>, Prisma.WorkOrderUncheckedUpdateWithoutReceiptsInput>
 }
 
-export type WorkOrderCreateWithoutReceiptsInput = {
+export type WorkOrderCreateWithoutCaptainInput = {
   createdAt?: Date | string
   nombre?: string | null
+  apellido?: string | null
+  email?: string | null
   cell?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
@@ -1194,12 +1316,163 @@ export type WorkOrderCreateWithoutReceiptsInput = {
   horasExtrasEfectivo?: boolean | null
   horasExtrasTransferir?: boolean | null
   pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  receipts?: Prisma.ReceiptCreateNestedManyWithoutWorkOrderInput
+}
+
+export type WorkOrderUncheckedCreateWithoutCaptainInput = {
+  id?: number
+  createdAt?: Date | string
+  nombre?: string | null
+  apellido?: string | null
+  email?: string | null
+  cell?: string | null
+  fecha?: Date | string | null
+  horaSalida?: string | null
+  horaLlegado?: string | null
+  destino?: string | null
+  puntoEncuentro?: string | null
+  pasajeros?: number | null
+  detallesNotas?: string | null
+  combustible?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  efectivo?: boolean | null
+  transferir?: boolean | null
+  pagarAlEmbarque?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentMethod?: string | null
+  horasExtrasEfectivo?: boolean | null
+  horasExtrasTransferir?: boolean | null
+  pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  receipts?: Prisma.ReceiptUncheckedCreateNestedManyWithoutWorkOrderInput
+}
+
+export type WorkOrderCreateOrConnectWithoutCaptainInput = {
+  where: Prisma.WorkOrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkOrderCreateWithoutCaptainInput, Prisma.WorkOrderUncheckedCreateWithoutCaptainInput>
+}
+
+export type WorkOrderCreateManyCaptainInputEnvelope = {
+  data: Prisma.WorkOrderCreateManyCaptainInput | Prisma.WorkOrderCreateManyCaptainInput[]
+  skipDuplicates?: boolean
+}
+
+export type WorkOrderUpsertWithWhereUniqueWithoutCaptainInput = {
+  where: Prisma.WorkOrderWhereUniqueInput
+  update: Prisma.XOR<Prisma.WorkOrderUpdateWithoutCaptainInput, Prisma.WorkOrderUncheckedUpdateWithoutCaptainInput>
+  create: Prisma.XOR<Prisma.WorkOrderCreateWithoutCaptainInput, Prisma.WorkOrderUncheckedCreateWithoutCaptainInput>
+}
+
+export type WorkOrderUpdateWithWhereUniqueWithoutCaptainInput = {
+  where: Prisma.WorkOrderWhereUniqueInput
+  data: Prisma.XOR<Prisma.WorkOrderUpdateWithoutCaptainInput, Prisma.WorkOrderUncheckedUpdateWithoutCaptainInput>
+}
+
+export type WorkOrderUpdateManyWithWhereWithoutCaptainInput = {
+  where: Prisma.WorkOrderScalarWhereInput
+  data: Prisma.XOR<Prisma.WorkOrderUpdateManyMutationInput, Prisma.WorkOrderUncheckedUpdateManyWithoutCaptainInput>
+}
+
+export type WorkOrderScalarWhereInput = {
+  AND?: Prisma.WorkOrderScalarWhereInput | Prisma.WorkOrderScalarWhereInput[]
+  OR?: Prisma.WorkOrderScalarWhereInput[]
+  NOT?: Prisma.WorkOrderScalarWhereInput | Prisma.WorkOrderScalarWhereInput[]
+  id?: Prisma.IntFilter<"WorkOrder"> | number
+  createdAt?: Prisma.DateTimeFilter<"WorkOrder"> | Date | string
+  nombre?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  apellido?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  email?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  cell?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  fecha?: Prisma.DateTimeNullableFilter<"WorkOrder"> | Date | string | null
+  horaSalida?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  horaLlegado?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  destino?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  puntoEncuentro?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  pasajeros?: Prisma.IntNullableFilter<"WorkOrder"> | number | null
+  detallesNotas?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  combustible?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  efectivo?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
+  transferir?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
+  pagarAlEmbarque?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentMethod?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  horasExtrasEfectivo?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
+  horasExtrasTransferir?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
+  pagoHorasExtra?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captainId?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+}
+
+export type WorkOrderCreateWithoutReceiptsInput = {
+  createdAt?: Date | string
+  nombre?: string | null
+  apellido?: string | null
+  email?: string | null
+  cell?: string | null
+  fecha?: Date | string | null
+  horaSalida?: string | null
+  horaLlegado?: string | null
+  destino?: string | null
+  puntoEncuentro?: string | null
+  pasajeros?: number | null
+  detallesNotas?: string | null
+  combustible?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  efectivo?: boolean | null
+  transferir?: boolean | null
+  pagarAlEmbarque?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentMethod?: string | null
+  horasExtrasEfectivo?: boolean | null
+  horasExtrasTransferir?: boolean | null
+  pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captain?: Prisma.UserCreateNestedOneWithoutAssignedOrdersInput
 }
 
 export type WorkOrderUncheckedCreateWithoutReceiptsInput = {
   id?: number
   createdAt?: Date | string
   nombre?: string | null
+  apellido?: string | null
+  email?: string | null
   cell?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
@@ -1231,6 +1504,7 @@ export type WorkOrderUncheckedCreateWithoutReceiptsInput = {
   horasExtrasEfectivo?: boolean | null
   horasExtrasTransferir?: boolean | null
   pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captainId?: string | null
 }
 
 export type WorkOrderCreateOrConnectWithoutReceiptsInput = {
@@ -1252,6 +1526,8 @@ export type WorkOrderUpdateToOneWithWhereWithoutReceiptsInput = {
 export type WorkOrderUpdateWithoutReceiptsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1283,12 +1559,173 @@ export type WorkOrderUpdateWithoutReceiptsInput = {
   horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captain?: Prisma.UserUpdateOneWithoutAssignedOrdersNestedInput
 }
 
 export type WorkOrderUncheckedUpdateWithoutReceiptsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  combustible?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  pagarAlEmbarque?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  captainId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type WorkOrderCreateManyCaptainInput = {
+  id?: number
+  createdAt?: Date | string
+  nombre?: string | null
+  apellido?: string | null
+  email?: string | null
+  cell?: string | null
+  fecha?: Date | string | null
+  horaSalida?: string | null
+  horaLlegado?: string | null
+  destino?: string | null
+  puntoEncuentro?: string | null
+  pasajeros?: number | null
+  detallesNotas?: string | null
+  combustible?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  efectivo?: boolean | null
+  transferir?: boolean | null
+  pagarAlEmbarque?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentMethod?: string | null
+  horasExtrasEfectivo?: boolean | null
+  horasExtrasTransferir?: boolean | null
+  pagoHorasExtra?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+}
+
+export type WorkOrderUpdateWithoutCaptainInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  combustible?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  pagarAlEmbarque?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  receipts?: Prisma.ReceiptUpdateManyWithoutWorkOrderNestedInput
+}
+
+export type WorkOrderUncheckedUpdateWithoutCaptainInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  destino?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  puntoEncuentro?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pasajeros?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  detallesNotas?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  combustible?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  hielo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  aguaBebidas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gastoVarios?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoCapitana?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  pagoMarinero?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  precioAcordado?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasAcordadas?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  tarifaHora?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cargoExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  pagarAlEmbarque?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  debidoABayside?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  horasExtras?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paymentMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  horasExtrasEfectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  horasExtrasTransferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  pagoHorasExtra?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  receipts?: Prisma.ReceiptUncheckedUpdateManyWithoutWorkOrderNestedInput
+}
+
+export type WorkOrderUncheckedUpdateManyWithoutCaptainInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1357,6 +1794,8 @@ export type WorkOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   id?: boolean
   createdAt?: boolean
   nombre?: boolean
+  apellido?: boolean
+  email?: boolean
   cell?: boolean
   fecha?: boolean
   horaSalida?: boolean
@@ -1388,6 +1827,8 @@ export type WorkOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   horasExtrasEfectivo?: boolean
   horasExtrasTransferir?: boolean
   pagoHorasExtra?: boolean
+  captainId?: boolean
+  captain?: boolean | Prisma.WorkOrder$captainArgs<ExtArgs>
   receipts?: boolean | Prisma.WorkOrder$receiptsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkOrderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workOrder"]>
@@ -1396,6 +1837,8 @@ export type WorkOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   id?: boolean
   createdAt?: boolean
   nombre?: boolean
+  apellido?: boolean
+  email?: boolean
   cell?: boolean
   fecha?: boolean
   horaSalida?: boolean
@@ -1427,12 +1870,16 @@ export type WorkOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   horasExtrasEfectivo?: boolean
   horasExtrasTransferir?: boolean
   pagoHorasExtra?: boolean
+  captainId?: boolean
+  captain?: boolean | Prisma.WorkOrder$captainArgs<ExtArgs>
 }, ExtArgs["result"]["workOrder"]>
 
 export type WorkOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   createdAt?: boolean
   nombre?: boolean
+  apellido?: boolean
+  email?: boolean
   cell?: boolean
   fecha?: boolean
   horaSalida?: boolean
@@ -1464,12 +1911,16 @@ export type WorkOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   horasExtrasEfectivo?: boolean
   horasExtrasTransferir?: boolean
   pagoHorasExtra?: boolean
+  captainId?: boolean
+  captain?: boolean | Prisma.WorkOrder$captainArgs<ExtArgs>
 }, ExtArgs["result"]["workOrder"]>
 
 export type WorkOrderSelectScalar = {
   id?: boolean
   createdAt?: boolean
   nombre?: boolean
+  apellido?: boolean
+  email?: boolean
   cell?: boolean
   fecha?: boolean
   horaSalida?: boolean
@@ -1501,25 +1952,34 @@ export type WorkOrderSelectScalar = {
   horasExtrasEfectivo?: boolean
   horasExtrasTransferir?: boolean
   pagoHorasExtra?: boolean
+  captainId?: boolean
 }
 
-export type WorkOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "nombre" | "cell" | "fecha" | "horaSalida" | "horaLlegado" | "destino" | "puntoEncuentro" | "pasajeros" | "detallesNotas" | "combustible" | "hielo" | "aguaBebidas" | "gastoVarios" | "pagoCapitana" | "pagoMarinero" | "precioAcordado" | "horasAcordadas" | "tarifaHora" | "cargoExtra" | "totalClienteCost" | "deposito" | "saldoCliente" | "pagoRecibo" | "efectivo" | "transferir" | "pagarAlEmbarque" | "debidoABayside" | "horasExtras" | "paymentMethod" | "horasExtrasEfectivo" | "horasExtrasTransferir" | "pagoHorasExtra", ExtArgs["result"]["workOrder"]>
+export type WorkOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "nombre" | "apellido" | "email" | "cell" | "fecha" | "horaSalida" | "horaLlegado" | "destino" | "puntoEncuentro" | "pasajeros" | "detallesNotas" | "combustible" | "hielo" | "aguaBebidas" | "gastoVarios" | "pagoCapitana" | "pagoMarinero" | "precioAcordado" | "horasAcordadas" | "tarifaHora" | "cargoExtra" | "totalClienteCost" | "deposito" | "saldoCliente" | "pagoRecibo" | "efectivo" | "transferir" | "pagarAlEmbarque" | "debidoABayside" | "horasExtras" | "paymentMethod" | "horasExtrasEfectivo" | "horasExtrasTransferir" | "pagoHorasExtra" | "captainId", ExtArgs["result"]["workOrder"]>
 export type WorkOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  captain?: boolean | Prisma.WorkOrder$captainArgs<ExtArgs>
   receipts?: boolean | Prisma.WorkOrder$receiptsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkOrderCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type WorkOrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type WorkOrderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type WorkOrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  captain?: boolean | Prisma.WorkOrder$captainArgs<ExtArgs>
+}
+export type WorkOrderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  captain?: boolean | Prisma.WorkOrder$captainArgs<ExtArgs>
+}
 
 export type $WorkOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "WorkOrder"
   objects: {
+    captain: Prisma.$UserPayload<ExtArgs> | null
     receipts: Prisma.$ReceiptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     createdAt: Date
     nombre: string | null
+    apellido: string | null
+    email: string | null
     cell: string | null
     fecha: Date | null
     horaSalida: string | null
@@ -1551,6 +2011,7 @@ export type $WorkOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     horasExtrasEfectivo: boolean | null
     horasExtrasTransferir: boolean | null
     pagoHorasExtra: runtime.Decimal | null
+    captainId: string | null
   }, ExtArgs["result"]["workOrder"]>
   composites: {}
 }
@@ -1945,6 +2406,7 @@ readonly fields: WorkOrderFieldRefs;
  */
 export interface Prisma__WorkOrderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  captain<T extends Prisma.WorkOrder$captainArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkOrder$captainArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   receipts<T extends Prisma.WorkOrder$receiptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkOrder$receiptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1978,6 +2440,8 @@ export interface WorkOrderFieldRefs {
   readonly id: Prisma.FieldRef<"WorkOrder", 'Int'>
   readonly createdAt: Prisma.FieldRef<"WorkOrder", 'DateTime'>
   readonly nombre: Prisma.FieldRef<"WorkOrder", 'String'>
+  readonly apellido: Prisma.FieldRef<"WorkOrder", 'String'>
+  readonly email: Prisma.FieldRef<"WorkOrder", 'String'>
   readonly cell: Prisma.FieldRef<"WorkOrder", 'String'>
   readonly fecha: Prisma.FieldRef<"WorkOrder", 'DateTime'>
   readonly horaSalida: Prisma.FieldRef<"WorkOrder", 'String'>
@@ -2009,6 +2473,7 @@ export interface WorkOrderFieldRefs {
   readonly horasExtrasEfectivo: Prisma.FieldRef<"WorkOrder", 'Boolean'>
   readonly horasExtrasTransferir: Prisma.FieldRef<"WorkOrder", 'Boolean'>
   readonly pagoHorasExtra: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly captainId: Prisma.FieldRef<"WorkOrder", 'String'>
 }
     
 
@@ -2258,6 +2723,10 @@ export type WorkOrderCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    */
   data: Prisma.WorkOrderCreateManyInput | Prisma.WorkOrderCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkOrderIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2328,6 +2797,10 @@ export type WorkOrderUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    * Limit how many WorkOrders to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkOrderIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2394,6 +2867,25 @@ export type WorkOrderDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many WorkOrders to delete.
    */
   limit?: number
+}
+
+/**
+ * WorkOrder.captain
+ */
+export type WorkOrder$captainArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

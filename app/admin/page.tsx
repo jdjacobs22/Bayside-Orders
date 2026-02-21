@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import AdminHeader from "@/components/AdminHeader";
 import {
@@ -9,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FilePlus, List, Search, UserPlus, Printer } from "lucide-react";
+import { FilePlus, List, Search, UserPlus, Printer, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function AdminDashboard() {
@@ -29,6 +27,14 @@ export default function AdminDashboard() {
       icon: List,
       gradient: "from-green-500 to-green-600",
       iconColor: "text-green-600",
+    },
+    {
+      href: "/admin/users",
+      title: "List All Users",
+      description: "View and manage all registered captains and administrators.",
+      icon: Users,
+      gradient: "from-yellow-500 to-yellow-600",
+      iconColor: "text-yellow-600",
     },
     {
       href: "/admin/search",
@@ -57,10 +63,10 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 pb-12">
       <AdminHeader title="Admin Dashboard" showBackButton={false} />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-5xl mx-auto mb-12">
           {dashboardCards.map((card) => {
             const Icon = card.icon;
 

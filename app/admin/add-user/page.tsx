@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -15,9 +16,11 @@ export default function AdminCreateUser() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        name: "",
+        nombre: "",
+        apellido: "",
         email: "",
-        role: "user" as "admin" | "captain" | "user",
+        cell: "",
+        role: "captain" as "admin" | "captain",
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -48,42 +51,71 @@ export default function AdminCreateUser() {
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="create-user-nombre">Nombre</Label>
                                 <Input
-                                    id="name"
+                                    id="create-user-nombre"
                                     type="text"
                                     required
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    placeholder="Enter full name"
+                                    value={formData.nombre}
+                                    onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                                    placeholder="Nombre"
                                     className="h-11"
+                                    autoComplete="new-user-nombre"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="create-user-apellido">Apellido</Label>
                                 <Input
-                                    id="email"
+                                    id="create-user-apellido"
+                                    type="text"
+                                    required
+                                    value={formData.apellido}
+                                    onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
+                                    placeholder="Apellido"
+                                    className="h-11"
+                                    autoComplete="new-user-apellido"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="create-user-email">Email</Label>
+                                <Input
+                                    id="create-user-email"
                                     type="email"
                                     required
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     placeholder="name@example.com"
                                     className="h-11"
+                                    autoComplete="new-user-email"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="role">Role</Label>
+                                <Label htmlFor="create-user-cell">Celular</Label>
+                                <Input
+                                    id="create-user-cell"
+                                    type="tel"
+                                    required
+                                    value={formData.cell}
+                                    onChange={(e) => setFormData({ ...formData, cell: e.target.value })}
+                                    placeholder="Número de celular"
+                                    className="h-11"
+                                    autoComplete="new-user-cell"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="create-user-role">Role</Label>
                                 <Select
                                     value={formData.role}
-                                    onValueChange={(value) => setFormData({ ...formData, role: value as "admin" | "captain" | "user" })}
+                                    onValueChange={(value) => setFormData({ ...formData, role: value as "admin" | "captain" })}
                                 >
-                                    <SelectTrigger id="role" className="h-11">
+                                    <SelectTrigger id="create-user-role" className="h-11">
                                         <SelectValue placeholder="Select a role" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="user">User</SelectItem>
                                         <SelectItem value="captain">Captain</SelectItem>
                                         <SelectItem value="admin">Admin</SelectItem>
                                     </SelectContent>

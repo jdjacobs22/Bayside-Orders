@@ -20,9 +20,13 @@ import {
   getWorkOrder,
   updateWorkOrder,
   createWorkOrder,
+  getClientApellidosByNombre,
+  getUniqueNombresFromUsers,
+  getClientDetails,
 } from "@/app/actions/work-order";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { CaptainSelect } from "@/components/CaptainSelect";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -95,6 +99,8 @@ export default function WorkOrderForm({
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
+  const [apellidosList, setApellidosList] = useState<string[]>([]);
+  const [nombresList, setNombresList] = useState<string[]>([]);
 
   // USE TOGGLE TO ENABLE DEBUGGING
   const debugMode = false;
@@ -169,6 +175,8 @@ export default function WorkOrderForm({
     resolver: zodResolver(activeSchema) as any,
     defaultValues: {
       nombre: "",
+      apellido: "",
+      email: "",
       cell: "",
       fechaEmbarque: undefined,
       horaEmbarque: "10:00",
@@ -200,10 +208,13 @@ export default function WorkOrderForm({
       horasExtrasEfectivo: false,
       horasExtrasTransferir: false,
       pagoHorasExtra: 0,
+      captainId: "unassigned",
     },
   });
 
   const { watch, setValue } = form;
+  const nombreCliente = watch("nombre");
+  const apellidoCliente = watch("apellido");
   const precio = watch("precioAcordado");
   const extra = watch("cargoExtra");
   const deposito = watch("deposito");
@@ -239,6 +250,81 @@ export default function WorkOrderForm({
     const [hours, minutes] = timeStr.split(":").map(Number);
     return hours + (minutes || 0) / 60;
   };
+
+  // Fetch matching last names when "nombre" changes explicitly
+  useEffect(() => {
+    async function fetchApellidos() {
+      if (!nombreCliente || nombreCliente.trim().length === 0) {
+        setApellidosList([]);
+        return;
+      }
+
+      const res = await getClientApellidosByNombre(nombreCliente);
+      if (res.success && res.data) {
+        setApellidosList(res.data);
+        // If there is exactly one result, we can auto-populate the apellido field
+        // Only if it's currently empty to avoid overwriting user changes
+        if (res.data.length === 1 && !form.getValues("apellido")) {
+          setValue("apellido", res.data[0]);
+        }
+      } else {
+        setApellidosList([]);
+      }
+    }
+
+    // Slight debounce for fetching to avoid overwhelming calls
+    const timerId = setTimeout(() => {
+      fetchApellidos();
+    }, 400);
+
+    return () => clearTimeout(timerId);
+  }, [nombreCliente]);
+
+  // Fetch email and cell when both nombre and apellido are available
+  useEffect(() => {
+    async function fetchDetails() {
+      if (!nombreCliente || !apellidoCliente) return;
+
+      // Only fetch if email or cell is empty
+      if (form.getValues("email") && form.getValues("cell")) return;
+
+      const res = await getClientDetails(nombreCliente, apellidoCliente);
+      if (res.success) {
+        if (res.data) {
+          // Auto-populate email and cell if they are currently empty
+          if (!form.getValues("email") && res.data.email) {
+            setValue("email", res.data.email);
+          }
+          if (!form.getValues("cell") && res.data.cell) {
+            setValue("cell", res.data.cell);
+          }
+        } else {
+          // If both fields have values but no user matches, show error
+          if (nombreCliente.trim() && apellidoCliente.trim()) {
+            toast.error("Error", {
+              description: "Ese nombre no existe en nuestra base de datos.",
+            });
+          }
+        }
+      }
+    }
+
+    const timerId = setTimeout(() => {
+      fetchDetails();
+    }, 500);
+
+    return () => clearTimeout(timerId);
+  }, [nombreCliente, apellidoCliente, setValue]);
+
+  useEffect(() => {
+    async function fetchNombres() {
+      const res = await getUniqueNombresFromUsers();
+      if (res.success && res.data) {
+        setNombresList(res.data);
+      }
+    }
+    fetchNombres();
+  }, []);
 
   // Calculate cargoExtra based on horasExtras only
   useEffect(() => {
@@ -285,6 +371,8 @@ export default function WorkOrderForm({
             const data = res.data;
             form.reset({
               nombre: data.nombre || "",
+              apellido: data.apellido || "",
+              email: data.email || "",
               cell: data.cell || "",
               fechaEmbarque: data.fecha ? new Date(data.fecha) : undefined,
               horaEmbarque: data.horaSalida || "10:00",
@@ -316,6 +404,7 @@ export default function WorkOrderForm({
               horasExtrasEfectivo: data.horasExtrasEfectivo || false,
               horasExtrasTransferir: data.horasExtrasTransferir || false,
               pagoHorasExtra: data.pagoHorasExtra || 0,
+              captainId: (data as any).captainId || "unassigned",
             });
             if (data.receipts) setReceipts(data.receipts);
           } else {
@@ -497,6 +586,18 @@ export default function WorkOrderForm({
     setLoading(true);
 
     try {
+      // Custom validation before submission to ensure last name strictness from User DB
+      if (nombreCliente && nombreCliente.trim() !== "") {
+        const check = await getClientDetails(nombreCliente, data.apellido ?? "");
+        if (!check.success || !check.data) {
+          toast.error("Error", {
+            description: "Ese nombre no existe en nuestra base de datos.",
+          });
+          setLoading(false);
+          return;
+        }
+      }
+
       // Map form data to match action expectations
       const submissionData: any = {
         ...data,
@@ -505,6 +606,7 @@ export default function WorkOrderForm({
             ? `${data.fechaEmbarque.getDate().toString().padStart(2, '0')}/${(data.fechaEmbarque.getMonth() + 1).toString().padStart(2, '0')}/${data.fechaEmbarque.getFullYear()}`
             : data.fechaEmbarque)
           : undefined,
+        captainId: (data as any).captainId === "unassigned" ? null : (data as any).captainId,
       };
 
       // submissionData is now a plain object with native types
@@ -596,7 +698,7 @@ export default function WorkOrderForm({
                   <DollarSign className="h-4 w-4" /> Administración
                 </h3>
                 {/* CLIENTE INFO */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
                   <FormField
                     control={form.control}
                     name="nombre"
@@ -606,9 +708,78 @@ export default function WorkOrderForm({
                         <FormControl>
                           <Input
                             {...field}
+                            autoComplete="nope"
+                            list="nombres-datalist"
                             value={field.value ?? ""}
                             disabled={!canEdit("nombre")}
-                            className={!canEdit("nombre") ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                        <datalist id="nombres-datalist">
+                          {nombresList.map(n => (
+                            <option key={n} value={n} />
+                          ))}
+                        </datalist>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="apellido"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Apellido</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            list="apellidos-datalist"
+                            value={field.value ?? ""}
+                            disabled={!canEdit("apellido")}
+                          />
+                        </FormControl>
+                        <datalist id="apellidos-datalist">
+                          {apellidosList.map(ap => (
+                            <option key={ap} value={ap} />
+                          ))}
+                        </datalist>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Correo</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="email"
+                            value={field.value ?? ""}
+                            disabled={!canEdit("email")}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* ASIGNACIÓN Y PASAJEROS */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Captain Select moved to replace Name Input */}
+                  <FormField
+                    control={form.control}
+                    name="captainId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Asignar Capitana</FormLabel>
+                        <FormControl>
+                          <CaptainSelect
+                            value={field.value ?? "unassigned"}
+                            onValueChange={field.onChange}
+                            disabled={isCaptain}
                           />
                         </FormControl>
                         <FormMessage />
@@ -620,7 +791,7 @@ export default function WorkOrderForm({
                     name="cell"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Cell</FormLabel>
+                        <FormLabel>Celular</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -952,7 +1123,7 @@ export default function WorkOrderForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="flex items-center gap-1 text-blue-800">
-                          <DollarSign className="h-3 w-3" /> Deposito
+                          <DollarSign className="h-3 w-3" /> Depósito
                         </FormLabel>
                         <FormControl>
                           <Input
