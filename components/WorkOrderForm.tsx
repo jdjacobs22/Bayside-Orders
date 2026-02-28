@@ -50,6 +50,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Prisma } from "@/lib/prisma-client/browser";
 import { getAdminSchema, getCaptainSchema } from "@/lib/schemas";
 import imageCompression from 'browser-image-compression';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 // 1. STYLED SCHEMA: Strict types for Linter compliance
@@ -81,37 +88,38 @@ export default function WorkOrderForm({
   const router = useRouter();
 
   // Initialize orderId immediately if propOrderId is provided
-  const [orderId, setOrderId] = useState<number | null>(propOrderId || null);
+  const [orderId, setOrderId] = React.useState<number | null>(propOrderId || null);
 
 
   // Effect to sync initial state if needed (optional, skipping for now as requested)
 
   // Update orderId if propOrderId changes
-  useEffect(() => {
+  React.useEffect(() => {
     if (propOrderId && propOrderId !== orderId) {
       setOrderId(propOrderId);
     }
-  }, [propOrderId]);
-  const [receipts, setReceipts] = useState<any[]>([]);
-  const [uploading, setUploading] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [compressing, setCompressing] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
-  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
-  const [apellidosList, setApellidosList] = useState<string[]>([]);
-  const [nombresList, setNombresList] = useState<string[]>([]);
-  const [discoveredCaptainId, setDiscoveredCaptainId] = useState<string | null>(null);
+  }, [propOrderId, orderId]);
+  const [receipts, setReceipts] = React.useState<any[]>([]);
+  const [uploading, setUploading] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [compressing, setCompressing] = React.useState(false);
+  const [selectedPhoto, setSelectedPhoto] = React.useState<string | null>(null);
+  const [showSuccessDialog, setShowSuccessDialog] = React.useState(false);
+  const [createdOrderId, setCreatedOrderId] = React.useState<number | null>(null);
+  const [apellidosList, setApellidosList] = React.useState<string[]>([]);
+  const [nombresList, setNombresList] = React.useState<string[]>([]);
+  const [discoveredCaptainId, setDiscoveredCaptainId] = React.useState<string | null>(null);
+  const [fetchError, setFetchError] = React.useState<string | null>(null);
 
   // USE TOGGLE TO ENABLE DEBUGGING
   const debugMode = false;
   // TODO: Correct code to enable toggle debugging
   // const [debugMode, setDebugMode] = useState(true);
   // DEBUGGING STATE
-  const [debugLogs, setDebugLogs] = useState<string[]>([]);
+  const [debugLogs, setDebugLogs] = React.useState<string[]>([]);
 
   // Load logs from local storage on mount
-  useEffect(() => {
+  React.useEffect(() => {
     try {
       const savedLogs = localStorage.getItem("photo_debug_logs");
       if (savedLogs) {
@@ -252,7 +260,7 @@ export default function WorkOrderForm({
   };
 
   // Fetch matching last names when "nombre" changes explicitly
-  useEffect(() => {
+  React.useEffect(() => {
     async function fetchApellidos() {
       if (!nombreCliente || nombreCliente.trim().length === 0) {
         setApellidosList([]);
@@ -278,10 +286,10 @@ export default function WorkOrderForm({
     }, 400);
 
     return () => clearTimeout(timerId);
-  }, [nombreCliente]);
+  }, [nombreCliente, setValue]);
 
   // Fetch email and cell when both nombre and apellido are available
-  useEffect(() => {
+  React.useEffect(() => {
     async function fetchDetails() {
       if (!nombreCliente || !apellidoCliente) return;
 
@@ -363,10 +371,10 @@ export default function WorkOrderForm({
     setValue,
   ]);
 
-  // Load data for edit modes
-  useEffect(() => {
+  React.useEffect(() => {
     if (orderId && (mode === "admin-edit" || mode === "captain-edit")) {
       setLoading(true);
+      setFetchError(null);
       getWorkOrder(orderId)
         .then((res) => {
           if (res.success && res.data) {
@@ -410,8 +418,10 @@ export default function WorkOrderForm({
             setDiscoveredCaptainId(data.captainId || null);
             if (data.receipts) setReceipts(data.receipts);
           } else {
+            const errorMessage = res.error || "Error cargando orden";
+            setFetchError(errorMessage);
             toast.error("Error", {
-              description: "Error cargando orden: " + res.error,
+              description: errorMessage,
             });
           }
           setLoading(false);
@@ -679,6 +689,26 @@ export default function WorkOrderForm({
     );
   }
 
+  if (fetchError) {
+    return (
+      <div className="p-4 md:p-8 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-lg shadow-sm text-center max-w-md w-full border border-red-100">
+          <div className="text-red-500 mb-4 flex justify-center">
+            <Anchor className="h-12 w-12" />
+          </div>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Error de Acceso</h1>
+          <p className="text-gray-600 mb-6">{fetchError}</p>
+          <Button
+            onClick={() => router.push(isCaptain ? "/captain" : "/admin/list")}
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          >
+            Volver
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
       <Card className="max-w-5xl mx-auto shadow-xl border-none">
@@ -691,6 +721,23 @@ export default function WorkOrderForm({
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
+          {/* Top Abandon Button for Captains */}
+          {isCaptain && (
+            <div className="mb-6">
+              <Button
+                type="button"
+                onClick={() => {
+                  if (window.confirm("Are you sure you want to abandon these changes and return to the order entry screen?")) {
+                    router.push("/captain");
+                  }
+                }}
+                className="w-full py-4 text-lg bg-red-600 hover:bg-red-700 text-white font-bold shadow-md transition-colors"
+                disabled={loading}
+              >
+                Return to Enter Order No
+              </Button>
+            </div>
+          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
@@ -707,20 +754,31 @@ export default function WorkOrderForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Nombre del Capitana</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            autoComplete="nope"
-                            list="nombres-datalist"
-                            value={field.value ?? ""}
-                            disabled={!canEdit("nombre")}
-                          />
-                        </FormControl>
-                        <datalist id="nombres-datalist">
-                          {nombresList.map(n => (
-                            <option key={n} value={n} />
-                          ))}
-                        </datalist>
+                        <Select
+                          disabled={!canEdit("nombre")}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            // Clear apellido when nombre changes to force re-selection
+                            setValue("apellido", "");
+                            setValue("email", "");
+                            setValue("cell", "");
+                            setDiscoveredCaptainId(null);
+                          }}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-11">
+                              <SelectValue placeholder="Seleccione nombre" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {nombresList.map((n) => (
+                              <SelectItem key={n} value={n}>
+                                {n}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -731,19 +789,24 @@ export default function WorkOrderForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Apellido del Capitana</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            list="apellidos-datalist"
-                            value={field.value ?? ""}
-                            disabled={!canEdit("apellido")}
-                          />
-                        </FormControl>
-                        <datalist id="apellidos-datalist">
-                          {apellidosList.map(ap => (
-                            <option key={ap} value={ap} />
-                          ))}
-                        </datalist>
+                        <Select
+                          disabled={!canEdit("apellido") || !nombreCliente}
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-11">
+                              <SelectValue placeholder={nombreCliente ? "Seleccione apellido" : "Primero elija nombre"} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {apellidosList.map((ap) => (
+                              <SelectItem key={ap} value={ap}>
+                                {ap}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -759,7 +822,9 @@ export default function WorkOrderForm({
                             {...field}
                             type="email"
                             value={field.value ?? ""}
+                            readOnly
                             disabled={!canEdit("email")}
+                            className="bg-gray-100 italic"
                           />
                         </FormControl>
                         <FormMessage />
@@ -781,8 +846,9 @@ export default function WorkOrderForm({
                           <Input
                             {...field}
                             value={field.value ?? ""}
+                            readOnly
                             disabled={!canEdit("cell")}
-                            className={!canEdit("cell") ? "bg-gray-200" : ""}
+                            className="bg-gray-100 italic"
                           />
                         </FormControl>
                         <FormMessage />
@@ -1725,28 +1791,33 @@ export default function WorkOrderForm({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {mode === "admin-create" && (
+                {(mode === "admin-create" || isCaptain) && (
                   <Button
                     type="button"
-                    variant="outline"
+                    variant={isCaptain ? "default" : "outline"}
                     onClick={() => {
-                      if (
-                        window.confirm(
-                          "¿Está seguro de que desea cancelar? Los datos ingresados no se guardarán."
-                        )
-                      ) {
-                        router.push("/admin/list");
+                      const confirmMsg = isCaptain
+                        ? "Are you sure you want to abandon these changes and return to the order entry screen?"
+                        : "¿Está seguro de que desea cancelar? Los datos ingresados no se guardarán.";
+
+                      if (window.confirm(confirmMsg)) {
+                        router.push(isCaptain ? "/captain" : "/admin/list");
                       }
                     }}
-                    className="w-full py-6 text-lg border-2 border-gray-300 hover:bg-gray-50"
+                    className={cn(
+                      "w-full py-6 text-lg border-2 shadow-sm transition-colors",
+                      isCaptain
+                        ? "bg-red-600 hover:bg-red-700 text-white border-red-700 font-bold"
+                        : "border-gray-300 hover:bg-gray-50 text-gray-700"
+                    )}
                     disabled={loading}
                   >
-                    Cancelar
+                    {isCaptain ? "Return to Enter Order No" : "Cancelar"}
                   </Button>
                 )}
                 <Button
                   type="submit"
-                  className={`w-full bg-blue-600 hover:bg-blue-700 py-6 text-lg ${mode === "admin-create" ? "" : "md:col-span-2"
+                  className={`w-full bg-blue-600 hover:bg-blue-700 py-6 text-lg ${(mode === "admin-create" || isCaptain) ? "" : "md:col-span-2"
                     }`}
                   disabled={loading}
                 >

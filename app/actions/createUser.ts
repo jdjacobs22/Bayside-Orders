@@ -29,6 +29,18 @@ export async function createUser(data: {
       throw new Error("Unauthorized: Only admins can create users");
     }
 
+    // Check for existing name combination before creating
+    const existingName = await prisma.user.findFirst({
+      where: {
+        nombre: { equals: data.nombre.trim(), mode: 'insensitive' },
+        apellido: { equals: data.apellido.trim(), mode: 'insensitive' }
+      }
+    });
+
+    if (existingName) {
+      return { success: false, error: "Ya existe un usuario con este Nombre y Apellido." };
+    }
+
     // Use better-auth signUpEmail to create the user properly with password hashing
     console.log("Creating user with better-auth:", data.email);
     const result = await auth.api.signUpEmail({

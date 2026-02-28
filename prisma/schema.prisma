@@ -24,6 +24,7 @@ model User {
   assignedOrders WorkOrder[] @relation("CaptainOrders")
 
   @@unique([email])
+  @@unique([nombre, apellido])
   @@map("user")
 }
 

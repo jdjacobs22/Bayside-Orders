@@ -209,12 +209,12 @@ export async function getWorkOrder(id: number) {
       where: { id },
       include: { receipts: true },
     });
-    if (!order) return { success: false, error: "Order not found" };
+    if (!order) return { success: false, error: `La orden #${id} no existe.` };
 
     // RBAC Check
     if (session.user.role === "captain") {
         if (order.captainId !== session.user.id) {
-            return { success: false, error: "Unauthorized: You do not have access to this order." };
+            return { success: false, error: "No tienes autorización para acceder a esta orden." };
         }
     } else if (session.user.role !== "admin") {
         // Fallback for any other future roles, though only captain/admin exist now
