@@ -130,6 +130,13 @@ export default function WorkOrderForm({
     }
   }, []);
 
+  /**
+   * Adds a message to the debug log system.
+   * Logs are stored in both memory state and local storage for persistence across reloads.
+   * Useful for debugging issues on mobile devices where console access is limited.
+   * 
+   * @param msg - The message to log.
+   */
   const addDebugLog = (msg: string) => {
     const timestamp = new Date().toLocaleTimeString();
     const logEntry = `${timestamp}: ${msg}`;
@@ -145,6 +152,9 @@ export default function WorkOrderForm({
     });
   };
 
+  /**
+   * Clears all debug logs from memory and local storage.
+   */
   const clearDebugLogs = () => {
     setDebugLogs([]);
     localStorage.removeItem("photo_debug_logs");
@@ -261,6 +271,10 @@ export default function WorkOrderForm({
 
   // Fetch matching last names when "nombre" changes explicitly
   React.useEffect(() => {
+    /**
+     * Fetches a list of last names associated with the currently entered "nombre" (first name).
+     * If exactly one result is found, it auto-populates the "apellido" (last name) field.
+     */
     async function fetchApellidos() {
       if (!nombreCliente || nombreCliente.trim().length === 0) {
         setApellidosList([]);
@@ -290,10 +304,13 @@ export default function WorkOrderForm({
 
   // Fetch email and cell when both nombre and apellido are available
   React.useEffect(() => {
+    /**
+     * Fetches details (email, cell, user ID) for a specific client based on their 
+     * full name (nombre and apellido).
+     * Auto-populates email and cell fields if they are currently unpopulated.
+     */
     async function fetchDetails() {
       if (!nombreCliente || !apellidoCliente) return;
-
-
 
       const res = await getClientDetails(nombreCliente, apellidoCliente);
       if (res.success) {
@@ -327,6 +344,10 @@ export default function WorkOrderForm({
   }, [nombreCliente, apellidoCliente, setValue]);
 
   useEffect(() => {
+    /**
+     * Fetches all unique first names (nombres) from the User database 
+     * to populate the selection list.
+     */
     async function fetchNombres() {
       const res = await getUniqueNombresFromUsers();
       if (res.success && res.data) {
@@ -446,9 +467,14 @@ export default function WorkOrderForm({
 
 
   /**
-     * Refactored handler using browser-image-compression.
-     * This runs in a web worker to prevent UI thread crashes on Samsung devices.
-     */
+   * Handles the selection and processing of an image file for expense receipts.
+   * Compresses the image in a web worker to avoid blocking the UI thread and 
+   * prevents memory-related crashes on high-res camera devices like Samsung A53.
+   * After compression, uploads the resulting file to the server.
+   * 
+   * @param e - The file input change event.
+   * @param gastoType - The category of the expense (e.g., 'combustible', 'hielo').
+   */
   const handleFileSelect = async (
     e: React.ChangeEvent<HTMLInputElement>,
     gastoType: string
