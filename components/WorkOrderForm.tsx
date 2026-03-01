@@ -111,10 +111,18 @@ export default function WorkOrderForm({
   const [discoveredCaptainId, setDiscoveredCaptainId] = React.useState<string | null>(null);
   const [fetchError, setFetchError] = React.useState<string | null>(null);
 
-  // USE TOGGLE TO ENABLE DEBUGGING
-  const debugMode = false;
-  // TODO: Correct code to enable toggle debugging
-  // const [debugMode, setDebugMode] = useState(true);
+  // PERSIST DEBUG MODE ACROSS RELOADS/CRASHES
+  const [debugMode, setDebugMode] = React.useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("debug_mode_enabled");
+      return saved === "true";
+    }
+    return false;
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem("debug_mode_enabled", debugMode.toString());
+  }, [debugMode]);
   // DEBUGGING STATE
   const [debugLogs, setDebugLogs] = React.useState<string[]>([]);
 
@@ -122,9 +130,16 @@ export default function WorkOrderForm({
   React.useEffect(() => {
     try {
       const savedLogs = localStorage.getItem("photo_debug_logs");
+      let logs = [];
       if (savedLogs) {
-        setDebugLogs(JSON.parse(savedLogs));
+        logs = JSON.parse(savedLogs);
       }
+
+      // Add a marker that the page has reloaded (Crucial for identifying crash points)
+      const reloadEntry = `${new Date().toLocaleTimeString()}: --- PAGE RELOAD / SUCCESSFUL REBOOT ---`;
+      const updatedLogs = [...logs, reloadEntry];
+      setDebugLogs(updatedLogs);
+      localStorage.setItem("photo_debug_logs", JSON.stringify(updatedLogs));
     } catch (e) {
       console.error("Failed to load debug logs", e);
     }
@@ -134,12 +149,23 @@ export default function WorkOrderForm({
    * Adds a message to the debug log system.
    * Logs are stored in both memory state and local storage for persistence across reloads.
    * Useful for debugging issues on mobile devices where console access is limited.
+   * Automatically includes memory status if the browser supports it (Chrome/Android).
    * 
    * @param msg - The message to log.
    */
   const addDebugLog = (msg: string) => {
     const timestamp = new Date().toLocaleTimeString();
-    const logEntry = `${timestamp}: ${msg}`;
+    let memoryStatus = "";
+
+    // Attempt to get browser heap memory status (Chrome/Android support)
+    const perf = (window.performance as any);
+    if (perf && perf.memory) {
+      const used = Math.round(perf.memory.usedJSHeapSize / 1024 / 1024);
+      const total = Math.round(perf.memory.jsHeapSizeLimit / 1024 / 1024);
+      memoryStatus = ` [RAM: ${used}MB/${total}MB]`;
+    }
+
+    const logEntry = `${timestamp}${memoryStatus}: ${msg}`;
     console.log("DEBUG:", msg);
     setDebugLogs((prev) => {
       const newLogs = [...prev, logEntry];
@@ -468,9 +494,8 @@ export default function WorkOrderForm({
 
   /**
    * Handles the selection and processing of an image file for expense receipts.
-   * Compresses the image in a web worker to avoid blocking the UI thread and 
-   * prevents memory-related crashes on high-res camera devices like Samsung A53.
-   * After compression, uploads the resulting file to the server.
+   * USES NATIVE DECODING: Resizes the image DURING de-compression to stay within
+   * the memory limits of devices like the Samsung A53 (64MP sensor).
    * 
    * @param e - The file input change event.
    * @param gastoType - The category of the expense (e.g., 'combustible', 'hielo').
@@ -479,112 +504,205 @@ export default function WorkOrderForm({
     e: React.ChangeEvent<HTMLInputElement>,
     gastoType: string
   ) => {
-    // Prevent default isn't always needed for file inputs but kept for consistency
-    // e.preventDefault(); 
-
-    addDebugLog(`File input triggered for ${gastoType}`);
+    addDebugLog(`PROCESS START: ${gastoType}`);
 
     if (!e.target.files?.[0]) {
-      addDebugLog("No file selected or file selection cancelled");
+      addDebugLog("No file selected.");
       return;
     }
 
     const originalFile = e.target.files[0];
+    addDebugLog(`SOURCE: ${originalFile.name} (${(originalFile.size / 1024 / 1024).toFixed(2)}MB)`);
 
-    // Log file details immediately
-    addDebugLog(`File Selected: Name=${originalFile.name}, Size=${(originalFile.size / 1024 / 1024).toFixed(2)}MB, Type=${originalFile.type}`);
-
-    e.target.value = ""; // Reset input
+    // 1. Release the input immediately to free file handle
+    e.target.value = "";
 
     if (!originalFile.type.startsWith("image/")) {
-      addDebugLog("Invalid file type selected");
-      toast.error("Archivo inválido", {
-        description: "Solo se permiten archivos de imagen",
-      });
+      toast.error("Archivo inválido", { description: "Solo se permiten imágenes" });
       return;
     }
 
     if (!orderId) {
-      addDebugLog("Error: Missing Order ID");
-      toast.error("Error", {
-        description: "No se encontró el ID de la orden.",
-      });
+      toast.error("Error", { description: "No se encontró el ID de la orden." });
       return;
     }
 
     setCompressing(true);
     setUploading(true);
-    addDebugLog("Starting compression process...");
 
     try {
-      // 1. Configure compression settings for Samsung A53 stability
-      const options = {
-        maxSizeMB: 0.8,          // Target ~800KB
-        maxWidthOrHeight: 1280,  // Downscale 64MP -> ~1.2MP
-        useWebWorker: true,      // Run in background thread
-        initialQuality: 0.7,     // Start at 70% quality
-        alwaysKeepResolution: true,
-        onProgress: (progress: number) => {
-          // Optional: excessive logging might slow it down, but helpful for hangs
-          // addDebugLog(`Compression progress: ${progress}%`); 
-        }
-      };
-
-      addDebugLog(`Compression Options: ${JSON.stringify(options)}`);
-
-      // 2. Use the LIBRARY (imageCompression)
-      const compressedBlob = await imageCompression(originalFile, options);
-
-      addDebugLog(`Compression success. New Size: ${(compressedBlob.size / 1024 / 1024).toFixed(2)}MB`);
-
-      // 3. Convert the result back to a File object
-      const compressedFile = new File([compressedBlob], originalFile.name, {
-        type: originalFile.type,
-        lastModified: Date.now(),
+      // 🛑 STAGE 1: NATIVE DECODE + RESIZE (SAMSUNG FIX)
+      // This resizes DURING decoding to avoid the 200MB+ memory spike of a 64MP raw bitmap.
+      addDebugLog("Starting Native Decoded Resize...");
+      const bitmap = await createImageBitmap(originalFile, {
+        resizeWidth: 1200,
+        resizeQuality: 'medium'
       });
 
-      // 4. Upload
-      addDebugLog("Preparing FormData for upload...");
+      addDebugLog(`Native resize successful: ${bitmap.width}x${bitmap.height}`);
+
+      // 🛑 STAGE 2: CANVAS BLOB GENERATION
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) throw new Error("Could not get canvas context");
+      ctx.drawImage(bitmap, 0, 0);
+
+      // CRITICAL: Release bitmap memory immediately after drawing
+      bitmap.close();
+
+      const compressedBlob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.8)
+      );
+
+      if (!compressedBlob) throw new Error("Blob conversion failed");
+      addDebugLog(`Blob created: ${(compressedBlob.size / 1024).toFixed(0)}KB`);
+
+      // 🛑 STAGE 3: UPLOAD
       const formData = new FormData();
-      formData.append("file", compressedFile);
+      formData.append("file", new File([compressedBlob], originalFile.name, { type: 'image/jpeg' }));
       formData.append("orderId", orderId.toString());
       formData.append("gastoType", gastoType);
 
-      addDebugLog("Sending upload request to server...");
+      addDebugLog("Sending upload request...");
       const res = await uploadReceipt(formData);
 
       if (res.success) {
-        addDebugLog(`Upload success! Receipt ID: ${res.data?.id}`);
+        addDebugLog("Upload success.");
         setReceipts((prev) => [...prev, res.data]);
-
-        // Force garbage collection if available (helps some Androids release memory)
-        if (typeof window !== 'undefined' && (window as any).gc) {
-          addDebugLog("Triggering manual GC");
-          (window as any).gc();
-        }
-
-        toast.success("Éxito", {
-          description: "Imagen subida exitosamente",
-        });
+        toast.success("Éxito", { description: "Imagen subida exitosamente" });
       } else {
         addDebugLog(`Upload failed server-side: ${res.error}`);
-        toast.error("Error al subir", {
-          description: res.error,
-        });
+        toast.error("Error", { description: res.error });
       }
     } catch (err: any) {
       console.error("Compression/Upload error:", err);
-      addDebugLog(`EXCEPTION: ${err.message || JSON.stringify(err)}`);
-      addDebugLog(`Stack: ${err.stack}`);
-      toast.error("Error", {
-        description: err.message || "No se pudo procesar la imagen.",
-      });
+      addDebugLog(`CRITICAL EXCEPTION: ${err.message}`);
+      toast.error("Error", { description: "Error al procesar la imagen de alta resolución." });
     } finally {
       setCompressing(false);
       setUploading(false);
-      addDebugLog("Process finished (finally block).");
+      addDebugLog("Process finished.");
     }
   };
+
+
+
+
+
+  // Old handleFileSelect function--New is above
+  // const handleFileSelect = async (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   gastoType: string
+  // ) => {
+  //   // Prevent default isn't always needed for file inputs but kept for consistency
+  //   // e.preventDefault(); 
+
+  //   addDebugLog(`File input triggered for ${gastoType}`);
+
+  //   if (!e.target.files?.[0]) {
+  //     addDebugLog("No file selected or file selection cancelled");
+  //     return;
+  //   }
+
+  //   const originalFile = e.target.files[0];
+
+  //   // Log file details immediately
+  //   addDebugLog(`File Selected: Name=${originalFile.name}, Size=${(originalFile.size / 1024 / 1024).toFixed(2)}MB, Type=${originalFile.type}`);
+
+  //   e.target.value = ""; // Reset input
+
+  //   if (!originalFile.type.startsWith("image/")) {
+  //     addDebugLog("Invalid file type selected");
+  //     toast.error("Archivo inválido", {
+  //       description: "Solo se permiten archivos de imagen",
+  //     });
+  //     return;
+  //   }
+
+  //   if (!orderId) {
+  //     addDebugLog("Error: Missing Order ID");
+  //     toast.error("Error", {
+  //       description: "No se encontró el ID de la orden.",
+  //     });
+  //     return;
+  //   }
+
+  //   setCompressing(true);
+  //   setUploading(true);
+  //   addDebugLog("Starting compression process...");
+
+  //   try {
+  //     // 1. Configure compression settings for Samsung A53 stability
+  //     const options = {
+  //       maxSizeMB: 0.8,          // Target ~800KB
+  //       maxWidthOrHeight: 1280,  // Downscale 64MP -> ~1.2MP
+  //       useWebWorker: true,      // Run in background thread
+  //       initialQuality: 0.7,     // Start at 70% quality
+  //       alwaysKeepResolution: true,
+  //       onProgress: (progress: number) => {
+  //         // Optional: excessive logging might slow it down, but helpful for hangs
+  //         // addDebugLog(`Compression progress: ${progress}%`); 
+  //       }
+  //     };
+
+  //     addDebugLog(`Compression Options: ${JSON.stringify(options)}`);
+
+  //     // 2. Use the LIBRARY (imageCompression)
+  //     const compressedBlob = await imageCompression(originalFile, options);
+
+  //     addDebugLog(`Compression success. New Size: ${(compressedBlob.size / 1024 / 1024).toFixed(2)}MB`);
+
+  //     // 3. Convert the result back to a File object
+  //     const compressedFile = new File([compressedBlob], originalFile.name, {
+  //       type: originalFile.type,
+  //       lastModified: Date.now(),
+  //     });
+
+  //     // 4. Upload
+  //     addDebugLog("Preparing FormData for upload...");
+  //     const formData = new FormData();
+  //     formData.append("file", compressedFile);
+  //     formData.append("orderId", orderId.toString());
+  //     formData.append("gastoType", gastoType);
+
+  //     addDebugLog("Sending upload request to server...");
+  //     const res = await uploadReceipt(formData);
+
+  //     if (res.success) {
+  //       addDebugLog(`Upload success! Receipt ID: ${res.data?.id}`);
+  //       setReceipts((prev) => [...prev, res.data]);
+
+  //       // Force garbage collection if available (helps some Androids release memory)
+  //       if (typeof window !== 'undefined' && (window as any).gc) {
+  //         addDebugLog("Triggering manual GC");
+  //         (window as any).gc();
+  //       }
+
+  //       toast.success("Éxito", {
+  //         description: "Imagen subida exitosamente",
+  //       });
+  //     } else {
+  //       addDebugLog(`Upload failed server-side: ${res.error}`);
+  //       toast.error("Error al subir", {
+  //         description: res.error,
+  //       });
+  //     }
+  //   } catch (err: any) {
+  //     console.error("Compression/Upload error:", err);
+  //     addDebugLog(`EXCEPTION: ${err.message || JSON.stringify(err)}`);
+  //     addDebugLog(`Stack: ${err.stack}`);
+  //     toast.error("Error", {
+  //       description: err.message || "No se pudo procesar la imagen.",
+  //     });
+  //   } finally {
+  //     setCompressing(false);
+  //     setUploading(false);
+  //     addDebugLog("Process finished (finally block).");
+  //   }
+  // };
 
   /**
    * Filters the list of receipts to find those matching a specific expense category.
@@ -608,7 +726,12 @@ export default function WorkOrderForm({
   /**
    * Closes the photo enlargement dialog by clearing the selected photo.
    */
+  // Gemini added new code
   const closePhotoDialog = () => {
+    // If the selectedPhoto was a blob URL, it should be revoked here
+    if (selectedPhoto?.startsWith('blob:')) {
+      URL.revokeObjectURL(selectedPhoto);
+    }
     setSelectedPhoto(null);
   };
 
@@ -1973,13 +2096,14 @@ export default function WorkOrderForm({
         <div className="py-2 px-6 flex justify-end">
           <button
             type="button"
-            // TODO: Implement debug mode
-            //onClick={toggleDebugMode}
-            // onClick={() => setDebugMode((prev) => !prev)}
-            className={`text-xs flex items-center gap-1 ${debugMode ? "text-red-500 font-bold" : "text-gray-300 hover:text-gray-500"}`}
+            onClick={() => setDebugMode((prev) => !prev)}
+            className={`text-xs flex items-center gap-1 p-2 rounded transition-colors ${debugMode
+              ? "text-red-500 font-bold bg-red-100 ring-1 ring-red-200"
+              : "text-gray-300 hover:text-gray-500 hover:bg-gray-100"
+              }`}
             title="Toggle Debug Mode"
           >
-            <span className="text-lg">🐞</span> {debugMode ? "Debug ON" : "Debug OFF"}
+            <span className="text-sm">🐞</span> {debugMode ? "Debug ON" : "Debug OFF"}
           </button>
         </div>
       </Card>
