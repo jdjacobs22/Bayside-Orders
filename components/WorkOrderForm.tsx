@@ -712,32 +712,30 @@ export default function WorkOrderForm({
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
       <Card className="max-w-5xl mx-auto shadow-xl border-none">
-        <CardHeader className="bg-blue-600 text-white rounded-t-lg">
-          <CardTitle className="text-2xl flex items-center gap-2">
+        <CardHeader className="bg-blue-600 text-white rounded-t-lg flex flex-row items-center justify-between space-y-0 p-4">
+          <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
             <Ship className="h-6 w-6" />{" "}
             {mode === "admin-create"
               ? "Nueva Orden de Embarque"
               : `Orden #${orderId || ""}`}
           </CardTitle>
+          {isCaptain && (
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                if (window.confirm("Are you sure you want to abandon these changes and return to the order entry screen?")) {
+                  router.push("/captain");
+                }
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white font-bold transition-colors border border-red-700 shadow-sm whitespace-normal text-center h-auto min-h-[2.5rem] py-1"
+              disabled={loading}
+            >
+              Return to Enter Order No
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="p-6">
-          {/* Top Abandon Button for Captains */}
-          {isCaptain && (
-            <div className="mb-6">
-              <Button
-                type="button"
-                onClick={() => {
-                  if (window.confirm("Are you sure you want to abandon these changes and return to the order entry screen?")) {
-                    router.push("/captain");
-                  }
-                }}
-                className="w-full py-4 text-lg bg-red-600 hover:bg-red-700 text-white font-bold shadow-md transition-colors"
-                disabled={loading}
-              >
-                Return to Enter Order No
-              </Button>
-            </div>
-          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 

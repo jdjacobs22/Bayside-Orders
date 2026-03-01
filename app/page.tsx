@@ -13,13 +13,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
+import { LogIn, Eye, EyeOff } from "lucide-react";
 
 function LandingPageContent() {
   const [isHidingForSignOut, setIsHidingForSignOut] = useState(false);
   const [formKey, setFormKey] = useState("default");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -186,25 +187,40 @@ function LandingPageContent() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                key={`password-${formKey}`}
-                ref={passwordInputRef}
-                id={isHidingForSignOut ? "hidden-password" : "password"}
-                name={isHidingForSignOut ? `password-${formKey}` : "password"}
-                type="password"
-                required
-                autoComplete="new-password"
-                value={isHidingForSignOut ? "" : password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleSignIn();
-                  }
-                }}
-                placeholder="Enter your password"
-                className={`h-11 ${isHidingForSignOut ? "opacity-0 invisible" : ""}`}
-              />
+              <div className="relative">
+                <Input
+                  key={`password-${formKey}`}
+                  ref={passwordInputRef}
+                  id={isHidingForSignOut ? "hidden-password" : "password"}
+                  name={isHidingForSignOut ? `password-${formKey}` : "password"}
+                  type={showPassword ? "text" : "password"}
+                  required
+                  autoComplete="new-password"
+                  value={isHidingForSignOut ? "" : password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSignIn();
+                    }
+                  }}
+                  placeholder="Enter your password"
+                  className={`h-11 pr-10 ${isHidingForSignOut ? "opacity-0 invisible" : ""}`}
+                />
+                {!isHidingForSignOut && (
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
             <Button
               type="submit"
