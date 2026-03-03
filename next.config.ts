@@ -1,19 +1,38 @@
 import type { NextConfig } from "next";
 
+/**
+ * Next.js Configuration Object.
+ * Configures experimental features, build optimizations, and environment-specific settings.
+ */
 const nextConfig: NextConfig = {
+  /**
+   * Experimental features configuration.
+   */
   experimental: {
+    /**
+     * Server Actions configuration.
+     */
     serverActions: {
+      /**
+       * Increases the maximum body size for Server Actions to allow for large file uploads (e.g., photo receipts).
+       */
       bodySizeLimit: "50mb",
     },
-    // The error suggests this is needed when middleware intercepts large requests
-    // defaulting to 10MB? We match the action limit.
-    // Note: If this key is explicitly disallowed in future versions, remove it.
-    middlewareClientMaxBodySize: "50mb",
+    /**
+     * Sets the maximum body size for proxy/middleware intercepted requests.
+     * Matches the serverActions bodySizeLimit to ensure consistency across the application.
+     */
+    proxyClientMaxBodySize: "50mb",
   },
-  // Explicitly set the root to the current project directory to resolve "Next.js package not found" errors
-  // This is required for Turbopack to correctly identify the workspace root
+  /**
+   * Turbopack specific configuration.
+   */
   // @ts-ignore - The types might not be updated yet for this specific config
   turbopack: {
+    /**
+     * Explicitly sets the root to the current project directory.
+     * This helps resolve package discovery issues and "Next.js package not found" errors in certain workspace environments.
+     */
      root: process.cwd(),
   },
 };

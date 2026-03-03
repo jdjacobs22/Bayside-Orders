@@ -2,6 +2,13 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/db"; // Assuming lib/db exports prisma client instance
 import { NextResponse } from "next/server";
 
+/**
+ * GET handler for the database seeding route.
+ * This endpoint creates initial administrative and captain users if they don't exist
+ * and ensures their roles are correctly synchronized in the database.
+ * 
+ * @returns {Promise<NextResponse>} A JSON response indicating seeding success or failure.
+ */
 export async function GET() {
     try {
         console.log("Seeding via API...");
@@ -13,6 +20,9 @@ export async function GET() {
                     email: "admin@bayside.com",
                     password: "password123",
                     name: "Admin User",
+                    nombre: "Admin",
+                    apellido: "User",
+                    cell: "0000000000",
                     role: "admin",
                 }
             });
@@ -25,6 +35,9 @@ export async function GET() {
                     email: "captain@bayside.com",
                     password: "password123",
                     name: "Captain User",
+                    nombre: "Captain",
+                    apellido: "User",
+                    cell: "1111111111",
                     role: "captain",
                 }
             });
