@@ -399,14 +399,26 @@ export default function WorkOrderForm({
   useEffect(() => {
     // totalClienteCost = precioAcordado + cargoExtra + gastoVarios
     const total = (Number(precio) || 0) + (Number(extra) || 0) + (Number(gastoVarios) || 0);
-    setValue("totalClienteCost", Math.floor(total));
+    const totalFloor = Math.floor(total);
+    if (form.getValues("totalClienteCost") !== totalFloor) {
+      setValue("totalClienteCost", totalFloor);
+    }
 
     // saldoCliente = totalClienteCost - deposito - pagoRecibo - pagoHorasExtra
-    const saldo = total - (Number(deposito) || 0) - (Number(pagoReciboVal) || 0) - (Number(pagoHorasExtra) || 0);
-    setValue("saldoCliente", Math.floor(saldo));
+    const currentDeposito = Number(deposito) || 0;
+    const currentPagoRecibo = Number(pagoReciboVal) || 0;
+    const currentPagoHorasExtra = Number(pagoHorasExtra) || 0;
+    const saldo = total - currentDeposito - currentPagoRecibo - currentPagoHorasExtra;
+    const saldoFloor = Math.floor(saldo);
+
+    if (form.getValues("saldoCliente") !== saldoFloor) {
+      setValue("saldoCliente", saldoFloor);
+    }
 
     // Debido a Bayside = Saldo Cliente
-    setValue("debidoABayside", Math.floor(saldo));
+    if (form.getValues("debidoABayside") !== saldoFloor) {
+      setValue("debidoABayside", saldoFloor);
+    }
 
   }, [
     precio,
@@ -416,6 +428,7 @@ export default function WorkOrderForm({
     pagoReciboVal,
     pagoHorasExtra,
     setValue,
+    form
   ]);
 
   React.useEffect(() => {
@@ -746,11 +759,15 @@ export default function WorkOrderForm({
   const onSubmit = async (data: FormValues) => {
     setLoading(true);
 
+    addDebugLog("Submission started...");
     try {
       // Custom validation before submission to ensure last name strictness from User DB
-      if (nombreCliente && nombreCliente.trim() !== "") {
+      // SKIP if is Captain (editing existing) or if name is empty
+      if (!isCaptain && nombreCliente && nombreCliente.trim() !== "") {
+        addDebugLog("Validating client name existence...");
         const check = await getClientDetails(nombreCliente, data.apellido ?? "");
         if (!check.success || !check.data) {
+          addDebugLog("Validation failed: Client not found in User DB");
           toast.error("Error", {
             description: "Ese nombre no existe en nuestra base de datos.",
           });
@@ -795,10 +812,19 @@ export default function WorkOrderForm({
             description: "Orden Actualizada!",
           });
           if (mode === "captain-edit") {
+            addDebugLog("Captain update successful. Redirecting and signing out...");
             // Captain Flow: Only sign out here, after explicit "Guardar"
-            await authClient.signOut();
-            router.push("/");
+            try {
+              // Sign out immediately to prevent further edits without new login
+              await authClient.signOut();
+              addDebugLog("Signout complete. Pushing to home...");
+              router.push("/");
+            } catch (signOutErr) {
+              addDebugLog(`Signout warning: ${signOutErr}`);
+              router.push("/");
+            }
           } else {
+            addDebugLog("Admin update successful. Redirecting...");
             router.push("/admin/list");
           }
         }
