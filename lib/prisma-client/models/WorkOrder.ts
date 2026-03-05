@@ -79,6 +79,9 @@ export type WorkOrderMinAggregateOutputType = {
   apellido: string | null
   email: string | null
   cell: string | null
+  cliente: string | null
+  clienteCell: string | null
+  clienteEmail: string | null
   fecha: Date | null
   horaSalida: string | null
   horaLlegado: string | null
@@ -119,6 +122,9 @@ export type WorkOrderMaxAggregateOutputType = {
   apellido: string | null
   email: string | null
   cell: string | null
+  cliente: string | null
+  clienteCell: string | null
+  clienteEmail: string | null
   fecha: Date | null
   horaSalida: string | null
   horaLlegado: string | null
@@ -159,6 +165,9 @@ export type WorkOrderCountAggregateOutputType = {
   apellido: number
   email: number
   cell: number
+  cliente: number
+  clienteCell: number
+  clienteEmail: number
   fecha: number
   horaSalida: number
   horaLlegado: number
@@ -247,6 +256,9 @@ export type WorkOrderMinAggregateInputType = {
   apellido?: true
   email?: true
   cell?: true
+  cliente?: true
+  clienteCell?: true
+  clienteEmail?: true
   fecha?: true
   horaSalida?: true
   horaLlegado?: true
@@ -287,6 +299,9 @@ export type WorkOrderMaxAggregateInputType = {
   apellido?: true
   email?: true
   cell?: true
+  cliente?: true
+  clienteCell?: true
+  clienteEmail?: true
   fecha?: true
   horaSalida?: true
   horaLlegado?: true
@@ -327,6 +342,9 @@ export type WorkOrderCountAggregateInputType = {
   apellido?: true
   email?: true
   cell?: true
+  cliente?: true
+  clienteCell?: true
+  clienteEmail?: true
   fecha?: true
   horaSalida?: true
   horaLlegado?: true
@@ -454,6 +472,9 @@ export type WorkOrderGroupByOutputType = {
   apellido: string | null
   email: string | null
   cell: string | null
+  cliente: string | null
+  clienteCell: string | null
+  clienteEmail: string | null
   fecha: Date | null
   horaSalida: string | null
   horaLlegado: string | null
@@ -517,6 +538,9 @@ export type WorkOrderWhereInput = {
   apellido?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   email?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   cell?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  cliente?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  clienteCell?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  clienteEmail?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   fecha?: Prisma.DateTimeNullableFilter<"WorkOrder"> | Date | string | null
   horaSalida?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   horaLlegado?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
@@ -559,6 +583,9 @@ export type WorkOrderOrderByWithRelationInput = {
   apellido?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   cell?: Prisma.SortOrderInput | Prisma.SortOrder
+  cliente?: Prisma.SortOrderInput | Prisma.SortOrder
+  clienteCell?: Prisma.SortOrderInput | Prisma.SortOrder
+  clienteEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   fecha?: Prisma.SortOrderInput | Prisma.SortOrder
   horaSalida?: Prisma.SortOrderInput | Prisma.SortOrder
   horaLlegado?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -604,6 +631,9 @@ export type WorkOrderWhereUniqueInput = Prisma.AtLeast<{
   apellido?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   email?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   cell?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  cliente?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  clienteCell?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  clienteEmail?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   fecha?: Prisma.DateTimeNullableFilter<"WorkOrder"> | Date | string | null
   horaSalida?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   horaLlegado?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
@@ -646,6 +676,9 @@ export type WorkOrderOrderByWithAggregationInput = {
   apellido?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   cell?: Prisma.SortOrderInput | Prisma.SortOrder
+  cliente?: Prisma.SortOrderInput | Prisma.SortOrder
+  clienteCell?: Prisma.SortOrderInput | Prisma.SortOrder
+  clienteEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   fecha?: Prisma.SortOrderInput | Prisma.SortOrder
   horaSalida?: Prisma.SortOrderInput | Prisma.SortOrder
   horaLlegado?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -694,6 +727,9 @@ export type WorkOrderScalarWhereWithAggregatesInput = {
   apellido?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   cell?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
+  cliente?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
+  clienteCell?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
+  clienteEmail?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   fecha?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkOrder"> | Date | string | null
   horaSalida?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
   horaLlegado?: Prisma.StringNullableWithAggregatesFilter<"WorkOrder"> | string | null
@@ -733,6 +769,9 @@ export type WorkOrderCreateInput = {
   apellido?: string | null
   email?: string | null
   cell?: string | null
+  cliente?: string | null
+  clienteCell?: string | null
+  clienteEmail?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
   horaLlegado?: string | null
@@ -774,6 +813,9 @@ export type WorkOrderUncheckedCreateInput = {
   apellido?: string | null
   email?: string | null
   cell?: string | null
+  cliente?: string | null
+  clienteCell?: string | null
+  clienteEmail?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
   horaLlegado?: string | null
@@ -814,6 +856,9 @@ export type WorkOrderUpdateInput = {
   apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cliente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteCell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -855,6 +900,9 @@ export type WorkOrderUncheckedUpdateInput = {
   apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cliente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteCell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -896,6 +944,9 @@ export type WorkOrderCreateManyInput = {
   apellido?: string | null
   email?: string | null
   cell?: string | null
+  cliente?: string | null
+  clienteCell?: string | null
+  clienteEmail?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
   horaLlegado?: string | null
@@ -935,6 +986,9 @@ export type WorkOrderUpdateManyMutationInput = {
   apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cliente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteCell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -974,6 +1028,9 @@ export type WorkOrderUncheckedUpdateManyInput = {
   apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cliente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteCell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1024,6 +1081,9 @@ export type WorkOrderCountOrderByAggregateInput = {
   apellido?: Prisma.SortOrder
   email?: Prisma.SortOrder
   cell?: Prisma.SortOrder
+  cliente?: Prisma.SortOrder
+  clienteCell?: Prisma.SortOrder
+  clienteEmail?: Prisma.SortOrder
   fecha?: Prisma.SortOrder
   horaSalida?: Prisma.SortOrder
   horaLlegado?: Prisma.SortOrder
@@ -1087,6 +1147,9 @@ export type WorkOrderMaxOrderByAggregateInput = {
   apellido?: Prisma.SortOrder
   email?: Prisma.SortOrder
   cell?: Prisma.SortOrder
+  cliente?: Prisma.SortOrder
+  clienteCell?: Prisma.SortOrder
+  clienteEmail?: Prisma.SortOrder
   fecha?: Prisma.SortOrder
   horaSalida?: Prisma.SortOrder
   horaLlegado?: Prisma.SortOrder
@@ -1127,6 +1190,9 @@ export type WorkOrderMinOrderByAggregateInput = {
   apellido?: Prisma.SortOrder
   email?: Prisma.SortOrder
   cell?: Prisma.SortOrder
+  cliente?: Prisma.SortOrder
+  clienteCell?: Prisma.SortOrder
+  clienteEmail?: Prisma.SortOrder
   fecha?: Prisma.SortOrder
   horaSalida?: Prisma.SortOrder
   horaLlegado?: Prisma.SortOrder
@@ -1286,6 +1352,9 @@ export type WorkOrderCreateWithoutCaptainInput = {
   apellido?: string | null
   email?: string | null
   cell?: string | null
+  cliente?: string | null
+  clienteCell?: string | null
+  clienteEmail?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
   horaLlegado?: string | null
@@ -1326,6 +1395,9 @@ export type WorkOrderUncheckedCreateWithoutCaptainInput = {
   apellido?: string | null
   email?: string | null
   cell?: string | null
+  cliente?: string | null
+  clienteCell?: string | null
+  clienteEmail?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
   horaLlegado?: string | null
@@ -1395,6 +1467,9 @@ export type WorkOrderScalarWhereInput = {
   apellido?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   email?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   cell?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  cliente?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  clienteCell?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
+  clienteEmail?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   fecha?: Prisma.DateTimeNullableFilter<"WorkOrder"> | Date | string | null
   horaSalida?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
   horaLlegado?: Prisma.StringNullableFilter<"WorkOrder"> | string | null
@@ -1434,6 +1509,9 @@ export type WorkOrderCreateWithoutReceiptsInput = {
   apellido?: string | null
   email?: string | null
   cell?: string | null
+  cliente?: string | null
+  clienteCell?: string | null
+  clienteEmail?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
   horaLlegado?: string | null
@@ -1474,6 +1552,9 @@ export type WorkOrderUncheckedCreateWithoutReceiptsInput = {
   apellido?: string | null
   email?: string | null
   cell?: string | null
+  cliente?: string | null
+  clienteCell?: string | null
+  clienteEmail?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
   horaLlegado?: string | null
@@ -1529,6 +1610,9 @@ export type WorkOrderUpdateWithoutReceiptsInput = {
   apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cliente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteCell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1569,6 +1653,9 @@ export type WorkOrderUncheckedUpdateWithoutReceiptsInput = {
   apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cliente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteCell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1609,6 +1696,9 @@ export type WorkOrderCreateManyCaptainInput = {
   apellido?: string | null
   email?: string | null
   cell?: string | null
+  cliente?: string | null
+  clienteCell?: string | null
+  clienteEmail?: string | null
   fecha?: Date | string | null
   horaSalida?: string | null
   horaLlegado?: string | null
@@ -1647,6 +1737,9 @@ export type WorkOrderUpdateWithoutCaptainInput = {
   apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cliente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteCell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1687,6 +1780,9 @@ export type WorkOrderUncheckedUpdateWithoutCaptainInput = {
   apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cliente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteCell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1727,6 +1823,9 @@ export type WorkOrderUncheckedUpdateManyWithoutCaptainInput = {
   apellido?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cliente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteCell?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fecha?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   horaSalida?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   horaLlegado?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1797,6 +1896,9 @@ export type WorkOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   apellido?: boolean
   email?: boolean
   cell?: boolean
+  cliente?: boolean
+  clienteCell?: boolean
+  clienteEmail?: boolean
   fecha?: boolean
   horaSalida?: boolean
   horaLlegado?: boolean
@@ -1840,6 +1942,9 @@ export type WorkOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   apellido?: boolean
   email?: boolean
   cell?: boolean
+  cliente?: boolean
+  clienteCell?: boolean
+  clienteEmail?: boolean
   fecha?: boolean
   horaSalida?: boolean
   horaLlegado?: boolean
@@ -1881,6 +1986,9 @@ export type WorkOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   apellido?: boolean
   email?: boolean
   cell?: boolean
+  cliente?: boolean
+  clienteCell?: boolean
+  clienteEmail?: boolean
   fecha?: boolean
   horaSalida?: boolean
   horaLlegado?: boolean
@@ -1922,6 +2030,9 @@ export type WorkOrderSelectScalar = {
   apellido?: boolean
   email?: boolean
   cell?: boolean
+  cliente?: boolean
+  clienteCell?: boolean
+  clienteEmail?: boolean
   fecha?: boolean
   horaSalida?: boolean
   horaLlegado?: boolean
@@ -1955,7 +2066,7 @@ export type WorkOrderSelectScalar = {
   captainId?: boolean
 }
 
-export type WorkOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "nombre" | "apellido" | "email" | "cell" | "fecha" | "horaSalida" | "horaLlegado" | "destino" | "puntoEncuentro" | "pasajeros" | "detallesNotas" | "combustible" | "hielo" | "aguaBebidas" | "gastoVarios" | "pagoCapitana" | "pagoMarinero" | "precioAcordado" | "horasAcordadas" | "tarifaHora" | "cargoExtra" | "totalClienteCost" | "deposito" | "saldoCliente" | "pagoRecibo" | "efectivo" | "transferir" | "pagarAlEmbarque" | "debidoABayside" | "horasExtras" | "paymentMethod" | "horasExtrasEfectivo" | "horasExtrasTransferir" | "pagoHorasExtra" | "captainId", ExtArgs["result"]["workOrder"]>
+export type WorkOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "nombre" | "apellido" | "email" | "cell" | "cliente" | "clienteCell" | "clienteEmail" | "fecha" | "horaSalida" | "horaLlegado" | "destino" | "puntoEncuentro" | "pasajeros" | "detallesNotas" | "combustible" | "hielo" | "aguaBebidas" | "gastoVarios" | "pagoCapitana" | "pagoMarinero" | "precioAcordado" | "horasAcordadas" | "tarifaHora" | "cargoExtra" | "totalClienteCost" | "deposito" | "saldoCliente" | "pagoRecibo" | "efectivo" | "transferir" | "pagarAlEmbarque" | "debidoABayside" | "horasExtras" | "paymentMethod" | "horasExtrasEfectivo" | "horasExtrasTransferir" | "pagoHorasExtra" | "captainId", ExtArgs["result"]["workOrder"]>
 export type WorkOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   captain?: boolean | Prisma.WorkOrder$captainArgs<ExtArgs>
   receipts?: boolean | Prisma.WorkOrder$receiptsArgs<ExtArgs>
@@ -1981,6 +2092,9 @@ export type $WorkOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     apellido: string | null
     email: string | null
     cell: string | null
+    cliente: string | null
+    clienteCell: string | null
+    clienteEmail: string | null
     fecha: Date | null
     horaSalida: string | null
     horaLlegado: string | null
@@ -2443,6 +2557,9 @@ export interface WorkOrderFieldRefs {
   readonly apellido: Prisma.FieldRef<"WorkOrder", 'String'>
   readonly email: Prisma.FieldRef<"WorkOrder", 'String'>
   readonly cell: Prisma.FieldRef<"WorkOrder", 'String'>
+  readonly cliente: Prisma.FieldRef<"WorkOrder", 'String'>
+  readonly clienteCell: Prisma.FieldRef<"WorkOrder", 'String'>
+  readonly clienteEmail: Prisma.FieldRef<"WorkOrder", 'String'>
   readonly fecha: Prisma.FieldRef<"WorkOrder", 'DateTime'>
   readonly horaSalida: Prisma.FieldRef<"WorkOrder", 'String'>
   readonly horaLlegado: Prisma.FieldRef<"WorkOrder", 'String'>

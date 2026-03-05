@@ -210,6 +210,7 @@ export default function WorkOrderForm({
       "horasExtrasEfectivo",
       "horasExtrasTransferir",
       "pagoHorasExtra",
+      "detallesNotas",
     ];
     return allowed.includes(fieldName);
   };
@@ -223,6 +224,9 @@ export default function WorkOrderForm({
       apellido: "",
       email: "",
       cell: "",
+      cliente: "",
+      clienteCell: "",
+      clienteEmail: "",
       fechaEmbarque: undefined,
       horaEmbarque: "10:00",
       destino: "",
@@ -444,6 +448,9 @@ export default function WorkOrderForm({
               apellido: data.apellido || "",
               email: data.email || "",
               cell: data.cell || "",
+              cliente: (data as any).cliente || "",
+              clienteCell: (data as any).clienteCell || "",
+              clienteEmail: (data as any).clienteEmail || "",
               fechaEmbarque: data.fecha ? new Date(data.fecha) : undefined,
               horaEmbarque: data.horaSalida || "10:00",
               destino: data.destino || "",
@@ -989,7 +996,7 @@ export default function WorkOrderForm({
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Correo</FormLabel>
+                        <FormLabel>Correo de Capitana</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -1014,7 +1021,7 @@ export default function WorkOrderForm({
                     name="cell"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Celular</FormLabel>
+                        <FormLabel>Celular de Capitana</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -1028,6 +1035,68 @@ export default function WorkOrderForm({
                       </FormItem>
                     )}
                   />
+                </div>
+
+                {/* INFO DE CLIENTE */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6">
+                  <FormField
+                    control={form.control}
+                    name="cliente"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cliente</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("cliente")}
+                            className={!canEdit("cliente") ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="clienteCell"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Celular de Cliente</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? ""}
+                            disabled={!canEdit("clienteCell")}
+                            className={!canEdit("clienteCell") ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="clienteEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Correo de Cliente</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="email"
+                            value={field.value ?? ""}
+                            disabled={!canEdit("clienteEmail")}
+                            className={!canEdit("clienteEmail") ? "bg-gray-200" : ""}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
                     name="pasajeros"
@@ -1478,27 +1547,68 @@ export default function WorkOrderForm({
                             <FormItem className="w-full">
                               <FormLabel>Pago Recibo</FormLabel>
                               <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Monto"
-                                  {...field}
-                                  value={Number(field.value) === 0 ? "" : String(field.value)}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    field.onChange(
-                                      val === ""
-                                        ? 0
-                                        : isNaN(e.target.valueAsNumber)
-                                          ? 0
-                                          : Math.floor(e.target.valueAsNumber)
-                                    );
-                                  }}
-                                  disabled={Number(saldoCliente) <= 0 || !canEdit("pagoRecibo")}
-                                  className={`w-full min-w-[150px]
-                                    ${Number(saldoCliente) <= 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
-                                    ${isCaptain ? "opacity-75" : ""}
-                                  `}
-                                />
+                                <div className="flex flex-col gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="number"
+                                      placeholder="Monto"
+                                      {...field}
+                                      value={Number(field.value) === 0 ? "" : String(field.value)}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        field.onChange(
+                                          val === ""
+                                            ? 0
+                                            : isNaN(e.target.valueAsNumber)
+                                              ? 0
+                                              : Math.floor(e.target.valueAsNumber)
+                                        );
+                                      }}
+                                      disabled={Number(saldoCliente) <= 0 || !canEdit("pagoRecibo")}
+                                      className={`w-24 
+                                        ${Number(saldoCliente) <= 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
+                                        ${isCaptain ? "opacity-75" : ""}
+                                      `}
+                                    />
+                                    {(mode === "admin-edit" || mode === "captain-edit") && (
+                                      <label className="cursor-pointer">
+                                        <Camera className="h-5 w-5 text-blue-600 hover:text-blue-800" />
+                                        <input
+                                          type="file"
+                                          accept="image/*"
+                                          capture="environment"
+                                          onChange={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleFileSelect(e, "pagoRecibo");
+                                          }}
+                                          className="hidden"
+                                          disabled={uploading}
+                                        />
+                                      </label>
+                                    )}
+                                  </div>
+                                  {getReceiptsByGasto("pagoRecibo").length > 0 && (
+                                    <div className="flex flex-wrap gap-2">
+                                      {getReceiptsByGasto("pagoRecibo").map(
+                                        (r: any, i: number) => (
+                                          <button
+                                            key={i}
+                                            type="button"
+                                            onClick={() => handlePhotoClick(r.url)}
+                                            className="block w-16 h-16 bg-gray-300 rounded overflow-hidden border hover:border-blue-500"
+                                          >
+                                            <img
+                                              src={r.url}
+                                              alt="Receipt"
+                                              className="w-full h-full object-cover"
+                                            />
+                                          </button>
+                                        )
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -1910,27 +2020,68 @@ export default function WorkOrderForm({
                             <FormItem className="w-full">
                               <FormLabel>Pago Recibo</FormLabel>
                               <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Monto"
-                                  {...field}
-                                  value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-                                    field.onChange(
-                                      val === ""
-                                        ? 0
-                                        : isNaN(e.target.valueAsNumber)
-                                          ? 0
-                                          : Math.floor(e.target.valueAsNumber)
-                                    );
-                                  }}
-                                  disabled={Number(horasExtrasVal) <= 0 || !canEdit("pagoHorasExtra")}
-                                  className={`w-full min-w-[150px]
-                                    ${Number(horasExtrasVal) <= 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
-                                    ${isCaptain ? "opacity-75" : ""}
-                                  `}
-                                />
+                                <div className="flex flex-col gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="number"
+                                      placeholder="Monto"
+                                      {...field}
+                                      value={field.value && Number(field.value) === 0 ? "" : (field.value as any)?.toString() ?? ""}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        field.onChange(
+                                          val === ""
+                                            ? 0
+                                            : isNaN(e.target.valueAsNumber)
+                                              ? 0
+                                              : Math.floor(e.target.valueAsNumber)
+                                        );
+                                      }}
+                                      disabled={Number(horasExtrasVal) <= 0 || !canEdit("pagoHorasExtra")}
+                                      className={`w-24
+                                        ${Number(horasExtrasVal) <= 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
+                                        ${isCaptain ? "opacity-75" : ""}
+                                      `}
+                                    />
+                                    {(mode === "admin-edit" || mode === "captain-edit") && (
+                                      <label className="cursor-pointer">
+                                        <Camera className="h-5 w-5 text-blue-600 hover:text-blue-800" />
+                                        <input
+                                          type="file"
+                                          accept="image/*"
+                                          capture="environment"
+                                          onChange={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleFileSelect(e, "pagoHorasExtra");
+                                          }}
+                                          className="hidden"
+                                          disabled={uploading}
+                                        />
+                                      </label>
+                                    )}
+                                  </div>
+                                  {getReceiptsByGasto("pagoHorasExtra").length > 0 && (
+                                    <div className="flex flex-wrap gap-2">
+                                      {getReceiptsByGasto("pagoHorasExtra").map(
+                                        (r: any, i: number) => (
+                                          <button
+                                            key={i}
+                                            type="button"
+                                            onClick={() => handlePhotoClick(r.url)}
+                                            className="block w-16 h-16 bg-gray-300 rounded overflow-hidden border hover:border-blue-500"
+                                          >
+                                            <img
+                                              src={r.url}
+                                              alt="Receipt"
+                                              className="w-full h-full object-cover"
+                                            />
+                                          </button>
+                                        )
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
                               </FormControl>
                               <FormMessage />
                             </FormItem>

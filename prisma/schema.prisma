@@ -82,6 +82,9 @@ model WorkOrder {
   apellido        String?
   email           String?
   cell            String?   @map("cell")
+  cliente         String?
+  clienteCell     String?   @map("cliente_cell")
+  clienteEmail    String?   @map("cliente_email")
   fecha           DateTime?
   horaSalida      String?   @map("hora_salida")
   horaLlegado     String?   @map("hora_llegado")
