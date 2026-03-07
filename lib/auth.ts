@@ -2,6 +2,16 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/db";
 
+/**
+ * Better-Auth Configuration
+ * 
+ * Configures the authentication system for the application.
+ * - Adapter: Prisma Adapter using the PostgreSQL provider.
+ * - Strategy: Email and Password based authentication.
+ * - Schema: Extends the default user model with 'role', 'nombre', 'apellido', and 'cell'.
+ * - Session: 30-minute session limit with 1-minute updates.
+ * - Security: Strict cookie management and dynamic trusted origin resolution for local, Vercel, and Cloudflare environments.
+ */
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",

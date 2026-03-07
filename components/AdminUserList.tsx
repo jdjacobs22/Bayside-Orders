@@ -17,6 +17,26 @@ import {
 } from "@/components/ui/table";
 import { Plus, Trash2, Loader2, User } from "lucide-react";
 
+/**
+ * AdminUserList Component
+ * 
+ * Renders a comprehensive list of all system users (Admins and Captains).
+ * 
+ * Features:
+ * - Fetches user data asynchronously on mount.
+ * - Displays users in a responsive table with their details:
+ *   - Name (First and Last)
+ *   - Email address
+ *   - System Role (Admin/Captain)
+ *   - Contact Phone (Cell)
+ *   - Join Date (CreatedAt)
+ * - Provides administrative actions:
+ *   - Navigation to the "Add New User" form.
+ *   - Dynamic deletion of users with confirmation prompts.
+ *   - Loading state indicators for both initialization and deletion.
+ * 
+ * @returns A structured Card component containing the user table.
+ */
 export default function AdminUserList() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

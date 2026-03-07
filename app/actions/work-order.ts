@@ -1,3 +1,10 @@
+/**
+ * work-order.ts
+ * 
+ * Server actions for managing Work Orders. 
+ * Includes creating, updating, deleting, and fetching work orders from the database,
+ * as well as handling image uploads to R2 and search helpers for client names.
+ */
 "use server";
 
 import prisma from "@/lib/db";
@@ -103,6 +110,13 @@ export async function createDraftWorkOrder() {
 }
 */
 
+/**
+ * Creates a new Work Order in the database.
+ * 
+ * @param data - The form data object to validate and save.
+ * @param role - The role of the user performing the action ("admin" | "captain"). Defaults to "admin".
+ * @returns An object indicating success and containing the serialized order, or a failure message.
+ */
 export async function createWorkOrder(data: any, role: "admin" | "captain" = "admin") {
   // Validate data based on role
   const schema = role === "captain" ? getCaptainSchema() : getAdminSchema();
@@ -119,7 +133,7 @@ export async function createWorkOrder(data: any, role: "admin" | "captain" = "ad
     const session = await getSession();
     // Validate role permissions - Create is generally Admin only, but if Captains can create:
     if (role === "captain" && session.user.role !== "captain") throw new Error("Role mismatch");
-    if (role === "admin" && session.user.role !== "admin") throw new Error("Role mismatch");
+    if (role === "admin" && (session.user.role !== "admin" && session.user.role !== "representante")) throw new Error("Role mismatch");
     
     // Additional security: Maybe captains can only create if assigned? 
     // For now assuming existing flow is correct, but let's enforce role check.
@@ -179,6 +193,11 @@ export async function createWorkOrder(data: any, role: "admin" | "captain" = "ad
   }
 }
 
+/**
+ * Retrieves all Work Orders from the database, ordered by flight date descending.
+ * 
+ * @returns An object with success status and the list of serialized Work Orders.
+ */
 export async function getWorkOrders() {
   try {
     const session = await getSession();
@@ -199,6 +218,13 @@ export async function getWorkOrders() {
   }
 }
 
+/**
+ * Retrieves a single Work Order by its unique ID.
+ * Includes related receipts in the result.
+ * 
+ * @param id - The numeric ID of the Work Order to fetch.
+ * @returns An object with success status and the serialized Work Order data.
+ */
 export async function getWorkOrder(id: number) {
   try {
     // Validate that id is a valid number
@@ -219,7 +245,7 @@ export async function getWorkOrder(id: number) {
         if (order.captainId !== session.user.id) {
             return { success: false, error: "No tienes autorización para acceder a esta orden." };
         }
-    } else if (session.user.role !== "admin") {
+    } else if (session.user.role !== "admin" && session.user.role !== "representante") {
         // Fallback for any other future roles, though only captain/admin exist now
         return { success: false, error: "Unauthorized" };
     }
@@ -230,6 +256,14 @@ export async function getWorkOrder(id: number) {
   }
 }
 
+/**
+ * Updates an existing Work Order in the database.
+ * 
+ * @param id - The ID of the Work Order to update.
+ * @param data - The partial or full form data to update.
+ * @param role - The role of the user performing the update. Defaults to "admin".
+ * @returns An object indicating success and containing the updated serialized order.
+ */
 export async function updateWorkOrder(id: number, data: any, role: "admin" | "captain" = "admin") {
   // Validate data based on role
   const schema = role === "captain" ? getCaptainSchema() : getAdminSchema();
@@ -257,7 +291,7 @@ export async function updateWorkOrder(id: number, data: any, role: "admin" | "ca
         if (existingOrder.captainId !== session.user.id) {
              return { success: false, error: "Unauthorized: You cannot edit this order." };
         }
-    } else if (session.user.role !== "admin") {
+    } else if (session.user.role !== "admin" && session.user.role !== "representante") {
          return { success: false, error: "Unauthorized" };
     }
 
@@ -336,10 +370,16 @@ export async function updateWorkOrder(id: number, data: any, role: "admin" | "ca
   }
 }
 
+/**
+ * Deletes a Work Order and its associated receipts from the database.
+ * 
+ * @param id - The ID of the Work Order to delete.
+ * @returns An object with success status.
+ */
 export async function deleteWorkOrder(id: number) {
   try {
     const session = await getSession();
-    if (session.user.role !== "admin") {
+    if (session.user.role !== "admin" && session.user.role !== "representante") {
         return { success: false, error: "Unauthorized: Only admins can delete orders" };
     }
     // Validate that id is a valid number
@@ -380,6 +420,13 @@ export async function deleteWorkOrder(id: number) {
   }
 }
 
+/**
+ * Helper search function to find matching last names (apellidos) for a given first name.
+ * Used for auto-completing client information.
+ * 
+ * @param nombre - The first name to search for.
+ * @returns An array of unique last names found for that first name.
+ */
 export async function getClientApellidosByNombre(nombre: string) {
   if (!nombre || nombre.trim().length === 0) return { success: true, data: [] };
   
@@ -406,6 +453,13 @@ export async function getClientApellidosByNombre(nombre: string) {
   }
 }
 
+/**
+ * Retrieves specific client details (phone and email) based on a first and last name match.
+ * 
+ * @param nombre - Client first name.
+ * @param apellido - Client last name.
+ * @returns An object with success status and the client details (cell, email).
+ */
 export async function getClientDetails(nombre: string, apellido: string) {
   if (!nombre || !apellido) return { success: false, error: "Missing name or last name" };
   
@@ -430,6 +484,12 @@ export async function getClientDetails(nombre: string, apellido: string) {
   }
 }
 
+/**
+ * Retrieves a list of unique first names (nombres) from all existing Work Orders.
+ * Used for auto-completion suggestions in the form.
+ * 
+ * @returns An array of unique first name strings.
+ */
 export async function getUniqueNombresFromUsers() {
   try {
     const users = await prisma.user.findMany({
@@ -448,6 +508,17 @@ export async function getUniqueNombresFromUsers() {
   }
 }
 
+/**
+ * Handles the upload of a receipt image for a specific Work Order.
+ * 
+ * Process:
+ * 1. Validates the session.
+ * 2. Uploads the file to Cloudflare R2 storage.
+ * 3. Records the receipt metadata (URL, type) in the PostgreSQL database.
+ * 
+ * @param formData - Multi-part form data containing the 'file', 'orderId', and 'gastoType'.
+ * @returns An object with the success status and the created receipt record.
+ */
 export async function uploadReceipt(formData: FormData) {
   try {
     const file = formData.get("file") as File;
@@ -479,6 +550,8 @@ export async function uploadReceipt(formData: FormData) {
         if (!order || order.captainId !== session.user.id) {
             return { success: false, error: "Unauthorized: You cannot upload to this order." };
         }
+    } else if (session.user.role !== "admin" && session.user.role !== "representante") {
+        return { success: false, error: "Unauthorized" };
     }
 
     // Validate file size (50MB limit to match Next.js config)

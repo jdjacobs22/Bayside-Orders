@@ -8,22 +8,39 @@ interface UploadPhotoParams {
   gastoType?: string;
 }
 
+/**
+ * Result object for an R2 photo upload attempt.
+ */
 interface UploadPhotoResult {
+  /** Whether the upload was successful. */
   success: boolean;
+  /** The public-facing URL of the uploaded photo. */
   url?: string;
+  /** The final storage path/filename in the bucket. */
   fileName?: string;
+  /** The size of the file in bytes. */
   fileSize?: number;
+  /** The MIME type of the file. */
   mimeType?: string;
+  /** Error message if success is false. */
   error?: string;
 }
 
 /**
- * Upload a photo to Cloudflare R2
- * @param formData - FormData containing "file", "orderId", and optional "gastoType"
- * @returns Upload result with URL and metadata
+ * Handles the low-level upload process to Cloudflare R2 storage using the AWS S3 SDK.
+ * 
+ * Process:
+ * 1. Extracts the file and metadata from the FormData object.
+ * 2. Validates environment configuration (Account ID, Keys, Bucket, Public URL).
+ * 3. Validates that the file is an allowed image type (JPEG, PNG, GIF, WebP).
+ * 4. Generates a unique, structured filename: work-orders/{id}/{type}-{timestamp}-{random}.ext
+ * 5. Uses PutObjectCommand to send the file buffer to R2.
+ * 6. Constructs and returns the public access URL.
+ * 
+ * @param formData - Multi-part form data containing 'file', 'orderId', and 'gastoType'.
+ * @returns An UploadPhotoResult object containing the URL and metadata on success.
+ * @throws Error if configuration is missing, validation fails, or network error occurs.
  */
-// Move client initialization inside the function or a getter to ensure
-// env vars are loaded when the function runs
 function getR2Client() {
   return new S3Client({
     region: "auto",

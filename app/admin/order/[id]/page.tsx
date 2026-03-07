@@ -1,3 +1,10 @@
+/**
+ * app/admin/order/[id]/page.tsx
+ * 
+ * Administrative page for editing an existing Work Order.
+ * Extract the order ID from the URL and initializes the WorkOrderForm in 'admin-edit' mode.
+ * Provides a global delete action in the header.
+ */
 "use client";
 
 import WorkOrderForm from "@/components/WorkOrderForm";
@@ -9,6 +16,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Trash2, Loader2 } from "lucide-react";
 
+/**
+ * AdminOrderView Component
+ * 
+ * Renders the editor for a specific work order.
+ * - Handles ID validation.
+ * - Manages the deletion lifecycle from the header action.
+ */
 export default function AdminOrderView() {
   const params = useParams();
   const router = useRouter();

@@ -1,4 +1,9 @@
-
+/**
+ * components/CaptainSelect.tsx
+ * 
+ * A specialized select component for picking a Captain from the system user list.
+ * Fetches data asynchronously from the /api/users endpoint.
+ */
 "use client";
 
 import { useEffect, useState } from "react";

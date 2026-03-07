@@ -1,3 +1,9 @@
+/**
+ * app/admin/print/page.tsx
+ * 
+ * A specialized landing page for generating and sending a "Nota de Pago" (Payment Receipt) email.
+ * This form is separate from the main Work Order workflow and is used for manual payment recording.
+ */
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -68,6 +74,15 @@ const formSchema = z.object({
 
 type FormValues = z.output<typeof formSchema>;
 
+/**
+ * BaysidePaymentForm Component
+ * 
+ * Renders a stylized form matching the company's physical payment notes.
+ * Features:
+ * - Local validation via Zod.
+ * - Integration with sendReceiptEmail server action.
+ * - Visual branding with the company logo.
+ */
 export default function BaysidePaymentForm() {
   const router = useRouter();
   // 2. Initialize the form

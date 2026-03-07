@@ -1,3 +1,10 @@
+/**
+ * schemas.ts
+ * 
+ * Zod validation schemas used throughout the application.
+ * Defines the validation rules for Work Orders, role-based editing restrictions,
+ * and data types for financial and temporal values.
+ */
 import { z } from "zod";
 
 // Helper to handle both incoming Prisma.Decimal objects and UI string/number inputs
@@ -7,14 +14,31 @@ const toNumber = z.preprocess((val) => {
   return val;
 }, z.coerce.number());
 
+/**
+ * Schema factory for decimal values representing MXN Pesos.
+ * Uses z.preprocess to convert Prisma Decimal objects or strings to numbers.
+ */
 export const createDecimal50SchemaPesos = () => toNumber;
+
+/**
+ * Schema factory for decimal values representing count of hours.
+ * Uses z.preprocess to convert Prisma Decimal objects or strings to numbers.
+ */
 export const createDecimal50SchemaHoras = () => toNumber;
 
+/**
+ * Zod schema for validating 24-hour time format (HH:mm).
+ * Example: "14:30"
+ */
 export const Time24HourSchema = z.string().regex(
   /^([01]\d|2[0-3]):([0-5]\d)$/,
   { message: "Formato de hora inválido. Usa HH:mm (00:00 a 23:59)." }
 );
 
+/**
+ * Zod schema for validating dates in DD/MM/YYYY format.
+ * Includes refinement to ensure the date is logically valid (e.g., prevents Feb 30th).
+ */
 export const DateDMYSchema = z.string()
   .regex(/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0,1,2])\/(19|20)\d{2}$/, {
     message: "Formato de fecha inválido. Usa dd/mm/yyyy."
@@ -29,6 +53,12 @@ export const DateDMYSchema = z.string()
     message: "Esa fecha no existe"
   });
 
+/**
+ * Generates the base Zod schema for a Work Order.
+ * Every field is optional here, serving as the foundation for more strict role-based schemas.
+ * 
+ * @returns A ZodObject schema.
+ */
 export const getBaseSchema = () => {
   const DecimalPesos = createDecimal50SchemaPesos();
   const DecimalHoras = createDecimal50SchemaHoras();
@@ -76,6 +106,12 @@ export const getBaseSchema = () => {
   });
 };
 
+/**
+ * Generates the Admin validation schema for a Work Order.
+ * Enforces strict requirements for fields that an Admin must fill out when creating or editing.
+ * 
+ * @returns An extended ZodObject schema with mandatory fields.
+ */
 export const getAdminSchema = () => {
   const base = getBaseSchema();
   const DecimalPesos = createDecimal50SchemaPesos();
@@ -103,6 +139,14 @@ export const getAdminSchema = () => {
   });
 };
 
+/**
+ * Generates the Captain validation schema for a Work Order.
+ * Focused on post-flight reporting.
+ * Includes complex refinements to ensure that if a balance or extra hours are reported,
+ * a corresponding payment method and amount are also provided.
+ * 
+ * @returns A refined Zod schema.
+ */
 export const getCaptainSchema = () => {
   const base = getBaseSchema();
   return base.superRefine((data, ctx) => {

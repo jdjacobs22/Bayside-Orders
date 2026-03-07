@@ -1,9 +1,20 @@
+/**
+ * app/admin/create/page.tsx
+ * 
+ * Administrative page for creating a new Work Order.
+ * Orchestrates the AdminHeader and the WorkOrderForm in 'admin-create' mode.
+ */
 "use client";
 
 import WorkOrderForm from "@/components/WorkOrderForm";
 import AdminHeader from "@/components/AdminHeader";
 import { Card } from "@/components/ui/card";
 
+/**
+ * AdminCreateOrder Component
+ * 
+ * Renders the work order creation interface for Administrators.
+ */
 export default function AdminCreateOrder() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">

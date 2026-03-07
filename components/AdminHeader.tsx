@@ -7,14 +7,35 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * Props for the AdminHeader component.
+ */
 interface AdminHeaderProps {
+  /** The title to display in the header */
   title: string;
+  /** The destination URL for the back button. Defaults to "/admin". */
   backHref?: string;
+  /** The text label for the back button. Defaults to "Back to Dashboard". */
   backLabel?: string;
+  /** Whether to show the back button. Defaults to true. */
   showBackButton?: boolean;
+  /** Optional React nodes to render on the right side of the header (e.g., action buttons) */
   rightActions?: ReactNode;
 }
 
+/**
+ * AdminHeader Component
+ * 
+ * A reusable header component specifically designed for administrative views.
+ * It provides:
+ * - A consistent title layout with gradient styling.
+ * - An optional back navigation button.
+ * - Integration with the SignOutButton.
+ * - Support for additional layout actions on the right side.
+ * - Sticky positioning with backdrop-blur effects.
+ * 
+ * @param props - Component properties (see AdminHeaderProps)
+ */
 export default function AdminHeader({
   title,
   backHref = "/admin",

@@ -1,9 +1,22 @@
+/**
+ * app/captain/order/[id]/page.tsx
+ * 
+ * Captain-specific page for editing an existing Work Order.
+ * Features a mobile-optimized layout with a sticky header and back navigation.
+ * Initializes the WorkOrderForm in 'captain-edit' mode, which restricts editable fields.
+ */
 "use client";
 
 import WorkOrderForm from "@/components/WorkOrderForm";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
+/**
+ * CaptainOrderView Component
+ * 
+ * Renders the editor for a specific work order from a Captain's perspective.
+ * Handles order ID extraction and validation from the URL.
+ */
 export default function CaptainOrderView() {
   const params = useParams();
   const router = useRouter();

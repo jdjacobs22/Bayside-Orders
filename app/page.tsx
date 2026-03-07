@@ -1,3 +1,10 @@
+/**
+ * app/page.tsx
+ * 
+ * The entry point of the application.
+ * Renders the landing page with authentication logic (Sign In).
+ * Automatically redirects authenticated users to their respective dashboards (Admin or Captain).
+ */
 "use client";
 
 import { authClient } from "@/lib/auth-client";
@@ -15,6 +22,12 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { LogIn, Eye, EyeOff } from "lucide-react";
 
+/**
+ * LandingPageContent helper component.
+ * Handles the login form, password visibility toggling, and aggressive clearing 
+ * of browser autofill data after sign-out.
+ * Wraps the stateful logic that requires the 'router' and 'searchParams'.
+ */
 function LandingPageContent() {
   const [isHidingForSignOut, setIsHidingForSignOut] = useState(false);
   const [formKey, setFormKey] = useState("default");
@@ -87,7 +100,8 @@ function LandingPageContent() {
 
   useEffect(() => {
     if (session) {
-      if ((session.user as any).role === "admin") {
+      const role = (session.user as any).role;
+      if (role === "admin" || role === "representante") {
         router.push("/admin");
       } else {
         router.push("/captain");
@@ -116,7 +130,7 @@ function LandingPageContent() {
       const user = result?.data?.user as any;
       const userRole = user?.role;
 
-      if (userRole === "admin") {
+      if (userRole === "admin" || userRole === "representante") {
         window.location.href = "/admin";
       } else {
         window.location.href = "/captain";
@@ -237,6 +251,13 @@ function LandingPageContent() {
   );
 }
 
+/**
+ * Main LandingPage component.
+ * Uses React Suspense to handle the useSearchParams() hook, which can trigger
+ * static generation warnings if not wrapped in a Suspense boundary.
+ * 
+ * @returns The rendered landing page with a sign-in card.
+ */
 export default function LandingPage() {
   return (
     <Suspense

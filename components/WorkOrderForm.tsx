@@ -1,3 +1,10 @@
+/**
+ * WorkOrderForm.tsx
+ * 
+ * This file contains the main WorkOrderForm component, which is the core of the application's
+ * data entry and editing workflow. It supports multiple modes for Admins and Captains,
+ * handles complex form state, image uploads with resizing, and real-time calculations.
+ */
 "use client";
 
 import React, { useEffect, useState } from "react";

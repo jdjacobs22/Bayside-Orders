@@ -153,4 +153,5 @@ model Receipt {
 enum Role {
   admin
   captain
+  representante
 }

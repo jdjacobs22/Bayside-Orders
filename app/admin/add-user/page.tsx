@@ -1,4 +1,9 @@
-
+/**
+ * app/admin/add-user/page.tsx
+ * 
+ * Provides a form for Admin users to create new system accounts.
+ * Supports defining user details (name, email, cell) and assigning roles (Admin/Captain).
+ */
 "use client";
 
 import { useState } from "react";
@@ -12,6 +17,16 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, UserPlus, Eye, EyeOff } from "lucide-react";
 
+/**
+ * AdminCreateUser Component
+ * 
+ * Renders the user creation form with validation and feedback.
+ * Features:
+ * - Managed form state for all user attributes.
+ * - Password visibility toggle.
+ * - Integration with the createUser server action.
+ * - Post-creation verification and navigation.
+ */
 export default function AdminCreateUser() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -22,7 +37,7 @@ export default function AdminCreateUser() {
         email: "",
         cell: "",
         password: "",
-        role: "captain" as "admin" | "captain",
+        role: "captain" as "admin" | "captain" | "representante",
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -140,13 +155,14 @@ export default function AdminCreateUser() {
                                 <Label htmlFor="create-user-role">Role</Label>
                                 <Select
                                     value={formData.role}
-                                    onValueChange={(value) => setFormData({ ...formData, role: value as "admin" | "captain" })}
+                                    onValueChange={(value) => setFormData({ ...formData, role: value as "admin" | "captain" | "representante" })}
                                 >
                                     <SelectTrigger id="create-user-role" className="h-11">
                                         <SelectValue placeholder="Select a role" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="captain">Captain</SelectItem>
+                                        <SelectItem value="representante">Representante</SelectItem>
                                         <SelectItem value="admin">Admin</SelectItem>
                                     </SelectContent>
                                 </Select>

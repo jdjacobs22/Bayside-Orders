@@ -1,3 +1,10 @@
+/**
+ * createUser.ts
+ * 
+ * Server actions for user management.
+ * Handles the creation of new user accounts (Admin/Captain) using better-auth,
+ * retrieving lists of users, and deleting users from the system.
+ */
 "use server";
 
 import prisma from "@/lib/db";
@@ -15,13 +22,20 @@ async function getSession() {
   return session;
 }
 
+/**
+ * Creates a new system user (Admin or Captain).
+ * Uses better-auth's API to handle password hashing and session management.
+ * 
+ * @param data - The user's registration details (name, email, cell, password, role).
+ * @returns A success status and the newly created user data, or an error message.
+ */
 export async function createUser(data: {
   nombre: string;
   apellido: string;
   email: string;
   cell: string;
   password: string;
-  role: "admin" | "captain";
+  role: "admin" | "captain" | "representante";
 }) {
   try {
     const session = await getSession();
@@ -94,6 +108,12 @@ export async function createUser(data: {
   }
 }
 
+/**
+ * Retrieves all registered system users from the database.
+ * Restricted to Admin access only.
+ * 
+ * @returns A success status and the list of user records.
+ */
 export async function getUsers() {
   try {
     const session = await getSession();
@@ -111,6 +131,13 @@ export async function getUsers() {
   }
 }
 
+/**
+ * Deletes a system user by their unique ID.
+ * Restricted to Admin access only.
+ * 
+ * @param userId - The unique identifier of the user to remove.
+ * @returns A success status.
+ */
 export async function deleteUser(userId: string) {
   try {
     const session = await getSession();
@@ -129,6 +156,12 @@ export async function deleteUser(userId: string) {
   }
 }
 
+/**
+ * Search helper to find unique last names associated with a first name.
+ * 
+ * @param nombre - The first name to search for.
+ * @returns A list of unique last names (apellidos) that match the search string.
+ */
 export async function getApellidosByNombre(nombre: string) {
   if (!nombre || nombre.trim() === "") return { success: true, data: [] };
   try {

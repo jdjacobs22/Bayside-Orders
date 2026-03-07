@@ -3,6 +3,21 @@
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 
+/**
+ * SignOutButton Component
+ * 
+ * A specialized button component that handles a comprehensive and aggressive sign-out process.
+ * 
+ * Sign-out Workflow:
+ * 1. Manually clears all authentication-related cookies (better-auth, auth, session).
+ * 2. Invokes the authClient.signOut() method to invalidate the session server-side.
+ * 3. Aggressively clears localStorage and sessionStorage to remove any cached user data.
+ * 4. Provides a small delay to ensure cookie/cache clearing processes finish.
+ * 5. Performs a hard redirect (window.location.replace) to the root sign-in page.
+ * 6. Adds a 'signout=true' query parameter to prevent the landing page from auto-redirecting back to the dashboard.
+ * 
+ * @returns A button styled for destructive actions (red) with loading state feedback.
+ */
 export default function SignOutButton() {
   const [isSigningOut, setIsSigningOut] = useState(false);
 

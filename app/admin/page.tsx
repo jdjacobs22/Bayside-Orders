@@ -1,3 +1,10 @@
+/**
+ * app/admin/page.tsx
+ * 
+ * The main administrative entry point (Dashboard).
+ * Provides a grid of navigation cards to access all administrative functions
+ * such as creating orders, listing orders, and managing users.
+ */
 import Link from "next/link";
 import AdminHeader from "@/components/AdminHeader";
 import {
@@ -9,9 +16,25 @@ import {
 } from "@/components/ui/card";
 import { FilePlus, List, Search, UserPlus, Printer, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
-export default function AdminDashboard() {
-  const dashboardCards = [
+/**
+ * AdminDashboard Component
+ * 
+ * Renders the primary navigation hub for Admin users.
+ * Features:
+ * - A grid of interactive cards serving as routing links.
+ * - Visual cues like icons and gradients to distinguish different modules.
+ * - Hover effects for a premium interactive feel.
+ */
+export default async function AdminDashboard() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const userRole = session?.user?.role;
+
+  const allDashboardCards = [
     {
       href: "/admin/create",
       title: "Create Work Order",
@@ -61,6 +84,17 @@ export default function AdminDashboard() {
       iconColor: "text-gray-600",
     },
   ];
+
+  const dashboardCards = allDashboardCards.filter(card => {
+    if (userRole === "representante") {
+      return (
+        card.href !== "/admin/users" &&
+        card.href !== "/admin/add-user" &&
+        card.href !== "/admin/print"
+      );
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 pb-12">

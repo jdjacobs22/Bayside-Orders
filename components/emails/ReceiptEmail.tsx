@@ -14,17 +14,43 @@ import {
 } from '@react-email/components';
 import * as React from 'react';
 
+/**
+ * Properties for the ReceiptEmail component.
+ */
 interface ReceiptEmailProps {
+  /** The unique folio identifier for the payment. */
   folio: string;
+  /** The date the payment was recorded or the service provided. */
   fecha: string;
+  /** The full name of the client. */
   cliente: string;
+  /** A description of the service or product purchased. */
   concepto: string;
+  /** The remaining balance before this payment. */
   balance: number;
+  /** The specific amount paid in this transaction. */
   pagoFinal: number;
+  /** The method of payment used (e.g., Efectivo, Transferencia). */
   formaPago: string;
+  /** The name of the employee or system entity that processed the payment. */
   recibio: string;
 }
 
+/**
+ * ReceiptEmail Component
+ * 
+ * A React Email template designed to render a professional, mobile-responsive
+ * digital receipt for Bayside PV customers.
+ * 
+ * Features:
+ * - Brand-aligned header with logo and sub-heading.
+ * - Organized service and financial details section.
+ * - Clear distinction of the final payment amount.
+ * - Signature line for transparency.
+ * - Inline styling compatible with most major email clients.
+ * 
+ * @param props - Component properties (see ReceiptEmailProps)
+ */
 export const ReceiptEmail: React.FC<ReceiptEmailProps> = ({
   folio,
   fecha,

@@ -1,3 +1,9 @@
+/**
+ * email.ts
+ * 
+ * Server actions for sending emails.
+ * Uses the Resend service to send digital receipts to clients.
+ */
 "use server";
 
 import { Resend } from "resend";
@@ -5,9 +11,32 @@ import fs from "fs";
 import path from "path";
 import { jsx } from 'react/jsx-runtime';
 import { ReceiptEmail } from "@/components/emails/ReceiptEmail";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/**
+ * Sends a digital receipt email using the Resend service.
+ * 
+ * Process:
+ * 1. Reads the company logo from the local filesystem to include as an inline attachment.
+ * 2. Renders the 'ReceiptEmail' React template as the email body.
+ * 3. Sends the email via Resend's API.
+ * 
+ * @param data - The receipt details to be displayed in the email.
+ * @param data.folio - The Work Order folio number.
+ * @param data.fecha - The formatted date of the service.
+ * @param data.cliente - The full name of the client.
+ * @param data.concepto - A description of the service performed.
+ * @param data.balance - The total balance before the final payment.
+ * @param data.pagoFinal - The amount of the final payment.
+ * @param data.formaPago - The payment method (e.g., Cash, Transfer).
+ * @param data.recibio - The name of the person who received the payment.
+ * @param data.email - The destination email address.
+ * 
+ * @returns An object indicating success and containing the Resend response data, or a failure message.
+ */
 export async function sendReceiptEmail(data: {
   folio: string;
   fecha: string;
@@ -20,6 +49,14 @@ export async function sendReceiptEmail(data: {
   email: string;
 }) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    
+    if (!session || session.user.role !== "admin") {
+      return { success: false, error: "Unauthorized: Only admins can send payment receipts." };
+    }
+
     const { folio, fecha, cliente, concepto, balance, pagoFinal, formaPago, recibio, email } = data;
 
     console.log(`[EmailAction] Starting send to: ${email}`);

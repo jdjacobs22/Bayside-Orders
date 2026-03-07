@@ -1,3 +1,9 @@
+/**
+ * app/admin/list/page.tsx
+ * 
+ * Displays a table of all existing Work Orders for administrative review.
+ * Allows Admins to view details, initiate edits, or delete orders.
+ */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -19,6 +25,14 @@ import {
 } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 
+/**
+ * AdminOrderList Component
+ * 
+ * Fetches and displays work orders in a responsive table.
+ * - Handles loading states with a spinner.
+ * - Provides immediate feedback for deletion actions.
+ * - Links to individual order details/edit pages.
+ */
 export default function AdminOrderList() {
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
