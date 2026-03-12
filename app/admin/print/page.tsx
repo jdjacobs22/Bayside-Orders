@@ -7,9 +7,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, type Resolver } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { CalendarIcon, Send } from "lucide-react";
 import Image from "next/image";
 import AdminHeader from "@/components/AdminHeader";
@@ -41,6 +43,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 import { sendReceiptEmail } from "@/app/actions/email";
 import { toast } from "sonner"; // Assuming sonner is used, if not I'll check
@@ -55,18 +64,19 @@ const formSchema = z.object({
   email: z.string().email({ message: "Ingrese un correo válido." }),
   concepto: z
     .string()
-    .min(5, { message: "Describa el concepto del servicio." }), //
-  balance: z
+    .min(5, { message: "Describa el concepto del servicio." }),
+  total: z
     .union([z.string(), z.number()])
-    .transform((v) => (v === "" || v === undefined ? 0 : Number(v)))
-    .pipe(z.number().min(0, { error: "Ingrese un monto válido." })),
-  pagoFinal: z
+    .transform((v) => (v === "" || v === undefined ? 0 : Math.floor(Number(v))))
+    .pipe(z.number().min(0, { message: "Ingrese un monto válido." })),
+  deposito: z
     .union([z.string(), z.number()])
-    .transform((v) => (v === "" || v === undefined ? 0 : Number(v)))
-    .pipe(z.number().min(0, { error: "Ingrese un monto válido." })),
-  formaPago: z.enum(["Efectivo", "Transferencia", "Tarjeta"], {
-    error: "Seleccione una forma de pago.",
-  }), //
+    .transform((v) => (v === "" || v === undefined ? 0 : Math.floor(Number(v))))
+    .pipe(z.number().min(0, { message: "Ingrese un monto válido." })),
+  balanceDueDate: z.date().optional(),
+  formaPago: z.enum(["Efectivo", "Transferencia"], {
+    message: "Seleccione una forma de pago.",
+  }),
   recibio: z
     .string()
     .min(2, { message: "Nombre de quien recibe es requerido." }), // [cite: 8]
@@ -90,21 +100,41 @@ export default function BaysidePaymentForm() {
     resolver: zodResolver(formSchema) as Resolver<FormValues>,
     defaultValues: {
       folio: "",
-      fecha: new Date().toISOString().split("T")[0], // Default to today
+      fecha: new Date().toISOString().split("T")[0],
       cliente: "",
       email: "",
       concepto: "",
-      balance: 0,
-      pagoFinal: 0,
+      total: 0,
+      deposito: 0,
+      balanceDueDate: undefined,
       formaPago: "Efectivo",
       recibio: "",
     },
   });
 
+  const total = useWatch({ control: form.control, name: "total" });
+  const deposito = useWatch({ control: form.control, name: "deposito" });
+  const balance = (Number(total) || 0) - (Number(deposito) || 0);
+
   // 3. Handle Form Submission (Generate Email)
   async function onSubmit(values: FormValues) {
     try {
-      const result = await sendReceiptEmail(values);
+      const payload = {
+        folio: values.folio,
+        fecha: values.fecha,
+        cliente: values.cliente,
+        concepto: values.concepto,
+        email: values.email,
+        total: Number(values.total) || 0,
+        deposito: Number(values.deposito) || 0,
+        balance: (Number(values.total) || 0) - (Number(values.deposito) || 0),
+        balanceDueDate: values.balanceDueDate
+          ? format(values.balanceDueDate, "yyyy-MM-dd")
+          : undefined,
+        formaPago: values.formaPago,
+        recibio: values.recibio,
+      };
+      const result = await sendReceiptEmail(payload);
 
       if (result.success) {
         toast.success("Correo enviado exitosamente.");
@@ -228,55 +258,134 @@ export default function BaysidePaymentForm() {
                 />
 
                 {/* Row 4: Financials */}
-                <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-md border">
+                <div className="space-y-4 bg-slate-50 p-4 rounded-md border">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="total"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs uppercase text-slate-500">
+                            Total
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <span className="absolute left-3 top-2.5 text-slate-500">
+                                $
+                              </span>
+                              <Input
+                                type="number"
+                                step={1}
+                                min={0}
+                                inputMode="numeric"
+                                className="pl-7"
+                                placeholder="0"
+                                {...field}
+                                value={field.value === 0 ? "" : field.value}
+                                onChange={(e) =>
+                                  field.onChange(
+                                    e.target.value === ""
+                                      ? 0
+                                      : Math.floor(Number(e.target.value)) || 0
+                                  )
+                                }
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="deposito"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs uppercase text-slate-500">
+                            Depósito
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <span className="absolute left-3 top-2.5 text-slate-500">
+                                $
+                              </span>
+                              <Input
+                                type="number"
+                                step={1}
+                                min={0}
+                                inputMode="numeric"
+                                className="pl-7"
+                                placeholder="0"
+                                {...field}
+                                value={field.value === 0 ? "" : field.value}
+                                onChange={(e) =>
+                                  field.onChange(
+                                    e.target.value === ""
+                                      ? 0
+                                      : Math.floor(Number(e.target.value)) || 0
+                                  )
+                                }
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium uppercase text-slate-500 leading-none">
+                      Saldo
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2.5 text-slate-500">
+                        $
+                      </span>
+                      <Input
+                        readOnly
+                        className="pl-7 bg-slate-100"
+                        value={balance}
+                      />
+                    </div>
+                  </div>
                   <FormField
                     control={form.control}
-                    name="balance"
+                    name="balanceDueDate"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel className="text-xs uppercase text-slate-500">
-                          Balance (MXN)
+                          Fecha de vencimiento del saldo
                         </FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2.5 text-slate-500">
-                              $
-                            </span>
-                            <Input
-                              type="number"
-                              className="pl-7"
-                              {...field}
-                              value={field.value === 0 ? "" : field.value}
-                              onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "d MMM yyyy", {
+                                    locale: es,
+                                  })
+                                ) : (
+                                  <span>Seleccione fecha</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              locale={es}
                             />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="pagoFinal"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs uppercase text-slate-500">
-                          Pago Final (MXN)
-                        </FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2.5 text-slate-500">
-                              $
-                            </span>
-                            <Input
-                              type="number"
-                              className="pl-7"
-                              {...field}
-                              value={field.value === 0 ? "" : field.value}
-                              onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
-                            />
-                          </div>
-                        </FormControl>
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -304,7 +413,6 @@ export default function BaysidePaymentForm() {
                           <SelectItem value="Transferencia">
                             Transferencia
                           </SelectItem>
-                          <SelectItem value="Tarjeta">Tarjeta</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

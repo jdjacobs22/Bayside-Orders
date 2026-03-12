@@ -29,9 +29,11 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  * @param data.fecha - The formatted date of the service.
  * @param data.cliente - The full name of the client.
  * @param data.concepto - A description of the service performed.
- * @param data.balance - The total balance before the final payment.
- * @param data.pagoFinal - The amount of the final payment.
- * @param data.formaPago - The payment method (e.g., Cash, Transfer).
+ * @param data.total - The total amount in pesos.
+ * @param data.deposito - The deposit amount in pesos.
+ * @param data.balance - The remaining balance (total - deposit).
+ * @param data.balanceDueDate - Optional due date for the balance.
+ * @param data.formaPago - The payment method (Efectivo, Transferencia).
  * @param data.recibio - The name of the person who received the payment.
  * @param data.email - The destination email address.
  * 
@@ -42,8 +44,10 @@ export async function sendReceiptEmail(data: {
   fecha: string;
   cliente: string;
   concepto: string;
+  total: number;
+  deposito: number;
   balance: number;
-  pagoFinal: number;
+  balanceDueDate?: string;
   formaPago: string;
   recibio: string;
   email: string;
@@ -57,7 +61,7 @@ export async function sendReceiptEmail(data: {
       return { success: false, error: "Unauthorized: Only admins can send payment receipts." };
     }
 
-    const { folio, fecha, cliente, concepto, balance, pagoFinal, formaPago, recibio, email } = data;
+    const { folio, fecha, cliente, concepto, total, deposito, balance, balanceDueDate, formaPago, recibio, email } = data;
 
     console.log(`[EmailAction] Starting send to: ${email}`);
     console.log(`[EmailAction] API Key present: ${!!process.env.RESEND_API_KEY}`);
@@ -90,8 +94,10 @@ export async function sendReceiptEmail(data: {
         fecha,
         cliente,
         concepto,
+        total,
+        deposito,
         balance,
-        pagoFinal,
+        balanceDueDate,
         formaPago,
         recibio
       })

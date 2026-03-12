@@ -26,11 +26,15 @@ interface ReceiptEmailProps {
   cliente: string;
   /** A description of the service or product purchased. */
   concepto: string;
-  /** The remaining balance before this payment. */
+  /** The total amount in pesos. */
+  total: number;
+  /** The deposit amount in pesos. */
+  deposito: number;
+  /** The remaining balance (total - deposit). */
   balance: number;
-  /** The specific amount paid in this transaction. */
-  pagoFinal: number;
-  /** The method of payment used (e.g., Efectivo, Transferencia). */
+  /** Optional due date for the balance. */
+  balanceDueDate?: string;
+  /** The method of payment used (Efectivo, Transferencia). */
   formaPago: string;
   /** The name of the employee or system entity that processed the payment. */
   recibio: string;
@@ -56,8 +60,10 @@ export const ReceiptEmail: React.FC<ReceiptEmailProps> = ({
   fecha,
   cliente,
   concepto,
+  total,
+  deposito,
   balance,
-  pagoFinal,
+  balanceDueDate,
   formaPago,
   recibio,
 }) => (
@@ -101,13 +107,23 @@ export const ReceiptEmail: React.FC<ReceiptEmailProps> = ({
 
         <Section style={financialSection}>
           <Row style={financialRow}>
-            <Column align="left"><Text style={financialLabel}>Balance:</Text></Column>
-            <Column align="right"><Text style={financialValue}>${balance} MXN</Text></Column>
+            <Column align="left"><Text style={financialLabel}>Total:</Text></Column>
+            <Column align="right"><Text style={financialValue}>${total} MXN</Text></Column>
           </Row>
           <Row style={financialRow}>
-            <Column align="left"><Text style={financialLabel}>Pago Final:</Text></Column>
-            <Column align="right"><Text style={pagoFinalValue}>${pagoFinal} MXN</Text></Column>
+            <Column align="left"><Text style={financialLabel}>Depósito:</Text></Column>
+            <Column align="right"><Text style={financialValue}>${deposito} MXN</Text></Column>
           </Row>
+          <Row style={financialRow}>
+            <Column align="left"><Text style={financialLabel}>Saldo:</Text></Column>
+            <Column align="right"><Text style={pagoFinalValue}>${balance} MXN</Text></Column>
+          </Row>
+          {balanceDueDate && (
+            <Row style={financialRow}>
+              <Column align="left"><Text style={financialLabel}>Fecha de vencimiento del saldo:</Text></Column>
+              <Column align="right"><Text style={financialValue}>{balanceDueDate}</Text></Column>
+            </Row>
+          )}
           <Row style={financialRow}>
             <Column align="left"><Text style={financialLabel}>Forma de Pago:</Text></Column>
             <Column align="right"><Text style={financialValue}>{formaPago}</Text></Column>
