@@ -52,6 +52,7 @@ export const auth = betterAuth({
       "http://192.168.1.135:3000", // Local server address
       // Add specific Vercel deployment URL
       "https://bayside-orders-srfn16hpk-jim-jacobshomecs-projects.vercel.app",
+      "https://bayside-orders.vercel.app",  // Production URL 
     ];
 
     // Cloudflare tunnel URL
