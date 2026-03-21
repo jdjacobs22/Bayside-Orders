@@ -203,8 +203,19 @@ export default function WorkOrderForm({
    * @returns True if the field is editable, false otherwise.
    */
   const canEdit = (fieldName: string) => {
-    if (!isCaptain) return true; // Admin creates/edits all
-    const allowed = [
+    // These fields are ALWAYS calculated and should NEVER be directly edited.
+    const calculatedFields = [
+      "precioAcordado",
+      "cargoExtra",
+      "totalClienteCost",
+      "saldoCliente",
+      "debidoABayside"
+    ];
+    if (calculatedFields.includes(fieldName)) return false;
+
+    if (!isCaptain) return true; // Admin can edit everything else
+
+    const captainAllowed = [
       "horaLlegado",
       "combustible",
       "hielo",
@@ -218,8 +229,9 @@ export default function WorkOrderForm({
       "horasExtrasTransferir",
       "pagoHorasExtra",
       "detallesNotas",
+      "deposito",
     ];
-    return allowed.includes(fieldName);
+    return captainAllowed.includes(fieldName);
   };
 
   const activeSchema = isCaptain ? captainSchema : adminSchema;
@@ -1315,8 +1327,8 @@ export default function WorkOrderForm({
                                     : e.target.valueAsNumber
                               );
                             }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
+                            disabled={!canEdit("tarifaHora")}
+                            className={!canEdit("tarifaHora") ? "bg-gray-200" : ""}
                           />
                         </FormControl>
                       </FormItem>
@@ -1343,8 +1355,8 @@ export default function WorkOrderForm({
                                     : e.target.valueAsNumber
                               );
                             }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
+                            disabled={!canEdit("horasAcordadas")}
+                            className={!canEdit("horasAcordadas") ? "bg-gray-200" : ""}
                           />
                         </FormControl>
                       </FormItem>
@@ -1373,8 +1385,8 @@ export default function WorkOrderForm({
                                     : e.target.valueAsNumber
                               );
                             }}
-                            disabled={isCaptain}
-                            className={isCaptain ? "bg-gray-200" : ""}
+                            disabled={!canEdit("precioAcordado")}
+                            className={!canEdit("precioAcordado") ? "bg-gray-200" : ""}
                           />
                         </FormControl>
                       </FormItem>
@@ -1507,7 +1519,7 @@ export default function WorkOrderForm({
                                         setValue("transferir", false);
                                       }
                                     }}
-                                    disabled={(isCaptain && (Number(saldoCliente) + Number(pagoReciboVal)) <= 0) || !canEdit("efectivo")}
+                                    disabled={!canEdit("efectivo")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -1533,7 +1545,7 @@ export default function WorkOrderForm({
                                         setValue("efectivo", false);
                                       }
                                     }}
-                                    disabled={(isCaptain && (Number(saldoCliente) + Number(pagoReciboVal)) <= 0) || !canEdit("transferir")}
+                                    disabled={!canEdit("transferir")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -1571,9 +1583,9 @@ export default function WorkOrderForm({
                                               : Math.floor(e.target.valueAsNumber)
                                         );
                                       }}
-                                      disabled={(isCaptain && (Number(saldoCliente) + Number(pagoReciboVal)) <= 0) || !canEdit("pagoRecibo")}
+                                      disabled={!canEdit("pagoRecibo")}
                                       className={`w-24 
-                                        ${(isCaptain && (Number(saldoCliente) + Number(pagoReciboVal)) <= 0) ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
+                                        ${!canEdit("pagoRecibo") ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
                                         ${isCaptain ? "opacity-75" : ""}
                                       `}
                                     />
@@ -1980,7 +1992,7 @@ export default function WorkOrderForm({
                                         setValue("horasExtrasTransferir", false);
                                       }
                                     }}
-                                    disabled={(isCaptain && Number(horasExtrasVal) <= 0) || !canEdit("horasExtrasEfectivo")}
+                                    disabled={!canEdit("horasExtrasEfectivo")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -2006,7 +2018,7 @@ export default function WorkOrderForm({
                                         setValue("horasExtrasEfectivo", false);
                                       }
                                     }}
-                                    disabled={(isCaptain && Number(horasExtrasVal) <= 0) || !canEdit("horasExtrasTransferir")}
+                                    disabled={!canEdit("horasExtrasTransferir")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -2044,9 +2056,9 @@ export default function WorkOrderForm({
                                               : Math.floor(e.target.valueAsNumber)
                                         );
                                       }}
-                                      disabled={(isCaptain && Number(horasExtrasVal) <= 0) || !canEdit("pagoHorasExtra")}
+                                      disabled={!canEdit("pagoHorasExtra")}
                                       className={`w-24
-                                        ${(isCaptain && Number(horasExtrasVal) <= 0) ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
+                                        ${!canEdit("pagoHorasExtra") ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
                                         ${isCaptain ? "opacity-75" : ""}
                                       `}
                                     />
