@@ -1390,7 +1390,7 @@ export default function WorkOrderForm({
                           <Input
                             type="number"
                             readOnly
-                            value={Number(field.value) === 0 ? "" : String(field.value)}
+                            value={String(field.value || 0)}
                             className="bg-gray-100 cursor-not-allowed"
                           />
                         </FormControl>
@@ -1410,7 +1410,7 @@ export default function WorkOrderForm({
                             type="number"
                             readOnly
                             {...field}
-                            value={Number(field.value) === 0 ? "" : String(field.value)}
+                            value={String(field.value || 0)}
                             className="bg-gray-200 font-bold"
                           />
                         </FormControl>
@@ -1460,7 +1460,7 @@ export default function WorkOrderForm({
                             readOnly
                             className="bg-red-50 font-bold text-red-700"
                             {...field}
-                            value={Number(field.value) === 0 ? "" : String(field.value)}
+                            value={String(field.value || 0)}
                           />
                         </FormControl>
                       </FormItem>
@@ -1507,7 +1507,7 @@ export default function WorkOrderForm({
                                         setValue("transferir", false);
                                       }
                                     }}
-                                    disabled={Number(saldoCliente) <= 0 || !canEdit("efectivo")}
+                                    disabled={(Number(saldoCliente) + Number(pagoReciboVal)) <= 0 || !canEdit("efectivo")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -1533,7 +1533,7 @@ export default function WorkOrderForm({
                                         setValue("efectivo", false);
                                       }
                                     }}
-                                    disabled={Number(saldoCliente) <= 0 || !canEdit("transferir")}
+                                    disabled={(Number(saldoCliente) + Number(pagoReciboVal)) <= 0 || !canEdit("transferir")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -1571,9 +1571,9 @@ export default function WorkOrderForm({
                                               : Math.floor(e.target.valueAsNumber)
                                         );
                                       }}
-                                      disabled={Number(saldoCliente) <= 0 || !canEdit("pagoRecibo")}
+                                      disabled={(Number(saldoCliente) + Number(pagoReciboVal)) <= 0 || !canEdit("pagoRecibo")}
                                       className={`w-24 
-                                        ${Number(saldoCliente) <= 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
+                                        ${(Number(saldoCliente) + Number(pagoReciboVal)) <= 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
                                         ${isCaptain ? "opacity-75" : ""}
                                       `}
                                     />
