@@ -1507,7 +1507,7 @@ export default function WorkOrderForm({
                                         setValue("transferir", false);
                                       }
                                     }}
-                                    disabled={(Number(saldoCliente) + Number(pagoReciboVal)) <= 0 || !canEdit("efectivo")}
+                                    disabled={(isCaptain && (Number(saldoCliente) + Number(pagoReciboVal)) <= 0) || !canEdit("efectivo")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -1533,7 +1533,7 @@ export default function WorkOrderForm({
                                         setValue("efectivo", false);
                                       }
                                     }}
-                                    disabled={(Number(saldoCliente) + Number(pagoReciboVal)) <= 0 || !canEdit("transferir")}
+                                    disabled={(isCaptain && (Number(saldoCliente) + Number(pagoReciboVal)) <= 0) || !canEdit("transferir")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -1571,9 +1571,9 @@ export default function WorkOrderForm({
                                               : Math.floor(e.target.valueAsNumber)
                                         );
                                       }}
-                                      disabled={(Number(saldoCliente) + Number(pagoReciboVal)) <= 0 || !canEdit("pagoRecibo")}
+                                      disabled={(isCaptain && (Number(saldoCliente) + Number(pagoReciboVal)) <= 0) || !canEdit("pagoRecibo")}
                                       className={`w-24 
-                                        ${(Number(saldoCliente) + Number(pagoReciboVal)) <= 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
+                                        ${(isCaptain && (Number(saldoCliente) + Number(pagoReciboVal)) <= 0) ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
                                         ${isCaptain ? "opacity-75" : ""}
                                       `}
                                     />
@@ -1980,7 +1980,7 @@ export default function WorkOrderForm({
                                         setValue("horasExtrasTransferir", false);
                                       }
                                     }}
-                                    disabled={Number(horasExtrasVal) <= 0 || !canEdit("horasExtrasEfectivo")}
+                                    disabled={(isCaptain && Number(horasExtrasVal) <= 0) || !canEdit("horasExtrasEfectivo")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -2006,7 +2006,7 @@ export default function WorkOrderForm({
                                         setValue("horasExtrasEfectivo", false);
                                       }
                                     }}
-                                    disabled={Number(horasExtrasVal) <= 0 || !canEdit("horasExtrasTransferir")}
+                                    disabled={(isCaptain && Number(horasExtrasVal) <= 0) || !canEdit("horasExtrasTransferir")}
                                   />
                                 </FormControl>
                                 <FormLabel className="text-sm font-medium cursor-pointer">
@@ -2044,9 +2044,9 @@ export default function WorkOrderForm({
                                               : Math.floor(e.target.valueAsNumber)
                                         );
                                       }}
-                                      disabled={Number(horasExtrasVal) <= 0 || !canEdit("pagoHorasExtra")}
+                                      disabled={(isCaptain && Number(horasExtrasVal) <= 0) || !canEdit("pagoHorasExtra")}
                                       className={`w-24
-                                        ${Number(horasExtrasVal) <= 0 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
+                                        ${(isCaptain && Number(horasExtrasVal) <= 0) ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""} 
                                         ${isCaptain ? "opacity-75" : ""}
                                       `}
                                     />
