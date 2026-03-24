@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import Link from "next/link";
-import { getUsers, deleteUser } from "@/app/actions/createUser";
+import { getUsers, deleteUser, changeUserPassword } from "@/app/actions/createUser";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +15,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, Loader2, User } from "lucide-react";
+import { Plus, Trash2, Loader2, User, Key, Eye, EyeOff } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 /**
  * AdminUserList Component
@@ -41,6 +52,12 @@ export default function AdminUserList() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [updatingPassword, setUpdatingPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -72,6 +89,37 @@ export default function AdminUserList() {
       alert("Error al eliminar el usuario: " + res.error);
     }
     setDeletingId(null);
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPassword || newPassword.length < 6) {
+      toast.error("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Las contraseñas no coinciden");
+      return;
+    }
+
+    setUpdatingPassword(true);
+    const res = await changeUserPassword(selectedUser.id, newPassword);
+    setUpdatingPassword(false);
+
+    if (res.success) {
+      toast.success("Contraseña actualizada exitosamente");
+      setIsPasswordDialogOpen(false);
+      setNewPassword("");
+      setConfirmPassword("");
+    } else {
+      toast.error("Error al actualizar contraseña: " + res.error);
+    }
+  };
+
+  const openPasswordDialog = (user: any) => {
+    setSelectedUser(user);
+    setIsPasswordDialogOpen(true);
+    setNewPassword("");
+    setConfirmPassword("");
   };
 
   if (loading) {
@@ -138,6 +186,14 @@ export default function AdminUserList() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => openPasswordDialog(user)}
+                          className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700"
+                        >
+                          <Key className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleDelete(user.id, `${user.nombre} ${user.apellido}`)}
                           disabled={deletingId === user.id}
                           className="h-8 w-8 p-0 text-destructive hover:text-destructive"
@@ -157,6 +213,80 @@ export default function AdminUserList() {
           </div>
         )}
       </CardContent>
+
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <form onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }}>
+            <DialogHeader>
+              <DialogTitle>Cambiar Contraseña</DialogTitle>
+              <DialogDescription>
+                Actualiza la contraseña para {selectedUser?.nombre} {selectedUser?.apellido}.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="password">Nueva Contraseña</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    autoComplete="new-password"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                <Input
+                  id="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsPasswordDialogOpen(false)}
+                disabled={updatingPassword}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={updatingPassword}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {updatingPassword ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Actualizando...
+                  </>
+                ) : (
+                  "Guardar Cambios"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

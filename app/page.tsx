@@ -100,6 +100,7 @@ function LandingPageContent() {
 
   useEffect(() => {
     if (session) {
+      console.log("Active session detected on landing page:", session.user?.email, (session.user as any)?.role);
       const role = (session.user as any).role;
       if (role === "admin" || role === "representante") {
         router.push("/admin");

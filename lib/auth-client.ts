@@ -5,13 +5,17 @@
  * Used for sign-in, sign-out, and session management in Client Components.
  */
 import { createAuthClient } from "better-auth/react";
+import { adminClient } from "better-auth/client/plugins";
 
 /**
  * Shared authentication client instance.
  * Automatically resolves the base URL based on the environment.
  */
 export const authClient = createAuthClient({
-    baseURL: typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"
+  baseURL: typeof window !== "undefined" ? window.location.origin : "http://localhost:3000",
+  plugins: [
+    adminClient()
+  ]
 });
 
 /**

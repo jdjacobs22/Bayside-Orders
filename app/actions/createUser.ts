@@ -181,3 +181,55 @@ export async function getApellidosByNombre(nombre: string) {
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Administrative password reset for a specific user ID.
+ * Uses the better-auth admin plugin to bypass current password requirement.
+ * 
+ * @param userId - The target user's unique ID.
+ * @param newPassword - The new password to set.
+ * @returns Success or error status.
+ */
+export async function changeUserPassword(userId: string, newPassword: string) {
+  try {
+    const session = await getSession();
+    if (session.user.role !== "admin") {
+      throw new Error("Unauthorized: Only admins can change passwords");
+    }
+
+    console.log("Attempting administrative password reset for user ID:", userId);
+    
+    // Better-auth 1.x admin plugin exposes methods via auth.api.admin
+    // in some versions it's flattened as auth.api.setUserPassword
+    // We explicitly cast to any to reach the dynamic plugin methods
+    const api = (auth as any).api;
+    
+    if (!api) {
+        throw new Error("Better-Auth API not found.");
+    }
+
+    // setUserPassword is the specific method for admin resets
+    // We MUST pass headers so the admin plugin can verify the session
+    const resetMethod = api.setUserPassword || api.admin?.setUserPassword;
+
+    if (!resetMethod) {
+        throw new Error("Method 'setUserPassword' not found on Better-Auth API.");
+    }
+
+    await resetMethod({
+        headers: await headers(),
+        body: {
+            userId,
+            newPassword
+        }
+    });
+
+    console.log("Password reset successfully confirmed for user ID:", userId);
+    revalidatePath("/admin/users");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Critical error in changeUserPassword action:", error);
+    const detailMessage = error?.message || "Ocurrió un error inesperado al actualizar la contraseña";
+    return { success: false, error: detailMessage };
+  }
+}

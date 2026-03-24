@@ -1,16 +1,10 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { admin } from "better-auth/plugins";
 import prisma from "@/lib/db";
 
 /**
  * Better-Auth Configuration
- * 
- * Configures the authentication system for the application.
- * - Adapter: Prisma Adapter using the PostgreSQL provider.
- * - Strategy: Email and Password based authentication.
- * - Schema: Extends the default user model with 'role', 'nombre', 'apellido', and 'cell'.
- * - Session: 30-minute session limit with 1-minute updates.
- * - Security: Strict cookie management and dynamic trusted origin resolution for local, Vercel, and Cloudflare environments.
  */
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -21,91 +15,43 @@ export const auth = betterAuth({
   },
   user: {
     additionalFields: {
-      role: {
-        type: "string",
-      },
-      nombre: {
-        type: "string",
-      },
-      apellido: {
-        type: "string",
-      },
-      cell: {
-        type: "string",
-      },
+      role: { type: "string" },
+      nombre: { type: "string" },
+      apellido: { type: "string" },
+      cell: { type: "string" },
     },
   },
   session: {
-    expiresIn: 60 * 30, // 30 minutes session limit
-    updateAge: 60 * 1, // Update session every 1 minute
-    freshAge: 0, // Disable "fresh" session persistence to force re-auth
+    maxAge: 60 * 30, // 30 minutes
+    updateAge: 60 * 1, // 1 minute
+    freshAge: 0,
+    cookieOptions: {
+      sameSite: "lax",
+      secure: false, // For local network access
+    },
   },
-  cookie: {
-    maxAge: 60 * 30, // Match cookie life to session life strictly
-  },
+  // Base URL for cookies
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  
   trustedOrigins: (() => {
-    const origins: string[] = [
+    const origins = [
+      "http://10.0.0.17:8765", // <-- YOUR ACTIVE LOCAL IP IS HERE
+      "http://10.0.0.17:3000",
+      "https://workorder.jacobshomenet.casa",
       "http://localhost:3000",
-      "http://localhost:8765", // Local development on port 8765
-      "http://10.0.0.10:8765", // Local server address
-      "http://192.168.1.135:8765", // Local server address Apex Gym
-      "http://192.168.1.135:3000", // Local server address
-      // Add specific Vercel deployment URL
-      "https://bayside-orders-srfn16hpk-jim-jacobshomecs-projects.vercel.app",
-      "https://bayside-orders.vercel.app",  // Production URL 
+      "http://localhost:8765",
+      "http://127.0.0.1:3000",
     ];
-
-    // Cloudflare tunnel URL
-    if (process.env.CLOUDFLARE_TUNNEL_URL) {
-      const url = process.env.CLOUDFLARE_TUNNEL_URL.replace(/\/$/, "");
-      origins.push(url);
-    }
-
-    // Vercel URLs - handle multiple formats and environments
-    // VERCEL_URL is provided by Vercel (hostname only, no protocol)
-    if (process.env.VERCEL_URL) {
-      const vercelHost = process.env.VERCEL_URL.replace(
-        /^https?:\/\//,
-        ""
-      ).replace(/\/$/, "");
-      origins.push(`https://${vercelHost}`);
-    }
-
-    // Vercel deployment URL (alternative env var)
-    if (process.env.VERCEL) {
-      // VERCEL=1 is set, use VERCEL_URL if available
-      if (process.env.VERCEL_URL) {
-        const vercelHost = process.env.VERCEL_URL.replace(
-          /^https?:\/\//,
-          ""
-        ).replace(/\/$/, "");
-        origins.push(`https://${vercelHost}`);
-      }
-    }
-
-    // Production URL if set (for custom domains or production deployments)
-    if (process.env.VERCEL_PROD_URL) {
-      const url = process.env.VERCEL_PROD_URL.replace(/\/$/, "");
-      origins.push(url.startsWith("http") ? url : `https://${url}`);
-    }
-
-    // Support for any custom production domain
-    if (process.env.PRODUCTION_URL) {
-      const url = process.env.PRODUCTION_URL.replace(/\/$/, "");
-      origins.push(url.startsWith("http") ? url : `https://${url}`);
-    }
-
-    // Log origins for debugging
-    console.log("Better-auth trusted origins:", origins);
-    console.log("VERCEL_URL env var:", process.env.VERCEL_URL);
-    console.log("VERCEL env var:", process.env.VERCEL);
-    console.log("NODE_ENV:", process.env.NODE_ENV);
-
-    return origins;
+    if (process.env.CLOUDFLARE_TUNNEL_URL) origins.push(process.env.CLOUDFLARE_TUNNEL_URL);
+    if (process.env.VERCEL_URL) origins.push(`https://${process.env.VERCEL_URL}`);
+    return [...new Set(origins.filter(Boolean))];
   })(),
+  
   advanced: {
-    cookiePrefix: "better-auth",
     generateId: undefined, // Use default
   },
-  // Add other plugins or providers here as needed
+  
+  plugins: [
+    admin()
+  ]
 });

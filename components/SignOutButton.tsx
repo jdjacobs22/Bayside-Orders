@@ -22,6 +22,7 @@ export default function SignOutButton() {
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
+    console.log("Starting aggressive sign out process...");
     setIsSigningOut(true);
     try {
       // Manually clear all cookies FIRST to prevent session from persisting
@@ -36,6 +37,7 @@ export default function SignOutButton() {
             cookieName.includes("auth") ||
             cookieName.includes("session")
           ) {
+            console.log(`Clearing cookie: ${cookieName}`);
             // Try multiple clearing strategies to ensure deletion
             const expires = "Thu, 01 Jan 1970 00:00:00 UTC";
             document.cookie = `${cookieName}=; expires=${expires}; path=/; SameSite=Lax`;
@@ -51,7 +53,9 @@ export default function SignOutButton() {
       clearAllCookies();
 
       // Call signOut API to clear server-side session
-      await authClient.signOut();
+      console.log("Calling authClient.signOut()...");
+      const result = await authClient.signOut();
+      console.log("authClient.signOut() returned:", result);
 
       // Clear cookies again after signOut to catch any that were reset
       clearAllCookies();
