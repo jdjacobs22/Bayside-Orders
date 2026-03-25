@@ -97,6 +97,7 @@ export const getBaseSchema = () => {
     totalClienteCost: DecimalPesos.optional(),
     deposito: DecimalPesos.optional(),
     saldoCliente: DecimalPesos.optional(),
+    ingresoNeto: DecimalPesos.optional(),
     paymentMethod: z.enum(["efectivo", "transferir"]).optional().nullable(),
     horasExtrasEfectivo: z.boolean().default(false),
     horasExtrasTransferir: z.boolean().default(false),

@@ -167,6 +167,7 @@ export const WorkOrderScalarFieldEnum = {
   totalClienteCost: 'totalClienteCost',
   deposito: 'deposito',
   saldoCliente: 'saldoCliente',
+  ingresoNeto: 'ingresoNeto',
   pagoRecibo: 'pagoRecibo',
   efectivo: 'efectivo',
   transferir: 'transferir',

@@ -178,6 +178,7 @@ export async function createWorkOrder(data: any, role: "admin" | "captain" = "ad
         horasExtrasEfectivo: validatedData.horasExtrasEfectivo ?? false,
         horasExtrasTransferir: validatedData.horasExtrasTransferir ?? false,
         pagoHorasExtra: validatedData.pagoHorasExtra ? new Prisma.Decimal(validatedData.pagoHorasExtra as any) : 0,
+        ingresoNeto: validatedData.ingresoNeto ? new Prisma.Decimal(validatedData.ingresoNeto as any) : 0,
         captainId: role === "admin" && validatedData.captainId ? validatedData.captainId : undefined,
       },
     });
@@ -343,6 +344,7 @@ export async function updateWorkOrder(id: number, data: any, role: "admin" | "ca
       horasExtrasEfectivo: validatedData.horasExtrasEfectivo,
       horasExtrasTransferir: validatedData.horasExtrasTransferir,
       pagoHorasExtra: validatedData.pagoHorasExtra !== undefined ? new Prisma.Decimal(validatedData.pagoHorasExtra as any) : undefined,
+      ingresoNeto: validatedData.ingresoNeto !== undefined ? new Prisma.Decimal(validatedData.ingresoNeto as any) : undefined,
       captainId: role === "admin" && validatedData.captainId !== undefined ? validatedData.captainId : undefined,
     };
 

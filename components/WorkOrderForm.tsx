@@ -209,7 +209,8 @@ export default function WorkOrderForm({
       "cargoExtra",
       "totalClienteCost",
       "saldoCliente",
-      "debidoABayside"
+      "debidoABayside",
+      "ingresoNeto"
     ];
     if (calculatedFields.includes(fieldName)) return false;
 
@@ -271,6 +272,7 @@ export default function WorkOrderForm({
       totalClienteCost: 0,
       deposito: 0,
       saldoCliente: 0,
+      ingresoNeto: 0,
       horasExtras: 0,
       paymentMethod: null, // Initialize paymentMethod
       horasExtrasEfectivo: false,
@@ -406,50 +408,80 @@ export default function WorkOrderForm({
     fetchNombres();
   }, []);
 
-  // Calculate cargoExtra based on horasExtras only
+  // Consolidated Financial Calculations
   useEffect(() => {
-    const cargo = (Number(tarifaHora) || 0) * (Number(horasExtrasVal) || 0);
-    setValue("cargoExtra", Math.floor(cargo));
-  }, [tarifaHora, horasExtrasVal, setValue]);
+    /**
+     * Re-calculates all derived financial fields whenever any input value changes.
+     * This ensures consistency between Tarifas, Gastos, and Balances.
+     * 
+     * Formula:
+     * - Precio Acordado = Tarifa * Horas Acordadas
+     * - Cargo Extra = Tarifa * Horas Extras
+     * - Costo Total = Precio Acordado + Cargo Extra + Gasto Varios
+     * - Saldo Cliente = Costo Total - Deposito - Pago Recibo - Pago Horas Extra
+     * - Ingreso Neto = Costo Total - (Combustible + Hielo + Bebidas + Gasto Varios + Labor)
+     */
+    
+    // 1. Gather all raw inputs as numbers
+    const rate = Number(tarifaHora) || 0;
+    const duration = Number(horasAcordadas) || 0;
+    const extraHours = Number(horasExtrasVal) || 0;
+    const varios = Number(gastoVarios) || 0;
+    const dep = Number(deposito) || 0;
+    const recibo = Number(pagoReciboVal) || 0;
+    const extraPay = Number(pagoHorasExtra) || 0;
+    
+    const fuel = Number(combustible) || 0;
+    const ice = Number(hielo) || 0;
+    const beverages = Number(aguaBebidas) || 0;
+    const capitana = Number(pagoCapitana) || 0;
+    const marinero = Number(pagoMarinero) || 0;
 
-  // Calculate Precio Acordado = Tarifa * Duracion
-  useEffect(() => {
-    const precio = (Number(tarifaHora) || 0) * (Number(horasAcordadas) || 0);
-    setValue("precioAcordado", Math.floor(precio));
-  }, [tarifaHora, horasAcordadas, setValue]);
+    // 2. Perform calculations
+    const calcPrecioAcordado = Math.floor(rate * duration);
+    const calcCargoExtra = Math.floor(rate * extraHours);
+    const calcTotalCost = calcPrecioAcordado + calcCargoExtra + varios;
+    
+    const calcSaldo = calcTotalCost - dep - recibo - extraPay;
+    
+    const totalExpenses = fuel + ice + beverages + varios + capitana + marinero;
+    const calcNeto = (calcPrecioAcordado + calcCargoExtra) - totalExpenses;
 
-  // Calculate totalClienteCost and Financials
-  useEffect(() => {
-    // totalClienteCost = precioAcordado + cargoExtra + gastoVarios
-    const total = (Number(precio) || 0) + (Number(extra) || 0) + (Number(gastoVarios) || 0);
-    const totalFloor = Math.floor(total);
-    if (form.getValues("totalClienteCost") !== totalFloor) {
-      setValue("totalClienteCost", totalFloor);
+    // 3. Batch apply updates ONLY if values have changed to prevent re-render loops
+    const current = form.getValues();
+    
+    if (Math.floor(Number(current.precioAcordado) || 0) !== calcPrecioAcordado) {
+      setValue("precioAcordado", calcPrecioAcordado);
     }
-
-    // saldoCliente = totalClienteCost - deposito - pagoRecibo - pagoHorasExtra
-    const currentDeposito = Number(deposito) || 0;
-    const currentPagoRecibo = Number(pagoReciboVal) || 0;
-    const currentPagoHorasExtra = Number(pagoHorasExtra) || 0;
-    const saldo = total - currentDeposito - currentPagoRecibo - currentPagoHorasExtra;
-    const saldoFloor = Math.floor(saldo);
-
-    if (form.getValues("saldoCliente") !== saldoFloor) {
-      setValue("saldoCliente", saldoFloor);
+    if (Math.floor(Number(current.cargoExtra) || 0) !== calcCargoExtra) {
+      setValue("cargoExtra", calcCargoExtra);
     }
-
-    // Debido a Bayside = Saldo Cliente
-    if (form.getValues("debidoABayside") !== saldoFloor) {
-      setValue("debidoABayside", saldoFloor);
+    if (Math.floor(Number(current.totalClienteCost) || 0) !== calcTotalCost) {
+      setValue("totalClienteCost", calcTotalCost);
+    }
+    if (Math.floor(Number(current.saldoCliente) || 0) !== Math.floor(calcSaldo)) {
+      setValue("saldoCliente", Math.floor(calcSaldo));
+    }
+    if (Math.floor(Number(current.debidoABayside) || 0) !== Math.floor(calcSaldo)) {
+      setValue("debidoABayside", Math.floor(calcSaldo));
+    }
+    if (Math.floor(Number(current.ingresoNeto) || 0) !== Math.floor(calcNeto)) {
+      setValue("ingresoNeto", Math.floor(calcNeto));
     }
 
   }, [
-    precio,
-    extra,
+    tarifaHora,
+    horasAcordadas,
+    horasExtrasVal,
     gastoVarios,
     deposito,
     pagoReciboVal,
     pagoHorasExtra,
+    combustible,
+    hielo,
+    aguaBebidas,
+    pagoCapitana,
+    pagoMarinero,
     setValue,
     form
   ]);
@@ -490,6 +522,7 @@ export default function WorkOrderForm({
               totalClienteCost: data.totalClienteCost || 0,
               deposito: data.deposito || 0,
               saldoCliente: data.saldoCliente || 0,
+              ingresoNeto: data.ingresoNeto || 0,
               pagoRecibo: data.pagoRecibo || 0,
               efectivo: data.efectivo || false,
               transferir: data.transferir || false,
@@ -1363,7 +1396,7 @@ export default function WorkOrderForm({
                     )}
                   />
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 border-t border-blue-100">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-blue-100">
                   <FormField
                     control={form.control}
                     name="precioAcordado"
@@ -1471,6 +1504,25 @@ export default function WorkOrderForm({
                           <Input
                             readOnly
                             className="bg-red-50 font-bold text-red-700"
+                            {...field}
+                            value={String(field.value || 0)}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="ingresoNeto"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-bold text-green-700">
+                          Ingreso Neto
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            readOnly
+                            className="bg-green-50 font-bold text-green-700"
                             {...field}
                             value={String(field.value || 0)}
                           />

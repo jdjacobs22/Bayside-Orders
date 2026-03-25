@@ -42,6 +42,7 @@ export type WorkOrderAvgAggregateOutputType = {
   totalClienteCost: runtime.Decimal | null
   deposito: runtime.Decimal | null
   saldoCliente: runtime.Decimal | null
+  ingresoNeto: runtime.Decimal | null
   pagoRecibo: runtime.Decimal | null
   pagarAlEmbarque: runtime.Decimal | null
   debidoABayside: runtime.Decimal | null
@@ -65,6 +66,7 @@ export type WorkOrderSumAggregateOutputType = {
   totalClienteCost: runtime.Decimal | null
   deposito: runtime.Decimal | null
   saldoCliente: runtime.Decimal | null
+  ingresoNeto: runtime.Decimal | null
   pagoRecibo: runtime.Decimal | null
   pagarAlEmbarque: runtime.Decimal | null
   debidoABayside: runtime.Decimal | null
@@ -102,6 +104,7 @@ export type WorkOrderMinAggregateOutputType = {
   totalClienteCost: runtime.Decimal | null
   deposito: runtime.Decimal | null
   saldoCliente: runtime.Decimal | null
+  ingresoNeto: runtime.Decimal | null
   pagoRecibo: runtime.Decimal | null
   efectivo: boolean | null
   transferir: boolean | null
@@ -145,6 +148,7 @@ export type WorkOrderMaxAggregateOutputType = {
   totalClienteCost: runtime.Decimal | null
   deposito: runtime.Decimal | null
   saldoCliente: runtime.Decimal | null
+  ingresoNeto: runtime.Decimal | null
   pagoRecibo: runtime.Decimal | null
   efectivo: boolean | null
   transferir: boolean | null
@@ -188,6 +192,7 @@ export type WorkOrderCountAggregateOutputType = {
   totalClienteCost: number
   deposito: number
   saldoCliente: number
+  ingresoNeto: number
   pagoRecibo: number
   efectivo: number
   transferir: number
@@ -219,6 +224,7 @@ export type WorkOrderAvgAggregateInputType = {
   totalClienteCost?: true
   deposito?: true
   saldoCliente?: true
+  ingresoNeto?: true
   pagoRecibo?: true
   pagarAlEmbarque?: true
   debidoABayside?: true
@@ -242,6 +248,7 @@ export type WorkOrderSumAggregateInputType = {
   totalClienteCost?: true
   deposito?: true
   saldoCliente?: true
+  ingresoNeto?: true
   pagoRecibo?: true
   pagarAlEmbarque?: true
   debidoABayside?: true
@@ -279,6 +286,7 @@ export type WorkOrderMinAggregateInputType = {
   totalClienteCost?: true
   deposito?: true
   saldoCliente?: true
+  ingresoNeto?: true
   pagoRecibo?: true
   efectivo?: true
   transferir?: true
@@ -322,6 +330,7 @@ export type WorkOrderMaxAggregateInputType = {
   totalClienteCost?: true
   deposito?: true
   saldoCliente?: true
+  ingresoNeto?: true
   pagoRecibo?: true
   efectivo?: true
   transferir?: true
@@ -365,6 +374,7 @@ export type WorkOrderCountAggregateInputType = {
   totalClienteCost?: true
   deposito?: true
   saldoCliente?: true
+  ingresoNeto?: true
   pagoRecibo?: true
   efectivo?: true
   transferir?: true
@@ -495,6 +505,7 @@ export type WorkOrderGroupByOutputType = {
   totalClienteCost: runtime.Decimal
   deposito: runtime.Decimal
   saldoCliente: runtime.Decimal
+  ingresoNeto: runtime.Decimal | null
   pagoRecibo: runtime.Decimal | null
   efectivo: boolean | null
   transferir: boolean | null
@@ -561,6 +572,7 @@ export type WorkOrderWhereInput = {
   totalClienteCost?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
   transferir?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
@@ -606,6 +618,7 @@ export type WorkOrderOrderByWithRelationInput = {
   totalClienteCost?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
+  ingresoNeto?: Prisma.SortOrderInput | Prisma.SortOrder
   pagoRecibo?: Prisma.SortOrderInput | Prisma.SortOrder
   efectivo?: Prisma.SortOrderInput | Prisma.SortOrder
   transferir?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -654,6 +667,7 @@ export type WorkOrderWhereUniqueInput = Prisma.AtLeast<{
   totalClienteCost?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
   transferir?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
@@ -699,6 +713,7 @@ export type WorkOrderOrderByWithAggregationInput = {
   totalClienteCost?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
+  ingresoNeto?: Prisma.SortOrderInput | Prisma.SortOrder
   pagoRecibo?: Prisma.SortOrderInput | Prisma.SortOrder
   efectivo?: Prisma.SortOrderInput | Prisma.SortOrder
   transferir?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -750,6 +765,7 @@ export type WorkOrderScalarWhereWithAggregatesInput = {
   totalClienteCost?: Prisma.DecimalWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.DecimalNullableWithAggregatesFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.BoolNullableWithAggregatesFilter<"WorkOrder"> | boolean | null
   transferir?: Prisma.BoolNullableWithAggregatesFilter<"WorkOrder"> | boolean | null
@@ -792,6 +808,7 @@ export type WorkOrderCreateInput = {
   totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
@@ -836,6 +853,7 @@ export type WorkOrderUncheckedCreateInput = {
   totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
@@ -879,6 +897,7 @@ export type WorkOrderUpdateInput = {
   totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -923,6 +942,7 @@ export type WorkOrderUncheckedUpdateInput = {
   totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -967,6 +987,7 @@ export type WorkOrderCreateManyInput = {
   totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
@@ -1009,6 +1030,7 @@ export type WorkOrderUpdateManyMutationInput = {
   totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1051,6 +1073,7 @@ export type WorkOrderUncheckedUpdateManyInput = {
   totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1104,6 +1127,7 @@ export type WorkOrderCountOrderByAggregateInput = {
   totalClienteCost?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
+  ingresoNeto?: Prisma.SortOrder
   pagoRecibo?: Prisma.SortOrder
   efectivo?: Prisma.SortOrder
   transferir?: Prisma.SortOrder
@@ -1133,6 +1157,7 @@ export type WorkOrderAvgOrderByAggregateInput = {
   totalClienteCost?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
+  ingresoNeto?: Prisma.SortOrder
   pagoRecibo?: Prisma.SortOrder
   pagarAlEmbarque?: Prisma.SortOrder
   debidoABayside?: Prisma.SortOrder
@@ -1170,6 +1195,7 @@ export type WorkOrderMaxOrderByAggregateInput = {
   totalClienteCost?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
+  ingresoNeto?: Prisma.SortOrder
   pagoRecibo?: Prisma.SortOrder
   efectivo?: Prisma.SortOrder
   transferir?: Prisma.SortOrder
@@ -1213,6 +1239,7 @@ export type WorkOrderMinOrderByAggregateInput = {
   totalClienteCost?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
+  ingresoNeto?: Prisma.SortOrder
   pagoRecibo?: Prisma.SortOrder
   efectivo?: Prisma.SortOrder
   transferir?: Prisma.SortOrder
@@ -1242,6 +1269,7 @@ export type WorkOrderSumOrderByAggregateInput = {
   totalClienteCost?: Prisma.SortOrder
   deposito?: Prisma.SortOrder
   saldoCliente?: Prisma.SortOrder
+  ingresoNeto?: Prisma.SortOrder
   pagoRecibo?: Prisma.SortOrder
   pagarAlEmbarque?: Prisma.SortOrder
   debidoABayside?: Prisma.SortOrder
@@ -1375,6 +1403,7 @@ export type WorkOrderCreateWithoutCaptainInput = {
   totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
@@ -1418,6 +1447,7 @@ export type WorkOrderUncheckedCreateWithoutCaptainInput = {
   totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
@@ -1490,6 +1520,7 @@ export type WorkOrderScalarWhereInput = {
   totalClienteCost?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.DecimalNullableFilter<"WorkOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
   transferir?: Prisma.BoolNullableFilter<"WorkOrder"> | boolean | null
@@ -1532,6 +1563,7 @@ export type WorkOrderCreateWithoutReceiptsInput = {
   totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
@@ -1575,6 +1607,7 @@ export type WorkOrderUncheckedCreateWithoutReceiptsInput = {
   totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
@@ -1633,6 +1666,7 @@ export type WorkOrderUpdateWithoutReceiptsInput = {
   totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1676,6 +1710,7 @@ export type WorkOrderUncheckedUpdateWithoutReceiptsInput = {
   totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1719,6 +1754,7 @@ export type WorkOrderCreateManyCaptainInput = {
   totalClienteCost?: runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: boolean | null
   transferir?: boolean | null
@@ -1760,6 +1796,7 @@ export type WorkOrderUpdateWithoutCaptainInput = {
   totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1803,6 +1840,7 @@ export type WorkOrderUncheckedUpdateWithoutCaptainInput = {
   totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1846,6 +1884,7 @@ export type WorkOrderUncheckedUpdateManyWithoutCaptainInput = {
   totalClienteCost?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   deposito?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   saldoCliente?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  ingresoNeto?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   pagoRecibo?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   efectivo?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   transferir?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
@@ -1919,6 +1958,7 @@ export type WorkOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   totalClienteCost?: boolean
   deposito?: boolean
   saldoCliente?: boolean
+  ingresoNeto?: boolean
   pagoRecibo?: boolean
   efectivo?: boolean
   transferir?: boolean
@@ -1965,6 +2005,7 @@ export type WorkOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   totalClienteCost?: boolean
   deposito?: boolean
   saldoCliente?: boolean
+  ingresoNeto?: boolean
   pagoRecibo?: boolean
   efectivo?: boolean
   transferir?: boolean
@@ -2009,6 +2050,7 @@ export type WorkOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   totalClienteCost?: boolean
   deposito?: boolean
   saldoCliente?: boolean
+  ingresoNeto?: boolean
   pagoRecibo?: boolean
   efectivo?: boolean
   transferir?: boolean
@@ -2053,6 +2095,7 @@ export type WorkOrderSelectScalar = {
   totalClienteCost?: boolean
   deposito?: boolean
   saldoCliente?: boolean
+  ingresoNeto?: boolean
   pagoRecibo?: boolean
   efectivo?: boolean
   transferir?: boolean
@@ -2066,7 +2109,7 @@ export type WorkOrderSelectScalar = {
   captainId?: boolean
 }
 
-export type WorkOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "nombre" | "apellido" | "email" | "cell" | "cliente" | "clienteCell" | "clienteEmail" | "fecha" | "horaSalida" | "horaLlegado" | "destino" | "puntoEncuentro" | "pasajeros" | "detallesNotas" | "combustible" | "hielo" | "aguaBebidas" | "gastoVarios" | "pagoCapitana" | "pagoMarinero" | "precioAcordado" | "horasAcordadas" | "tarifaHora" | "cargoExtra" | "totalClienteCost" | "deposito" | "saldoCliente" | "pagoRecibo" | "efectivo" | "transferir" | "pagarAlEmbarque" | "debidoABayside" | "horasExtras" | "paymentMethod" | "horasExtrasEfectivo" | "horasExtrasTransferir" | "pagoHorasExtra" | "captainId", ExtArgs["result"]["workOrder"]>
+export type WorkOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdAt" | "nombre" | "apellido" | "email" | "cell" | "cliente" | "clienteCell" | "clienteEmail" | "fecha" | "horaSalida" | "horaLlegado" | "destino" | "puntoEncuentro" | "pasajeros" | "detallesNotas" | "combustible" | "hielo" | "aguaBebidas" | "gastoVarios" | "pagoCapitana" | "pagoMarinero" | "precioAcordado" | "horasAcordadas" | "tarifaHora" | "cargoExtra" | "totalClienteCost" | "deposito" | "saldoCliente" | "ingresoNeto" | "pagoRecibo" | "efectivo" | "transferir" | "pagarAlEmbarque" | "debidoABayside" | "horasExtras" | "paymentMethod" | "horasExtrasEfectivo" | "horasExtrasTransferir" | "pagoHorasExtra" | "captainId", ExtArgs["result"]["workOrder"]>
 export type WorkOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   captain?: boolean | Prisma.WorkOrder$captainArgs<ExtArgs>
   receipts?: boolean | Prisma.WorkOrder$receiptsArgs<ExtArgs>
@@ -2115,6 +2158,7 @@ export type $WorkOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     totalClienteCost: runtime.Decimal
     deposito: runtime.Decimal
     saldoCliente: runtime.Decimal
+    ingresoNeto: runtime.Decimal | null
     pagoRecibo: runtime.Decimal | null
     efectivo: boolean | null
     transferir: boolean | null
@@ -2580,6 +2624,7 @@ export interface WorkOrderFieldRefs {
   readonly totalClienteCost: Prisma.FieldRef<"WorkOrder", 'Decimal'>
   readonly deposito: Prisma.FieldRef<"WorkOrder", 'Decimal'>
   readonly saldoCliente: Prisma.FieldRef<"WorkOrder", 'Decimal'>
+  readonly ingresoNeto: Prisma.FieldRef<"WorkOrder", 'Decimal'>
   readonly pagoRecibo: Prisma.FieldRef<"WorkOrder", 'Decimal'>
   readonly efectivo: Prisma.FieldRef<"WorkOrder", 'Boolean'>
   readonly transferir: Prisma.FieldRef<"WorkOrder", 'Boolean'>

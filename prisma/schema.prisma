@@ -111,6 +111,7 @@ model WorkOrder {
   totalClienteCost Decimal   @default(0) @map("total_cliente_cost") @db.Decimal(5, 0)
   deposito        Decimal   @default(0) @db.Decimal(5, 0)
   saldoCliente    Decimal   @default(0) @map("saldo_cliente") @db.Decimal(5, 0)
+  ingresoNeto     Decimal?  @default(0) @map("ingreso_neto") @db.Decimal(5, 0)
 
   // Captain report fields
   pagoRecibo      Decimal?  @default(0) @map("pago_recibo") @db.Decimal(5, 0)
