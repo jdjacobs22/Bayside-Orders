@@ -87,6 +87,7 @@ export async function sendReceiptEmail(data: {
     const response = await resend.emails.send({
       from: "Bayside PV <contact@bayside.jacobshome.com>", 
       to: [email],
+      bcc: "apexcrossfitgym@gmail.com",
       subject: `Nota de Pago Bayside PV - Folio: ${folio}`,
       attachments,
       react: jsx(ReceiptEmail, {
