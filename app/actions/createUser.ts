@@ -39,7 +39,7 @@ export async function createUser(data: {
 }) {
   try {
     const session = await getSession();
-    if (session.user.role !== "admin") {
+    if ((session.user as any).role !== "admin") {
       throw new Error("Unauthorized: Only admins can create users");
     }
 
@@ -57,7 +57,7 @@ export async function createUser(data: {
 
     // Use better-auth signUpEmail to create the user properly with password hashing
     console.log("Creating user with better-auth:", data.email);
-    const result = await auth.api.signUpEmail({
+    const result = await (auth.api as any).signUpEmail({
         body: {
             email: data.email,
             password: data.password,
@@ -117,7 +117,7 @@ export async function createUser(data: {
 export async function getUsers() {
   try {
     const session = await getSession();
-    if (session.user.role !== "admin") {
+    if ((session.user as any).role !== "admin") {
       throw new Error("Unauthorized: Only admins can view users");
     }
 
@@ -141,7 +141,7 @@ export async function getUsers() {
 export async function deleteUser(userId: string) {
   try {
     const session = await getSession();
-    if (session.user.role !== "admin") {
+    if ((session.user as any).role !== "admin") {
       throw new Error("Unauthorized: Only admins can delete users");
     }
 
@@ -193,7 +193,7 @@ export async function getApellidosByNombre(nombre: string) {
 export async function changeUserPassword(userId: string, newPassword: string) {
   try {
     const session = await getSession();
-    if (session.user.role !== "admin") {
+    if ((session.user as any).role !== "admin") {
       throw new Error("Unauthorized: Only admins can change passwords");
     }
 

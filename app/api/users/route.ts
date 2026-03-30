@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     headers: await headers(),
   });
 
-  if (!session || (session.user.role !== "admin" && session.user.role !== "representante")) {
+  if (!session || ((session.user as any).role !== "admin" && (session.user as any).role !== "representante")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

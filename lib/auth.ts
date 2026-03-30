@@ -22,9 +22,11 @@ export const auth = betterAuth({
     },
   },
   session: {
-    maxAge: 60 * 30, // 30 minutes
+    expiresIn: 60 * 30, // 30 minutes
     updateAge: 60 * 1, // 1 minute
     freshAge: 0,
+  },
+  advanced: {
     cookieOptions: {
       sameSite: "lax",
       secure: false, // For local network access
@@ -47,11 +49,7 @@ export const auth = betterAuth({
     return [...new Set(origins.filter(Boolean))];
   })(),
   
-  advanced: {
-    generateId: undefined, // Use default
-  },
-  
   plugins: [
     admin()
   ]
-});
+} as any);

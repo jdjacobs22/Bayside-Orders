@@ -6,7 +6,7 @@ async function main() {
 
   try {
     // Create Admin
-    await auth.api.signUpEmail({
+    await (auth.api as any).signUpEmail({
       body: {
         email: "admin@bayside.com",
         password: "password123",
@@ -24,7 +24,7 @@ async function main() {
 
   try {
     // Create Captain
-    await auth.api.signUpEmail({
+    await (auth.api as any).signUpEmail({
       body: {
         email: "captain@bayside.com",
         password: "password123",

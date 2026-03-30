@@ -32,7 +32,10 @@ export default async function AdminDashboard() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  const userRole = session?.user?.role;
+  if (!session || (session.user as any).role !== "admin") {
+    return <div>Acceso Denegado</div>;
+  }
+  const userRole = (session.user as any).role;
 
   const allDashboardCards = [
     {

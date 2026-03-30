@@ -40,7 +40,7 @@ export default async function authMiddleware(request: NextRequest) {
 	}
 
     // Role checks
-    const userRole = session.user.role;
+    const userRole = (session.user as any).role;
     console.log("Proxy: User role:", userRole);
 
     if (request.nextUrl.pathname.startsWith("/admin")) {

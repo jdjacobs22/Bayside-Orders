@@ -57,7 +57,7 @@ export async function sendReceiptEmail(data: {
       headers: await headers(),
     });
     
-    if (!session || session.user.role !== "admin") {
+    if (!session || (session.user as any).role !== "admin") {
       return { success: false, error: "Unauthorized: Only admins can send payment receipts." };
     }
 

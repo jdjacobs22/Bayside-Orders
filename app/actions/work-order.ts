@@ -132,8 +132,8 @@ export async function createWorkOrder(data: any, role: "admin" | "captain" = "ad
   try {
     const session = await getSession();
     // Validate role permissions - Create is generally Admin only, but if Captains can create:
-    if (role === "captain" && session.user.role !== "captain") throw new Error("Role mismatch");
-    if (role === "admin" && (session.user.role !== "admin" && session.user.role !== "representante")) throw new Error("Role mismatch");
+    if (role === "captain" && (session.user as any).role !== "captain") throw new Error("Role mismatch");
+    if (role === "admin" && ((session.user as any).role !== "admin" && (session.user as any).role !== "representante")) throw new Error("Role mismatch");
     
     // Additional security: Maybe captains can only create if assigned? 
     // For now assuming existing flow is correct, but let's enforce role check.
@@ -204,7 +204,7 @@ export async function getWorkOrders() {
     const session = await getSession();
     
     const whereClause: any = {};
-    if (session.user.role === "captain") {
+    if ((session.user as any).role === "captain") {
         whereClause.captainId = session.user.id;
     }
 
@@ -242,11 +242,11 @@ export async function getWorkOrder(id: number) {
     if (!order) return { success: false, error: `La orden #${id} no existe.` };
 
     // RBAC Check
-    if (session.user.role === "captain") {
+    if ((session.user as any).role === "captain") {
         if (order.captainId !== session.user.id) {
             return { success: false, error: "No tienes autorización para acceder a esta orden." };
         }
-    } else if (session.user.role !== "admin" && session.user.role !== "representante") {
+    } else if ((session.user as any).role !== "admin" && (session.user as any).role !== "representante") {
         // Fallback for any other future roles, though only captain/admin exist now
         return { success: false, error: "Unauthorized" };
     }
@@ -288,11 +288,11 @@ export async function updateWorkOrder(id: number, data: any, role: "admin" | "ca
     
     if (!existingOrder) return { success: false, error: "Order not found" };
 
-    if (session.user.role === "captain") {
+    if ((session.user as any).role === "captain") {
         if (existingOrder.captainId !== session.user.id) {
              return { success: false, error: "Unauthorized: You cannot edit this order." };
         }
-    } else if (session.user.role !== "admin" && session.user.role !== "representante") {
+    } else if ((session.user as any).role !== "admin" && (session.user as any).role !== "representante") {
          return { success: false, error: "Unauthorized" };
     }
 
@@ -381,7 +381,7 @@ export async function updateWorkOrder(id: number, data: any, role: "admin" | "ca
 export async function deleteWorkOrder(id: number) {
   try {
     const session = await getSession();
-    if (session.user.role !== "admin" && session.user.role !== "representante") {
+    if ((session.user as any).role !== "admin" && (session.user as any).role !== "representante") {
         return { success: false, error: "Unauthorized: Only admins can delete orders" };
     }
     // Validate that id is a valid number
@@ -544,7 +544,7 @@ export async function uploadReceipt(formData: FormData) {
     }
     
     // Verify ownership if captain
-    if (session.user.role === "captain") {
+    if ((session.user as any).role === "captain") {
         const order = await prisma.workOrder.findUnique({ 
             where: { id: orderId },
             select: { captainId: true }
@@ -552,7 +552,7 @@ export async function uploadReceipt(formData: FormData) {
         if (!order || order.captainId !== session.user.id) {
             return { success: false, error: "Unauthorized: You cannot upload to this order." };
         }
-    } else if (session.user.role !== "admin" && session.user.role !== "representante") {
+    } else if ((session.user as any).role !== "admin" && (session.user as any).role !== "representante") {
         return { success: false, error: "Unauthorized" };
     }
 
