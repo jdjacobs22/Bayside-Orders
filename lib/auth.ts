@@ -67,10 +67,7 @@ export const auth = betterAuth({
     freshAge: 0,
   },
   advanced: {
-    cookieOptions: {
-      sameSite: "lax",
-      secure: false, // For local network access
-    },
+    useSecureCookies: false, // For local network access
   },
   // Base URL for cookies
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
