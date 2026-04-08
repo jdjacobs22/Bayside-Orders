@@ -5,11 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev          # Start development server (Turbopack)
-npm run build        # Production build
-npm run lint         # ESLint
-npm run test         # Vitest in watch mode
-npm run test:run     # Vitest single run
+pnpm run dev          # Start development server (Turbopack)
+pnpm run build        # Production build
+pnpm run lint         # ESLint
+pnpm run test         # Vitest in watch mode
+pnpm run test:run     # Vitest single run
 ```
 
 Run a single test file:

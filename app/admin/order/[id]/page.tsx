@@ -11,6 +11,7 @@ import WorkOrderForm from "@/components/WorkOrderForm";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { deleteWorkOrder } from "@/app/actions/work-order";
+import { authClient } from "@/lib/auth-client";
 import AdminHeader from "@/components/AdminHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -29,6 +30,8 @@ export default function AdminOrderView() {
   const id = params?.id as string;
   const orderId = parseInt(id);
   const [deleting, setDeleting] = useState(false);
+  const { data: session } = authClient.useSession();
+  const isAdmin = session?.user?.role === "admin";
 
   // Validate the ID
   if (!id || isNaN(orderId)) {
@@ -91,24 +94,26 @@ export default function AdminOrderView() {
         backLabel="Back to List"
         showBackButton={true}
         rightActions={
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={handleDelete}
-            disabled={deleting}
-          >
-            {deleting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Deleting...
-              </>
-            ) : (
-              <>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Order
-              </>
-            )}
-          </Button>
+          isAdmin && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Order
+                </>
+              )}
+            </Button>
+          )
         }
       />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">

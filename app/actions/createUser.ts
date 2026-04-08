@@ -55,50 +55,60 @@ export async function createUser(data: {
       return { success: false, error: "Ya existe un usuario con este Nombre y Apellido." };
     }
 
-    // Use better-auth signUpEmail to create the user properly with password hashing
-    console.log("Creating user with better-auth:", data.email);
-    const result = await (auth.api as any).signUpEmail({
+    // STEP 1: Create the account structure using the CORE API.
+    // This handles the password hashing and basic user entry.
+    // We do NOT pass the role here to avoid security blocks; it will default to 'user'.
+    console.log("Step 1: Creating user foundation with signUpEmail:", data.email);
+    const api = (auth as any).api;
+    
+    if (!api || !api.signUpEmail) {
+        throw new Error("Better-Auth signUpEmail API not found.");
+    }
+
+    const signUpResult = await api.signUpEmail({
+        headers: await headers(),
         body: {
             email: data.email,
             password: data.password,
-            name: `${data.nombre} ${data.apellido}`, 
-            nombre: data.nombre,
-            apellido: data.apellido,
-            cell: data.cell,
-            role: data.role,
+            name: `${data.nombre} ${data.apellido}`,
         }
     });
 
-    if (!result || !result.user) {
-        console.error("Better-auth signUpEmail returned no user", result);
-        throw new Error("Failed to create user with authentication");
+    if (!signUpResult || !signUpResult.user) {
+        console.error("Step 1 Failed: Better-auth signUpEmail returned no user", signUpResult);
+        throw new Error("Failed to create user account profile");
     }
 
-    console.log("Better-auth created user object:", JSON.stringify(result.user));
+    const userId = signUpResult.user.id;
+    console.log("Step 1 Success: User created with ID:", userId);
 
-    // VERIFICATION: Check Prisma directly to see if it's in the DB
-    const dbUser = await prisma.user.findUnique({
-      where: { email: data.email }
+    // STEP 2: Force the Role and Custom Fields via Prisma.
+    // This is the only way to bypass the library's internal field-stripping.
+    console.log("Step 2: Directly updating Role and Custom Fields via Prisma...");
+    const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+            role: data.role,
+            nombre: data.nombre,
+            apellido: data.apellido,
+            cell: data.cell,
+        }
     });
 
-    if (dbUser) {
-      console.log("VERIFIED: User exists in DB via Prisma:", dbUser.id);
-    } else {
-      console.error("CRITICAL: User was NOT found in DB via Prisma after creation attempt!");
-    }
+    console.log("Step 2 Success: User profile finalized with role:", updatedUser.role);
 
-    revalidatePath("/admin");
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/add-user");
     
-    // Return ONLY the necessary plain data to avoid serialization errors
     return { 
       success: true, 
-      verifiedInDb: !!dbUser,
+      verifiedInDb: true,
       data: {
-        id: result.user.id,
-        email: result.user.email,
-        nombre: (result.user as any).nombre,
-        apellido: (result.user as any).apellido,
-        role: (result.user as any).role,
+        id: userId,
+        email: updatedUser.email,
+        nombre: updatedUser.nombre,
+        apellido: updatedUser.apellido,
+        role: updatedUser.role,
       }
     };
   } catch (error: any) {

@@ -16,9 +16,9 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: { type: "string" },
-      nombre: { type: "string" },
-      apellido: { type: "string" },
-      cell: { type: "string" },
+      nombre: { type: "string", input: true },
+      apellido: { type: "string", input: true },
+      cell: { type: "string", input: true },
     },
   },
   session: {

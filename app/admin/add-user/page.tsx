@@ -6,9 +6,10 @@
  */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createUser } from "@/app/actions/createUser";
+import { authClient } from "@/lib/auth-client";
 import AdminHeader from "@/components/AdminHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,14 @@ export default function AdminCreateUser() {
         password: "",
         role: "captain" as "admin" | "captain" | "representante",
     });
+
+    const { data: session, isPending } = authClient.useSession();
+
+    useEffect(() => {
+        if (!isPending && session && session.user?.role !== "admin") {
+            router.push("/admin");
+        }
+    }, [session, isPending, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

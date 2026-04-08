@@ -381,7 +381,7 @@ export async function updateWorkOrder(id: number, data: any, role: "admin" | "ca
 export async function deleteWorkOrder(id: number) {
   try {
     const session = await getSession();
-    if ((session.user as any).role !== "admin" && (session.user as any).role !== "representante") {
+    if ((session.user as any).role !== "admin") {
         return { success: false, error: "Unauthorized: Only admins can delete orders" };
     }
     // Validate that id is a valid number

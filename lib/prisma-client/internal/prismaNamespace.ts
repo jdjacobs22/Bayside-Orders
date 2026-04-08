@@ -900,6 +900,7 @@ export const UserScalarFieldEnum = {
   email: 'email',
   emailVerified: 'emailVerified',
   role: 'role',
+  banned: 'banned',
   cell: 'cell',
   image: 'image',
   createdAt: 'createdAt',

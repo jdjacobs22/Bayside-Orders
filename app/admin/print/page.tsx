@@ -8,7 +8,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 import * as z from "zod";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -111,6 +113,14 @@ export default function BaysidePaymentForm() {
       recibio: "",
     },
   });
+
+  const { data: session, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    if (!isPending && session && session.user?.role !== "admin") {
+      router.push("/admin");
+    }
+  }, [session, isPending, router]);
 
   const total = useWatch({ control: form.control, name: "total" });
   const deposito = useWatch({ control: form.control, name: "deposito" });

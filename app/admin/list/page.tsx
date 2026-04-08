@@ -12,6 +12,7 @@ import { es } from "date-fns/locale";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getWorkOrders, deleteWorkOrder } from "@/app/actions/work-order";
+import { authClient } from "@/lib/auth-client";
 import AdminHeader from "@/components/AdminHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,9 @@ export default function AdminOrderList() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const { data: session } = authClient.useSession();
+  const isAdmin = session?.user?.role === "admin";
 
   useEffect(() => {
     async function fetchOrders() {
@@ -149,19 +153,21 @@ export default function AdminOrderList() {
                                 <Pencil className="h-4 w-4" />
                               </Link>
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDelete(order.id, order.nombre)}
-                              disabled={deletingId === order.id}
-                              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                            >
-                              {deletingId === order.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                            </Button>
+                            {isAdmin && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete(order.id, order.nombre)}
+                                disabled={deletingId === order.id}
+                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                              >
+                                {deletingId === order.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>

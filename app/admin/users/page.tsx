@@ -6,6 +6,9 @@
  */
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 import AdminHeader from "@/components/AdminHeader";
 import AdminUserList from "@/components/AdminUserList";
 
@@ -15,6 +18,14 @@ import AdminUserList from "@/components/AdminUserList";
  * Renders the user management view within the admin namespace.
  */
 export default function UsersListPage() {
+  const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    if (!isPending && session && session.user?.role !== "admin") {
+      router.push("/admin");
+    }
+  }, [session, isPending, router]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
       <AdminHeader title="All System Users" />
