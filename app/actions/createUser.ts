@@ -2,8 +2,6 @@
  * createUser.ts
  * 
  * Server actions for user management.
- * Handles the creation of new user accounts (Admin/Captain) using better-auth,
- * retrieving lists of users, and deleting users from the system.
  */
 "use server";
 
@@ -23,11 +21,9 @@ async function getSession() {
 }
 
 /**
- * Creates a new system user (Admin or Captain).
- * Uses better-auth's API to handle password hashing and session management.
- * 
- * @param data - The user's registration details (name, email, cell, password, role).
- * @returns A success status and the newly created user data, or an error message.
+ * Creates a new system user (Admin, Captain, or Representante).
+ * uses the official better-auth Admin API for secure account creation,
+ * allowing roles to be assigned by administrators.
  */
 export async function createUser(data: {
   nombre: string;
@@ -43,7 +39,7 @@ export async function createUser(data: {
       throw new Error("Unauthorized: Only admins can create users");
     }
 
-    // Check for existing name combination before creating
+    // Check for existing user collision
     const existingName = await prisma.user.findFirst({
       where: {
         nombre: { equals: data.nombre.trim(), mode: 'insensitive' },
@@ -55,39 +51,22 @@ export async function createUser(data: {
       return { success: false, error: "Ya existe un usuario con este Nombre y Apellido." };
     }
 
-    // STEP 1: Create the account structure using the CORE API.
-    // This handles the password hashing and basic user entry.
-    // We do NOT pass the role here to avoid security blocks; it will default to 'user'.
-    console.log("Step 1: Creating user foundation with signUpEmail:", data.email);
+    // Official Single-Call Creation via Admin API.
+    // The databaseInterceptor in lib/auth.ts ensures custom fields (nombre, etc.)
+    // are correctly persisted in the same transaction.
     const api = (auth as any).api;
-    
-    if (!api || !api.signUpEmail) {
-        throw new Error("Better-Auth signUpEmail API not found.");
+    const adminCreateUser = api.admin?.createUser || api.createUser;
+
+    if (!adminCreateUser) {
+        throw new Error("Better-Auth admin API not found.");
     }
 
-    const signUpResult = await api.signUpEmail({
+    const result = await adminCreateUser({
         headers: await headers(),
         body: {
             email: data.email,
             password: data.password,
             name: `${data.nombre} ${data.apellido}`,
-        }
-    });
-
-    if (!signUpResult || !signUpResult.user) {
-        console.error("Step 1 Failed: Better-auth signUpEmail returned no user", signUpResult);
-        throw new Error("Failed to create user account profile");
-    }
-
-    const userId = signUpResult.user.id;
-    console.log("Step 1 Success: User created with ID:", userId);
-
-    // STEP 2: Force the Role and Custom Fields via Prisma.
-    // This is the only way to bypass the library's internal field-stripping.
-    console.log("Step 2: Directly updating Role and Custom Fields via Prisma...");
-    const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: {
             role: data.role,
             nombre: data.nombre,
             apellido: data.apellido,
@@ -95,20 +74,21 @@ export async function createUser(data: {
         }
     });
 
-    console.log("Step 2 Success: User profile finalized with role:", updatedUser.role);
+    if (!result || !result.user) {
+        throw new Error("Failed to create user through authentication library");
+    }
 
     revalidatePath("/admin/users");
     revalidatePath("/admin/add-user");
     
     return { 
       success: true, 
-      verifiedInDb: true,
       data: {
-        id: userId,
-        email: updatedUser.email,
-        nombre: updatedUser.nombre,
-        apellido: updatedUser.apellido,
-        role: updatedUser.role,
+        id: result.user.id,
+        email: result.user.email,
+        nombre: (result.user as any).nombre,
+        apellido: (result.user as any).apellido,
+        role: (result.user as any).role,
       }
     };
   } catch (error: any) {
@@ -119,10 +99,7 @@ export async function createUser(data: {
 }
 
 /**
- * Retrieves all registered system users from the database.
- * Restricted to Admin access only.
- * 
- * @returns A success status and the list of user records.
+ * Retrieves all registered system users.
  */
 export async function getUsers() {
   try {
@@ -142,11 +119,7 @@ export async function getUsers() {
 }
 
 /**
- * Deletes a system user by their unique ID.
- * Restricted to Admin access only.
- * 
- * @param userId - The unique identifier of the user to remove.
- * @returns A success status.
+ * Deletes a system user. 
  */
 export async function deleteUser(userId: string) {
   try {
@@ -167,10 +140,7 @@ export async function deleteUser(userId: string) {
 }
 
 /**
- * Search helper to find unique last names associated with a first name.
- * 
- * @param nombre - The first name to search for.
- * @returns A list of unique last names (apellidos) that match the search string.
+ * Search helper for names.
  */
 export async function getApellidosByNombre(nombre: string) {
   if (!nombre || nombre.trim() === "") return { success: true, data: [] };
@@ -193,12 +163,7 @@ export async function getApellidosByNombre(nombre: string) {
 }
 
 /**
- * Administrative password reset for a specific user ID.
- * Uses the better-auth admin plugin to bypass current password requirement.
- * 
- * @param userId - The target user's unique ID.
- * @param newPassword - The new password to set.
- * @returns Success or error status.
+ * Admin password reset.
  */
 export async function changeUserPassword(userId: string, newPassword: string) {
   try {
@@ -207,19 +172,7 @@ export async function changeUserPassword(userId: string, newPassword: string) {
       throw new Error("Unauthorized: Only admins can change passwords");
     }
 
-    console.log("Attempting administrative password reset for user ID:", userId);
-    
-    // Better-auth 1.x admin plugin exposes methods via auth.api.admin
-    // in some versions it's flattened as auth.api.setUserPassword
-    // We explicitly cast to any to reach the dynamic plugin methods
     const api = (auth as any).api;
-    
-    if (!api) {
-        throw new Error("Better-Auth API not found.");
-    }
-
-    // setUserPassword is the specific method for admin resets
-    // We MUST pass headers so the admin plugin can verify the session
     const resetMethod = api.setUserPassword || api.admin?.setUserPassword;
 
     if (!resetMethod) {
@@ -234,7 +187,6 @@ export async function changeUserPassword(userId: string, newPassword: string) {
         }
     });
 
-    console.log("Password reset successfully confirmed for user ID:", userId);
     revalidatePath("/admin/users");
     return { success: true };
   } catch (error: any) {

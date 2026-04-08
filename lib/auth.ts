@@ -5,6 +5,10 @@ import prisma from "@/lib/db";
 
 /**
  * Better-Auth Configuration
+ * 
+ * Configures the authentication system with Prisma adapter and Admin plugin.
+ * Includes a database interceptor (hook) to ensure custom fields are correctly 
+ * persisted during user creation across all API entry points.
  */
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -15,10 +19,46 @@ export const auth = betterAuth({
   },
   user: {
     additionalFields: {
-      role: { type: "string" },
-      nombre: { type: "string", input: true },
-      apellido: { type: "string", input: true },
-      cell: { type: "string", input: true },
+      role: { type: "string", required: true, input: true },
+      nombre: { type: "string", required: true, input: true },
+      apellido: { type: "string", required: true, input: true },
+      cell: { type: "string", required: true, input: true },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user, context) => {
+          // INTERCEPTOR: Ensures that custom fields provided in the request body
+          // are merged into the final database creation payload, bypassing 
+          // any internal library stripping.
+          // Note: Better-Auth context may store input in 'body', 'params', 'input', or 'data'
+          // depending on the API entry point (e.g., signUpEmail vs admin.createUser).
+          const ctx = context as any;
+          const body = ctx.body || ctx.params || ctx.input || ctx.data || {};
+          
+          console.log("[Better-Auth Hook] Detected Input Data:", JSON.stringify(body));
+          console.log("[Better-Auth Hook] Incoming User Object:", JSON.stringify(user));
+
+          // Fallback logic if nombre/apellido are missing from both body and incoming user object
+          // We can try to derive them from the 'name' field which Better-Auth usually populates
+          const fallbackNombre = user.name?.split(" ")[0] || "";
+          const fallbackApellido = user.name?.split(" ").slice(1).join(" ") || "";
+
+          // Ensure we don't return undefined for required fields to avoid Prisma validation errors
+          const result = {
+            data: {
+              ...user,
+              nombre: body.nombre || (user as any).nombre || fallbackNombre,
+              apellido: body.apellido || (user as any).apellido || fallbackApellido,
+              cell: body.cell || (user as any).cell || "",
+              role: body.role || (user as any).role || "user",
+            },
+          };
+          console.log("[Better-Auth Hook] Final Merged User:", JSON.stringify(result.data));
+          return result;
+        },
+      },
     },
   },
   session: {
@@ -37,14 +77,12 @@ export const auth = betterAuth({
   
   trustedOrigins: (() => {
     const origins: string[] = [
-      "http://10.0.0.17:8765", // <-- YOUR ACTIVE LOCAL IP IS HERE
+      "http://10.0.0.17:8765",
       "http://10.0.0.17:3000",
       "https://workorder.jacobshomenet.casa",
       "http://localhost:3000",
       "http://localhost:8765",
       "http://127.0.0.1:3000",
-      "https://bayside-orders.vercel.app",
-      // Production Vercel project URL (VERCEL_URL is often a *deployment* host, not this alias)
       "https://bayside-orders.vercel.app",
     ];
     const pushOrigin = (value: string | undefined) => {
@@ -75,4 +113,4 @@ export const auth = betterAuth({
   plugins: [
     admin()
   ]
-} as any);
+});

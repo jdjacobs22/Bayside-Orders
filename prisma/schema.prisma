@@ -10,21 +10,20 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   name          String?
-  nombre        String?
-  apellido      String?
-  email         String
-  emailVerified Boolean
+  nombre        String
+  apellido      String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
   role          Role      @default(captain)
-  banned        Boolean?   @default(false)
-  cell          String?
+  banned        Boolean   @default(false)
+  cell          String
   image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
   assignedOrders WorkOrder[] @relation("CaptainOrders")
 
-  @@unique([email])
   @@unique([nombre, apellido])
   @@map("user")
 }
@@ -32,15 +31,14 @@ model User {
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
-  createdAt DateTime
-  updatedAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@map("session")
 }
 
@@ -57,8 +55,8 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
-  createdAt             DateTime
-  updatedAt             DateTime
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   @@map("account")
 }

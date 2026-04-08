@@ -1,56 +1,57 @@
+import "dotenv/config";
 import prisma from "@/lib/db";
 import { auth } from "@/lib/auth";
 
 async function main() {
   console.log("Seeding database...");
 
-  try {
-    // Create Admin
-    await (auth.api as any).signUpEmail({
-      body: {
-        email: "admin@bayside.com",
-        password: "password123",
-        name: "Admin User",
-        nombre: "Admin",
-        apellido: "Base",
-        cell: "0000000000",
-        role: "admin",
-      },
+  const users = [
+    {
+      email: "admin@bayside.com",
+      password: "password123",
+      name: "Admin User",
+      nombre: "Admin",
+      apellido: "Base",
+      cell: "0000000000",
+      role: "admin",
+    },
+    {
+      email: "captain@bayside.com",
+      password: "password123",
+      name: "Captain User",
+      nombre: "Captain",
+      apellido: "Test",
+      cell: "1111111111",
+      role: "captain",
+    },
+  ];
+
+  for (const userData of users) {
+    try {
+      console.log(`Checking/Creating user: ${userData.email}`);
+      // Remove role from body as Better-Auth may block it during sign-up
+      const { role, ...signUpData } = userData;
+      await (auth.api as any).signUpEmail({
+        body: signUpData,
+      });
+      console.log(`Created user: ${userData.email}`);
+    } catch (e: any) {
+      if (e.code === "USER_ALREADY_EXISTS" || e.message?.includes("already exists")) {
+        console.log(`User ${userData.email} already exists, skipping creation.`);
+      } else {
+        console.error(`Failed to create ${userData.email}:`, e);
+      }
+    }
+
+    // Ensure role is correct (sometimes sign-up might default it)
+    await prisma.user.update({
+      where: { email: userData.email },
+      data: { role: userData.role as any },
     });
-    console.log("Created Admin User");
-  } catch (e) {
-    console.log("Admin user might already exist");
+    console.log(`Role for ${userData.email} ensured as ${userData.role}`);
   }
 
-  try {
-    // Create Captain
-    await (auth.api as any).signUpEmail({
-      body: {
-        email: "captain@bayside.com",
-        password: "password123",
-        name: "Captain User",
-        nombre: "Captain",
-        apellido: "Test",
-        cell: "1111111111",
-        role: "captain",
-      },
-    });
-    console.log("Created Captain User");
-  } catch (e) {
-    console.log("Captain user might already exist");
-  }
-
-  // Update Roles
-  await prisma.user.update({
-    where: { email: "admin@bayside.com" },
-    data: { role: "admin" },
-  });
-  await prisma.user.update({
-    where: { email: "captain@bayside.com" },
-    data: { role: "captain" },
-  });
-
-  console.log("Roles updated.");
+  console.log("Seeding complete.");
 }
 
 main()
