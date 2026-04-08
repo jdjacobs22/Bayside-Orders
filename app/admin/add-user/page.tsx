@@ -56,7 +56,7 @@ export default function AdminCreateUser() {
         const res = await createUser(formData);
 
         if (res.success && res.data) {
-            alert(`User created successfully!\nVerified in DB: ${res.verifiedInDb ? 'YES' : 'NO'}`);
+            alert(`User created successfully!`);
             router.push("/admin");
         } else {
             alert("Error creating user: " + res.error);
