@@ -25,7 +25,7 @@ npx prisma migrate dev
 
 ## Architecture
 
-**Work order management system** for Bayside PV (boat tour company). Admins create and manage charter work orders; captains fill in post-trip expense/payment details.
+**Work order management system** for Bayside PV (boat tour company). Admins create and manage charter work orders; captains fill in post-trip expense/payment details.  It was vibe coded principally using Gemini and thus is bloated and may have incorrect code.
 
 ### Tech Stack
 - **Next.js App Router** with React Server Components and Server Actions

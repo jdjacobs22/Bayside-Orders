@@ -78,6 +78,12 @@ export async function createUser(data: {
         throw new Error("Failed to create user through authentication library");
     }
 
+    // Explicitly persist cell since Better Auth admin API may strip custom fields
+    await prisma.user.update({
+        where: { id: result.user.id },
+        data: { cell: data.cell },
+    });
+
     revalidatePath("/admin/users");
     revalidatePath("/admin/add-user");
     
