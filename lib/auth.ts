@@ -74,7 +74,7 @@ export const auth = betterAuth({
   
   trustedOrigins: (() => {
     const origins: string[] = [
-      "http://10.0.0.17:8765",
+      "http://10.0.0.25:8765",
       "http://10.0.0.17:3000",
       "https://workorder.jacobshomenet.casa",
       "http://localhost:3000",

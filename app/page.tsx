@@ -40,12 +40,26 @@ function LandingPageContent() {
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const { data: session, isPending } = authClient.useSession();
 
+  // Initialized at component creation (before any effects) so it survives the
+  // router.replace("/") re-render that wipes the URL param and sessionStorage flag.
+  // Stays true for the lifetime of this component instance; resets on full navigation.
+  const justSignedOutRef = useRef(
+    typeof window !== "undefined" &&
+      (sessionStorage.getItem("justSignedOut") === "true" ||
+        new URLSearchParams(window.location.search).get("signout") === "true")
+  );
+
   // Clear form fields on mount, especially after sign-out
   useEffect(() => {
     const isSignOut = searchParams.get("signout") === "true";
     const justSignedOut =
       typeof window !== "undefined" &&
       sessionStorage.getItem("justSignedOut") === "true";
+
+    // Keep ref in sync — covers the case where only the URL param fires this effect
+    if (isSignOut || justSignedOut) {
+      justSignedOutRef.current = true;
+    }
 
     // If we just signed out, trigger the "Gate" to prevent autofill flash
     if (justSignedOut) {
@@ -99,19 +113,22 @@ function LandingPageContent() {
   }, [searchParams, router]);
 
   useEffect(() => {
-    if (session) {
-      console.log("Active session detected on landing page:", session.user?.email, (session.user as any)?.role);
-      const role = (session.user as any).role;
-      if (role === "admin" || role === "representante") {
-        router.push("/admin");
-      } else {
-        router.push("/captain");
-      }
+    // Don't auto-redirect if we just signed out — the session cookie may still be
+    // technically valid (HttpOnly cookies can't be cleared from JS), but the user
+    // explicitly signed out and should stay on the login page.
+    if (!session || justSignedOutRef.current) return;
+
+    console.log("Active session detected on landing page:", session.user?.email, (session.user as any)?.role);
+    const role = (session.user as any).role;
+    if (role === "admin" || role === "representante") {
+      router.push("/admin");
+    } else {
+      router.push("/captain");
     }
   }, [session, router]);
 
   const handleSignIn = async () => {
-    if (isPending || session) return; // Prevent double sign-in or sign-in during check
+    if (isPending || (session && !justSignedOutRef.current)) return; // Prevent double sign-in, but allow re-sign-in after sign-out
 
     console.log("Attempting sign in with", email);
     try {
@@ -127,6 +144,9 @@ function LandingPageContent() {
         alert("Login Failed: " + result.error.message);
         return;
       }
+
+      // Clear sign-out guard so auto-redirect works if navigation loops back to "/"
+      justSignedOutRef.current = false;
 
       const user = result?.data?.user as any;
       const userRole = user?.role;
@@ -148,7 +168,7 @@ function LandingPageContent() {
     }
   };
 
-  if (isPending || (session && !isHidingForSignOut)) {
+  if (isPending || (session && !isHidingForSignOut && !justSignedOutRef.current)) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 p-4">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
