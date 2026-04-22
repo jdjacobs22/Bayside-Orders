@@ -41,7 +41,7 @@ export default function AdminOrderList() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const { data: session } = authClient.useSession();
-  const isAdmin = session?.user?.role === "admin";
+  const canDelete = session?.user?.role === "admin" || session?.user?.role === "representante";
 
   useEffect(() => {
     async function fetchOrders() {
@@ -153,7 +153,7 @@ export default function AdminOrderList() {
                                 <Pencil className="h-4 w-4" />
                               </Link>
                             </Button>
-                            {isAdmin && (
+                            {canDelete && (
                               <Button
                                 variant="ghost"
                                 size="sm"

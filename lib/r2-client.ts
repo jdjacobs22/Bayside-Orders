@@ -1,6 +1,6 @@
 "use server";
 
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
 interface UploadPhotoParams {
   file: File;
@@ -50,6 +50,38 @@ function getR2Client() {
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
     },
   });
+}
+
+/**
+ * Deletes one or more photos from R2 given their public URLs.
+ * Derives the R2 object key from the URL path.
+ * Errors are logged but do not throw — deletion is best-effort.
+ */
+export async function deleteReceiptsFromR2(urls: string[]): Promise<void> {
+  if (!urls.length) return;
+
+  const bucket = process.env.R2_BUCKET_NAME;
+  if (!bucket) {
+    console.error("R2_BUCKET_NAME not configured — skipping R2 deletion");
+    return;
+  }
+
+  const r2Client = getR2Client();
+
+  await Promise.all(
+    urls.map(async (url) => {
+      try {
+        // Derive the R2 key from the URL path (strip leading slash)
+        const key = new URL(url).pathname.slice(1);
+        await r2Client.send(
+          new DeleteObjectCommand({ Bucket: bucket, Key: key })
+        );
+        console.log(`Deleted from R2: ${key}`);
+      } catch (err) {
+        console.error(`Failed to delete R2 object for URL ${url}:`, err);
+      }
+    })
+  );
 }
 
 export async function uploadPhotoToR2(

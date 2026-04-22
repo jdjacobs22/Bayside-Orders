@@ -1,0 +1,711 @@
+TEST DOCUMENTATION — BAYSIDE PV WORK ORDER SYSTEM
+===================================================
+Total: 176 tests across 13 test files
+Runner: Vitest 1.6.1
+Run all: pnpm run test:run
+
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 1 — LIBRARY TESTS  (tests/lib/)
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/lib/utils.test.ts  (4 tests)
+PURPOSE: Verifies the cn() class-name utility used throughout all UI components.
+         cn() wraps clsx + tailwind-merge: it merges class strings and resolves
+         Tailwind conflicts so the last class wins.
+────────────────────────────────────────────────────────────────────────────────
+
+  cn (class name merger)
+  ├── merges multiple class strings
+  │     cn("foo", "bar") → "foo bar"
+  │
+  ├── handles conditional objects
+  │     cn("base", { active: true, disabled: false }) → "base active"
+  │
+  ├── deduplicates conflicting Tailwind classes
+  │     cn("px-2 py-1", "px-4") → "py-1 px-4"
+  │     The later px-4 wins; px-2 is stripped.
+  │
+  └── handles undefined and null
+        cn("a", undefined, null, "b") → "a b"
+        Falsy values are silently dropped.
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/lib/schemas.test.ts  (21 tests)
+PURPOSE: Verifies the Zod validation schemas in lib/schemas.ts that gate all
+         work order form submissions.  Three schema layers are tested:
+           - Time24HourSchema / DateDMYSchema  (field-level primitives)
+           - getBaseSchema()                   (shared fields for all roles)
+           - getAdminSchema()                  (admin submission rules)
+           - getCaptainSchema()                (captain submission rules)
+────────────────────────────────────────────────────────────────────────────────
+
+  Time24HourSchema
+  ├── accepts valid 24-hour times
+  │     "00:00", "12:30", "23:59", "09:05" all pass.
+  │
+  └── rejects invalid 24-hour times
+        "25:00", "24:00", "12:60", "9:30" (missing leading zero),
+        "12:5", and "" all throw.
+
+  DateDMYSchema
+  ├── accepts valid dd/mm/yyyy dates
+  │     "15/03/2025", "01/01/2020", "31/12/2024" all pass.
+  │
+  ├── rejects invalid format
+  │     ISO format "2025-03-15" and US format "01-01-2025" throw.
+  │     Partial dates like "1/1/2025" (no zero-padding) throw.
+  │
+  └── rejects non-existent dates
+        "30/02/2025" (Feb 30) and "31/04/2025" (Apr 31) throw.
+
+  getBaseSchema  (shared fields present in both admin and captain schemas)
+  ├── accepts minimal optional data
+  │     Empty object {} passes; defaults are applied.
+  │
+  ├── coerces decimal-like values to numbers
+  │     Prisma returns Decimal objects; schema converts "100.50" → 100.5.
+  │
+  └── defaults efectivo and transferir to false
+        Payment method checkboxes default to unchecked.
+
+  getAdminSchema  (full order creation/edit)
+  ├── accepts valid admin data
+  │     Full valid payload including nombre, email, fechaEmbarque, etc. passes.
+  │
+  ├── requires nombre
+  │     Empty nombre string throws.
+  │
+  ├── requires valid email
+  │     "invalid" (no @domain) throws.
+  │
+  ├── requires horaEmbarque in HH:mm format
+  │     "9:30" (missing leading zero) throws; "09:30" passes.
+  │
+  └── constrains pasajeros between 1 and 6
+        0 and 7 throw; 1 and 6 pass.
+
+  getCaptainSchema  (post-trip expense/payment entry)
+  ├── accepts minimal captain data with no saldo or extras
+  │     Just nombre + apellido is sufficient when no money is owed.
+  │
+  ├── requires payment method when saldoCliente > 0
+  │     If balance > 0, either efectivo or transferir must be true.
+  │     Both false throws "Elige un método de pago para el saldo".
+  │
+  ├── requires pagoRecibo when saldoCliente > 0
+  │     Balance > 0 with pagoRecibo = 0 throws "El monto del recibo es requerido".
+  │
+  ├── requires payment method when horasExtras > 0
+  │     Extra hours recorded but no payment method throws
+  │     "Elige un método de pago para horas extras".
+  │
+  └── requires pagoHorasExtra when horasExtras > 0
+        Extra hours > 0 with pagoHorasExtra = 0 throws
+        "El monto de horas extras es requerido".
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/lib/r2-client.test.ts  (5 tests)
+PURPOSE: Verifies the uploadPhotoToR2() function in lib/r2-client.ts.
+         The AWS S3 client is mocked so no real network calls are made.
+         Tests confirm input validation and the happy-path upload result.
+────────────────────────────────────────────────────────────────────────────────
+
+  uploadPhotoToR2
+  ├── returns error when file is missing
+  │     FormData with orderId but no file → success:false, "No file provided".
+  │     S3 send() is never called.
+  │
+  ├── returns error when orderId is missing
+  │     FormData with file but no orderId → success:false, "No order ID".
+  │     S3 send() is never called.
+  │
+  ├── returns error when R2 env vars are missing
+  │     R2_ACCOUNT_ID / ACCESS_KEY / SECRET / BUCKET cleared → success:false,
+  │     "environment variables" in error message.
+  │
+  ├── returns error for disallowed file type
+  │     application/pdf → success:false, "not allowed", mentions "JPEG".
+  │     Accepted types: JPEG, PNG, GIF, WebP.
+  │
+  └── uploads successfully for valid image
+        image/jpeg file + orderId + gastoType "combustible" →
+        success:true, url starts with "https://cdn.example.com/work-orders/123/",
+        url contains "combustible", fileName is original name, mimeType correct.
+
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 2 — SERVER ACTION TESTS  (tests/actions/)
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/actions/work-order.test.ts  (11 tests)
+PURPOSE: Verifies core work-order server actions: getWorkOrder, createWorkOrder,
+         and client name lookup helpers.  Prisma and auth are fully mocked.
+────────────────────────────────────────────────────────────────────────────────
+
+  work-order actions > getWorkOrder
+  ├── returns error for invalid id
+  │     getWorkOrder(0) → success:false, "ID de orden inválido".
+  │
+  ├── returns error when order does not exist
+  │     findUnique returns null → success:false, "La orden #999 no existe".
+  │
+  ├── returns error when captain accesses another captain order
+  │     Session is captain-1; order.captainId is "other-captain-id" →
+  │     success:false, "No tienes autorización".
+  │
+  └── returns order for authorized admin
+        Admin session + valid order → success:true, data is defined.
+
+  work-order actions > createWorkOrder
+  ├── returns validation error for invalid data
+  │     { nombre: "" } → success:false, "Validación fallida".
+  │
+  └── creates order with valid admin data
+        Full valid payload → success:true, prisma.workOrder.create called.
+
+  work-order actions > getClientApellidosByNombre
+  ├── returns empty array for empty nombre
+  │     "" → success:true, data:[].  No DB call needed.
+  │
+  └── returns apellidos from users
+        DB returns [{apellido:"García"},{apellido:"Lopez"}] →
+        data contains both strings.
+
+  work-order actions > getClientDetails
+  ├── returns error when nombre or apellido missing
+  │     ("", "García") → success:false, "Missing".
+  │
+  └── returns client data when found
+        DB findFirst returns client object → success:true, data matches.
+
+  work-order actions > getUniqueNombresFromUsers
+  └── returns sorted unique nombres
+        DB returns ["Ana","Juan","Ana"] → data:["Ana","Juan"] (deduped, sorted).
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/actions/rbac.test.ts  (20 tests)
+PURPOSE: Role-Based Access Control — verifies that every server action
+         enforces the correct role permissions.  Three session fixtures are
+         used: admin, representante, captain.
+
+         Permission matrix under test:
+           Action               admin   representante   captain
+           deleteWorkOrder        ✓           ✓            ✗
+           getWorkOrder (own)     any         any         own only
+           sendReceiptEmail       ✓           ✓            ✗
+           createUser             ✓           ✗            ✗
+           getUsers               ✓           ✗            ✗
+           deleteUser             ✓           ✗            ✗
+           changeUserPassword     ✓           ✗            ✗
+────────────────────────────────────────────────────────────────────────────────
+
+  deleteWorkOrder — role access
+  ├── admin can delete a work order
+  │     Admin session → success:true.
+  │
+  ├── representante can delete a work order
+  │     Representante session → success:true.
+  │
+  └── captain cannot delete a work order
+        Captain session → success:false, error matches /unauthorized/i.
+
+  getWorkOrder — captain own-order restriction
+  ├── captain can access their own order
+  │     order.captainId === session.user.id → success:true.
+  │
+  ├── captain cannot access another captain's order
+  │     order.captainId "other-captain-99" ≠ "captain-1" →
+  │     success:false, error matches /autorización/i.
+  │
+  ├── admin can access any order
+  │     Admin session + order owned by different captain → success:true.
+  │
+  └── representante can access any order
+        Representante session + order owned by different captain → success:true.
+
+  sendReceiptEmail — role access
+  ├── admin can send receipt email
+  │     Admin session + mocked Resend → success:true.
+  │
+  ├── representante can send receipt email
+  │     Representante session + mocked Resend → success:true.
+  │
+  └── captain cannot send receipt email
+        Captain session → success:false, error matches /unauthorized/i.
+        Resend is never contacted.
+
+  createUser — role access
+  ├── representante cannot create users
+  │     Representante session → success:false, error matches /unauthorized/i.
+  │
+  └── captain cannot create users
+        Captain session → success:false, error matches /unauthorized/i.
+
+  getUsers — role access
+  ├── admin can list users
+  │     Admin session → success:true, data is array.
+  │
+  ├── representante cannot list users
+  │     Representante session → success:false, error matches /unauthorized/i.
+  │
+  └── captain cannot list users
+        Captain session → success:false, error matches /unauthorized/i.
+
+  deleteUser — role access
+  ├── admin can delete a user
+  │     Admin session → success:true.
+  │
+  ├── representante cannot delete users
+  │     Representante session → success:false, error matches /unauthorized/i.
+  │
+  └── captain cannot delete users
+        Captain session → success:false, error matches /unauthorized/i.
+
+  changeUserPassword — role access
+  ├── representante cannot change passwords
+  │     Representante session → success:false, error matches /unauthorized/i.
+  │
+  └── captain cannot change passwords
+        Captain session → success:false, error matches /unauthorized/i.
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/actions/delete-receipts.test.ts  (4 tests)
+PURPOSE: Verifies that deleting a work order also removes all associated
+         photos from Cloudflare R2 storage.  deleteReceiptsFromR2 is mocked
+         so no real network calls are made; call arguments are asserted.
+────────────────────────────────────────────────────────────────────────────────
+
+  deleteWorkOrder — R2 receipt cleanup
+  ├── calls deleteReceiptsFromR2 with the receipt URLs from the order
+  │     Order has 2 receipts with known URLs.
+  │     deleteReceiptsFromR2 called exactly once with [URL_A, URL_B].
+  │
+  ├── calls deleteReceiptsFromR2 with an empty array when the order has no receipts
+  │     order.receipts = [] → deleteReceiptsFromR2 still called, with [].
+  │     (function is not skipped for empty orders)
+  │
+  ├── deletes the DB record after calling deleteReceiptsFromR2
+  │     Call order is recorded: R2 deletion must happen before DB deletion.
+  │     callOrder === ["r2", "db"].
+  │     prisma.workOrder.delete called with { where: { id: 1 } }.
+  │
+  └── does not call deleteReceiptsFromR2 when the order does not exist
+        findUnique returns null → success:false, "not found".
+        deleteReceiptsFromR2 is never called.
+
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 3 — COMPONENT TESTS  (tests/components/)
+════════════════════════════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/components/CaptainSelect.test.tsx  (3 tests)
+PURPOSE: Verifies the CaptainSelect dropdown that appears on the admin create/edit
+         form.  The component fetches captains from /api/users?role=captain.
+         fetch() is stubbed with a mock returning two captains.
+────────────────────────────────────────────────────────────────────────────────
+
+  CaptainSelect
+  ├── shows loading state initially
+  │     On first render, before fetch resolves, "Cargando capitanes" is visible.
+  │
+  ├── fetches captains from API and renders select after load
+  │     fetch called with "/api/users?role=captain".
+  │     After resolution, loading text disappears and combobox is rendered.
+  │
+  └── shows placeholder when no value selected
+        value="" → "Seleccionar capitana" placeholder is visible.
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/components/WorkOrderForm/canEdit.test.ts  (60 tests)
+PURPOSE: Verifies the canEdit() permission function in permissions.ts.
+         canEdit(fieldName, isCaptain) determines whether a field is editable
+         in the current form mode.  Tests are table-driven over three groups:
+           - Calculated fields (always read-only)
+           - Admin-editable fields
+           - Captain-editable fields
+────────────────────────────────────────────────────────────────────────────────
+
+  canEdit — calculated fields (always read-only)
+  │   Tests run for each field in CALCULATED_FIELDS:
+  │   [precioAcordado, cargoExtra, totalClienteCost, saldoCliente,
+  │    debidoABayside, ingresoNeto]
+  ├── {field} is read-only for admin
+  │     canEdit(field, false) === false
+  │
+  └── {field} is read-only for captain
+        canEdit(field, true) === false
+
+  canEdit — admin mode (isCaptain=false)
+  │   Tests run for each admin-editable field:
+  │   [nombre, apellido, email, cell, cliente, clienteCell, clienteEmail,
+  │    fechaEmbarque, horaEmbarque, destino, puntoEncuentro, pasajeros,
+  │    tarifaHora, horasAcordadas, pagoCapitana, pagoMarinero, deposito]
+  ├── can edit {field}
+  │     canEdit(field, false) === true
+  │
+  └── can edit all captain-editable fields too
+        Admins can edit every field captains can edit (CAPTAIN_EDITABLE_FIELDS).
+
+  canEdit — captain mode (isCaptain=true)
+  │   Tests run for each field in CAPTAIN_EDITABLE_FIELDS:
+  │   [horaLlegado, combustible, hielo, aguaBebidas, gastoVarios, horasExtras,
+  │    efectivo, transferir, pagoRecibo, horasExtrasEfectivo,
+  │    horasExtrasTransferir, pagoHorasExtra, detallesNotas, deposito]
+  ├── can edit {field}
+  │     canEdit(field, true) === true
+  │
+  └── cannot edit {field}  (admin-only fields)
+        [nombre, apellido, email, cell, cliente, clienteCell, clienteEmail,
+         fechaEmbarque, horaEmbarque, destino, puntoEncuentro, pasajeros,
+         tarifaHora, horasAcordadas, pagoCapitana, pagoMarinero]
+        canEdit(field, true) === false
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/components/WorkOrderForm/useFinancialCalculations.test.ts  (13 tests)
+PURPOSE: Verifies the useFinancialCalculations() React hook that auto-computes
+         derived financial fields whenever input values change.
+         renderHook() is used; setValue is mocked to capture what the hook writes.
+
+         Formulas under test:
+           precioAcordado  = tarifaHora × horasAcordadas  (floored)
+           cargoExtra      = tarifaHora × horasExtras      (floored)
+           totalClienteCost= precioAcordado + cargoExtra + gastoVarios
+           saldoCliente    = totalCost − deposito − pagoRecibo − pagoHorasExtra
+           ingresoNeto     = (precioAcordado + cargoExtra) − all expenses
+────────────────────────────────────────────────────────────────────────────────
+
+  useFinancialCalculations > precioAcordado = tarifaHora × horasAcordadas (floored)
+  ├── basic multiplication
+  │     100 × 4 = 400  → setValue("precioAcordado", 400)
+  │
+  ├── floors fractional result
+  │     100 × 3.5 = 350  → setValue("precioAcordado", 350)
+  │
+  └── rounds down partial hours correctly
+        150 × 3 = 450  → setValue("precioAcordado", 450)
+
+  useFinancialCalculations > cargoExtra = tarifaHora × horasExtras (floored)
+  ├── calculates extra hours charge
+  │     100 × 2 = 200  → setValue("cargoExtra", 200)
+  │
+  └── zero extra hours → no setValue call (value already matches default 0)
+        Hook skips setValue when calculated value already matches the
+        current form value.  Both are 0, so no call fires.
+
+  useFinancialCalculations > totalClienteCost = precioAcordado + cargoExtra + gastoVarios
+  └── sums all three components
+        tarifaHora=100, horasAcordadas=4 (precio=400), horasExtras=1 (cargo=100),
+        gastoVarios=50 → setValue("totalClienteCost", 550)
+
+  useFinancialCalculations > saldoCliente = totalCost − deposito − pagoRecibo − pagoHorasExtra
+  ├── subtracts all payments from total
+  │     precio=400, deposito=100, pagoRecibo=50, pagoHorasExtra=25
+  │     → setValue("saldoCliente", 225)
+  │
+  └── saldo is negative when payments exceed cost
+        precio=200, deposito=300 → setValue("saldoCliente", -100)
+
+  useFinancialCalculations > ingresoNeto = (precioAcordado + cargoExtra) − all expenses
+  ├── subtracts all expense categories
+  │     precio=400, combustible=30, hielo=20, aguaBebidas=10, gastoVarios=15,
+  │     pagoCapitana=80, pagoMarinero=40 → setValue("ingresoNeto", 205)
+  │
+  └── includes extra hours income in neto
+        precio=400, cargoExtra=100, pagoCapitana=50 → setValue("ingresoNeto", 450)
+
+  useFinancialCalculations > undefined inputs treated as 0
+  ├── handles all-undefined inputs without throwing
+  │     tarifaHora/horasAcordadas/combustible all undefined → no exception.
+  │
+  └── treats undefined tarifaHora as 0 — no setValue call when result matches default
+        undefined tarifaHora → rate=0 → precioAcordado=0.
+        Form default is also 0, so hook skips the setValue call.
+
+  useFinancialCalculations > no-op when value is already correct
+  └── does not call setValue for precioAcordado when it already matches
+        getValues returns precioAcordado=400; hook calculates 400.
+        No redundant setValue("precioAcordado", 400) is fired.
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/components/WorkOrderForm/compressImage.test.ts  (10 tests)
+PURPOSE: Verifies the compressImage() utility in compressImage.ts.
+         This function is the Samsung A53 crash fix: files > 5MB bypass
+         createImageBitmap() (which OOM-crashes on low-RAM devices) and go
+         directly to browser-image-compression with useWebWorker:false.
+
+         browser-image-compression is mocked via vi.mock().
+         createImageBitmap is stubbed via vi.stubGlobal().
+────────────────────────────────────────────────────────────────────────────────
+
+  compressImage — LARGE_FILE_THRESHOLD constant
+  └── is 5 MB
+        LARGE_FILE_THRESHOLD === 5 * 1024 * 1024
+
+  compressImage — large file path (> 5 MB)
+  ├── does NOT call createImageBitmap
+  │     File size = LARGE_FILE_THRESHOLD + 1 → createImageBitmap never called.
+  │
+  ├── calls browser-image-compression with useWebWorker:false
+  │     imageCompression called with { useWebWorker: false, maxWidthOrHeight: 1200 }.
+  │
+  ├── logs the large-file message
+  │     log() called with string containing "skipping createImageBitmap".
+  │
+  └── returns the compressed blob
+        Result is instanceof Blob.
+
+  compressImage — small file path (≤ 5 MB)
+  ├── calls createImageBitmap
+  │     1 MB file → createImageBitmap called with { resizeWidth: 1200 }.
+  │
+  ├── closes the bitmap after drawing
+  │     bitmap.close() called after drawImage() to free GPU memory.
+  │
+  └── returns a Blob
+        Result is instanceof Blob.
+
+  compressImage — small file fallback when createImageBitmap throws
+  ├── falls back to browser-image-compression when createImageBitmap rejects
+  │     createImageBitmap throws Error("OOM") → imageCompression() is called.
+  │
+  └── logs the fallback message when native path fails
+        log() called with string containing "Native path failed".
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/components/WorkOrderForm/ReceiptField.test.tsx  (10 tests)
+PURPOSE: Verifies the ReceiptField component used in the captain section.
+         Each expense field (combustible, hielo, etc.) has a ReceiptField that
+         shows a camera icon for photo capture, a number input for the amount,
+         and thumbnails for any uploaded receipts.
+         Wrapped in a real FormProvider + FormField to satisfy useFormField().
+────────────────────────────────────────────────────────────────────────────────
+
+  ReceiptField — camera icon visibility
+  ├── shows camera icon when showCamera is true
+  │     file input type="file" is present in the DOM.
+  │
+  ├── hides camera icon when showCamera is false
+  │     No file input in the DOM.
+  │
+  ├── disables the file input when uploading is true
+  │     uploading=true → file input is disabled.
+  │
+  └── enables the file input when uploading is false
+        uploading=false → file input is not disabled.
+
+  ReceiptField — number input disabled state
+  ├── disables the number input when disabled=true
+  │     spinbutton role input is disabled.
+  │
+  └── enables the number input when disabled=false
+        spinbutton is not disabled.
+
+  ReceiptField — receipt thumbnails
+  ├── renders no thumbnails when receipts is empty
+  │     receipts=[] → no <img> elements.
+  │
+  ├── renders one thumbnail per receipt
+  │     receipts=[r1,r2] → two <img> elements.
+  │
+  ├── renders each thumbnail with the correct src URL
+  │     Each img.src matches the corresponding receipt.url.
+  │
+  └── calls onPhotoClick with the receipt URL when thumbnail is clicked
+        Clicking an img → onPhotoClick called with that receipt's URL.
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/components/WorkOrderForm/CaptainSection.test.tsx  (8 tests)
+PURPOSE: Verifies the CaptainSection component that captains fill in after a
+         trip: expenses, hours, and payment details.
+         Tests focus on mutual-exclusion checkbox logic and disabled states.
+         Uses real FormProvider so React Hook Form state is live.
+         within() scopes queries to a specific payment panel to avoid
+         ambiguity between the two checkbox groups.
+────────────────────────────────────────────────────────────────────────────────
+
+  CaptainSection — Pagar al Embarque mutual exclusion
+  ├── checking Efectivo unchecks Transferir
+  │     Start: transferir=true. Click Efectivo → efectivo=true, transferir=false.
+  │
+  ├── checking Transferir unchecks Efectivo
+  │     Start: efectivo=true. Click Transferir → transferir=true, efectivo=false.
+  │
+  └── both can be unchecked simultaneously
+        Start: efectivo=true. Click Efectivo to uncheck → both false is valid.
+
+  CaptainSection — Pago Horas Extras mutual exclusion
+  ├── checking horasExtrasEfectivo unchecks horasExtrasTransferir
+  │     Start: horasExtrasTransferir=true.
+  │     Click horasExtrasEfectivo → it becomes true, horasExtrasTransferir=false.
+  │
+  └── checking horasExtrasTransferir unchecks horasExtrasEfectivo
+        Start: horasExtrasEfectivo=true.
+        Click horasExtrasTransferir → it becomes true, horasExtrasEfectivo=false.
+
+  CaptainSection — field disabled states
+  ├── disables all checkboxes when canEdit returns false
+  │     canEdit={() => false}, mode=undefined → every checkbox is disabled.
+  │
+  ├── disables all number inputs when canEdit returns false
+  │     All spinbutton inputs are disabled.
+  │
+  └── hides camera icons when isCaptain=false
+        isCaptain=false → no file inputs rendered.
+        Camera icons are captain-only (they take the receipt photos).
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/components/WorkOrderForm/AdminSection.test.tsx  (10 tests)
+PURPOSE: Verifies the AdminSection component (the top half of the work order
+         form that admins fill in: charter details, pricing, client info).
+         Tests cover disabled/enabled states and the nombre/apellido dropdowns.
+         Calculated fields (precioAcordado etc.) use readOnly not disabled —
+         tests filter those out when checking the disabled state.
+────────────────────────────────────────────────────────────────────────────────
+
+  AdminSection — disabled states when canEdit returns false
+  ├── disables editable number inputs
+  │     Spinbutton inputs (excluding readOnly calculated fields) are all disabled.
+  │
+  ├── disables text inputs (destino, puntoEncuentro, cliente, etc.)
+  │     Textbox inputs (excluding readOnly auto-populated fields) are disabled.
+  │
+  ├── disables the time input (horaEmbarque)
+  │     input[type="time"] is disabled.
+  │
+  ├── disables the nombre Select trigger
+  │     First role="combobox" (Radix SelectTrigger) is disabled.
+  │
+  └── disables the date picker button
+        Button containing "Seleccione fecha" is disabled.
+
+  AdminSection — enabled states when canEdit returns true
+  ├── enables editable number inputs
+  │     Spinbutton inputs (excluding readOnly) are not disabled.
+  │
+  └── enables text inputs
+        Textbox inputs (excluding readOnly) are not disabled.
+
+  AdminSection — nombre/apellido dropdown population
+  ├── renders nombre options from nombresList
+  │     nombresList=["Ana","María","Rosa"] → combobox trigger is in the DOM.
+  │     (Options are in a Radix portal; trigger presence confirms the list loaded.)
+  │
+  ├── apellido Select is disabled when nombreCliente is empty
+  │     nombreCliente="" → second combobox (apellido) is disabled.
+  │     Apellido depends on nombre being selected first.
+  │
+  └── apellido Select is enabled when nombreCliente is set
+        nombreCliente="Ana" → apellido combobox is not disabled.
+
+
+════════════════════════════════════════════════════════════════════════════════
+SECTION 4 — END-TO-END TESTS  (tests/e2e/)
+════════════════════════════════════════════════════════════════════════════════
+
+NOTE: E2E tests run in a real Chromium browser via Playwright.
+      They require environment variables and a running dev server.
+      See TESTING.md for setup instructions.
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/e2e/auth.setup.ts  (setup — not a spec)
+PURPOSE: Logs in as admin and captain before any E2E spec runs.
+         Saves session cookies to tests/e2e/.auth/admin.json and captain.json.
+         Subsequent specs load these files so they start already authenticated.
+────────────────────────────────────────────────────────────────────────────────
+
+  authenticate as admin
+        Navigates to "/", fills email + password, submits.
+        Waits for redirect to "/admin", then saves storage state.
+        Throws if TEST_ADMIN_EMAIL or TEST_ADMIN_PASSWORD not set.
+
+  authenticate as captain
+        Same flow but uses TEST_CAPTAIN_EMAIL / TEST_CAPTAIN_PASSWORD.
+        Waits for redirect to "/captain", saves captain session.
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/e2e/admin-create.spec.ts  (1 test)
+PURPOSE: Verifies the full admin create-order flow end-to-end in a browser.
+         Uses admin session (chromium project).
+────────────────────────────────────────────────────────────────────────────────
+
+  Admin — create work order
+  └── fills required fields and sees success dialog with order ID
+        1. Navigates to /admin/create
+        2. Picks first available captain from nombre dropdown
+        3. Fills: destino, puntoEncuentro, date, cliente, pasajeros,
+                  tarifaHora (100), horasAcordadas (4)
+        4. Submits form
+        5. Asserts: role="dialog" appears within 15s, contains a numeric order ID
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/e2e/financial-calc.spec.ts  (3 tests)
+PURPOSE: Verifies that precioAcordado auto-calculates from tarifaHora ×
+         horasAcordadas in the browser in real time (client-side RHF watch).
+         Uses admin session (chromium project).
+────────────────────────────────────────────────────────────────────────────────
+
+  Financial auto-calculation
+  ├── precioAcordado = tarifaHora × horasAcordadas
+  │     150 × 3 → precioAcordado input shows "450" within 3s.
+  │
+  ├── precioAcordado updates when tarifaHora changes
+  │     100 × 4 = 400; change tarifaHora to 200 → updates to 800.
+  │
+  └── precioAcordado is 0 when hours are 0
+        tarifaHora=100, horasAcordadas=0 → precioAcordado shows "0".
+
+
+────────────────────────────────────────────────────────────────────────────────
+FILE: tests/e2e/captain-permissions.spec.ts  (7 tests)
+PURPOSE: Verifies role-based field gating in the browser from a captain's
+         perspective.  Uses captain session (captain project).
+         Requires TEST_CAPTAIN_ORDER_ID — an order assigned to the captain.
+────────────────────────────────────────────────────────────────────────────────
+
+  Captain — field permission gating
+  ├── nombre Select is disabled for captain
+  │     First combobox (nombre) is disabled in captain-edit mode.
+  │
+  ├── combustible input is enabled for captain
+  │     input[name="combustible"] is not disabled.
+  │
+  ├── hielo input is enabled for captain
+  │     input[name="hielo"] is not disabled.
+  │
+  ├── tarifaHora is disabled for captain
+  │     input[name="tarifaHora"] is disabled.
+  │
+  ├── horasAcordadas is disabled for captain
+  │     input[name="horasAcordadas"] is disabled.
+  │
+  ├── captain can type into combustible field
+  │     Fill "350" → input value is "350".
+  │
+  └── horaLlegado (arrival time) is enabled for captain
+        input[name="horaLlegado"] is not disabled.
+
+
+════════════════════════════════════════════════════════════════════════════════
+SUMMARY
+════════════════════════════════════════════════════════════════════════════════
+
+  Vitest unit/component tests:   176 tests  (13 files)  — run: pnpm run test:run
+  Playwright E2E tests:           11 tests   (3 specs)  — run: npx playwright test
+
+  Total:  187 tests

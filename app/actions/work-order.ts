@@ -10,7 +10,7 @@
 import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@/lib/prisma-client/client";
-import { uploadPhotoToR2 } from "@/lib/r2-client";
+import { uploadPhotoToR2, deleteReceiptsFromR2 } from "@/lib/r2-client";
 import { getAdminSchema, getCaptainSchema } from "@/lib/schemas";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -381,8 +381,9 @@ export async function updateWorkOrder(id: number, data: any, role: "admin" | "ca
 export async function deleteWorkOrder(id: number) {
   try {
     const session = await getSession();
-    if ((session.user as any).role !== "admin") {
-        return { success: false, error: "Unauthorized: Only admins can delete orders" };
+    const role = (session.user as any).role;
+    if (role !== "admin" && role !== "representante") {
+        return { success: false, error: "Unauthorized" };
     }
     // Validate that id is a valid number
     if (!id || isNaN(id) || !Number.isInteger(id)) {
@@ -399,15 +400,15 @@ export async function deleteWorkOrder(id: number) {
       return { success: false, error: "Order not found" };
     }
 
-    // Delete the order (receipts will be cascade deleted due to schema onDelete: Cascade)
-    // TODO: Delete receipts from S3
-    
+    // Delete photos from R2 before removing DB records
+    const receiptUrls = order.receipts.map((r) => r.url);
+    await deleteReceiptsFromR2(receiptUrls);
+
+    // Delete the order — receipts cascade-deleted via onDelete: Cascade
     await prisma.workOrder.delete({
       where: { id },
     });
 
-    // TODO: Delete receipts from S3
-    
 
     // Revalidate paths
     revalidatePath("/admin/list");

@@ -31,7 +31,7 @@ export default function AdminOrderView() {
   const orderId = parseInt(id);
   const [deleting, setDeleting] = useState(false);
   const { data: session } = authClient.useSession();
-  const isAdmin = session?.user?.role === "admin";
+  const canDelete = session?.user?.role === "admin" || session?.user?.role === "representante";
 
   // Validate the ID
   if (!id || isNaN(orderId)) {
@@ -94,7 +94,7 @@ export default function AdminOrderView() {
         backLabel="Back to List"
         showBackButton={true}
         rightActions={
-          isAdmin && (
+          canDelete && (
             <Button
               variant="destructive"
               size="sm"
