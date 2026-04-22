@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { LogIn, Eye, EyeOff } from "lucide-react";
+import { LogIn, Eye, EyeOff, Loader2 } from "lucide-react";
 
 /**
  * LandingPageContent helper component.
@@ -34,6 +34,7 @@ function LandingPageContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -128,8 +129,9 @@ function LandingPageContent() {
   }, [session, router]);
 
   const handleSignIn = async () => {
-    if (isPending || (session && !justSignedOutRef.current)) return; // Prevent double sign-in, but allow re-sign-in after sign-out
+    if (isPending || isLoading || (session && !justSignedOutRef.current)) return; // Prevent double sign-in, but allow re-sign-in after sign-out
 
+    setIsLoading(true);
     console.log("Attempting sign in with", email);
     try {
       const result = await authClient.signIn.email({
@@ -142,6 +144,7 @@ function LandingPageContent() {
       if (result?.error) {
         console.error("Sign-in error:", result.error);
         alert("Login Failed: " + result.error.message);
+        setIsLoading(false);
         return;
       }
 
@@ -165,6 +168,7 @@ function LandingPageContent() {
       console.error("Unexpected error in signIn", err);
       const errorMessage = err?.error?.message || err?.message || "Please try again";
       alert("Login Failed: " + errorMessage);
+      setIsLoading(false);
     }
   };
 
@@ -261,9 +265,19 @@ function LandingPageContent() {
               type="submit"
               className="w-full h-11 text-base font-semibold mt-6"
               size="lg"
+              disabled={isLoading}
             >
-              <LogIn className="mr-2 h-4 w-4" />
-              Sign In
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing In...
+                </>
+              ) : (
+                <>
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Sign In
+                </>
+              )}
             </Button>
           </form>
         </CardContent>

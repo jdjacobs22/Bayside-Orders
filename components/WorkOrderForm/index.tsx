@@ -35,6 +35,8 @@ import { CaptainSection } from "./CaptainSection";
 import { CompressingModal } from "./CompressingModal";
 import { PhotoDialog } from "./PhotoDialog";
 import { SuccessDialog } from "./SuccessDialog";
+import { canEdit as canEditField } from "./permissions";
+import { compressImage } from "./compressImage";
 
 // 1. STYLED SCHEMA: Strict types for Linter compliance
 
@@ -89,45 +91,7 @@ export default function WorkOrderForm({
 
   // Field Access Logic
   const isCaptain = mode === "captain-edit";
-  /**
-   * Determines if a specific field can be edited based on the current user role (mode).
-   * Admins can edit all fields. Captains are restricted to specific fields.
-   *
-   * @param fieldName - The name of the field to check.
-   * @returns True if the field is editable, false otherwise.
-   */
-  const canEdit = (fieldName: string) => {
-    // These fields are ALWAYS calculated and should NEVER be directly edited.
-    const calculatedFields = [
-      "precioAcordado",
-      "cargoExtra",
-      "totalClienteCost",
-      "saldoCliente",
-      "debidoABayside",
-      "ingresoNeto"
-    ];
-    if (calculatedFields.includes(fieldName)) return false;
-
-    if (!isCaptain) return true; // Admin can edit everything else
-
-    const captainAllowed = [
-      "horaLlegado",
-      "combustible",
-      "hielo",
-      "aguaBebidas",
-      "gastoVarios",
-      "horasExtras",
-      "efectivo",
-      "transferir",
-      "pagoRecibo",
-      "horasExtrasEfectivo",
-      "horasExtrasTransferir",
-      "pagoHorasExtra",
-      "detallesNotas",
-      "deposito",
-    ];
-    return captainAllowed.includes(fieldName);
-  };
+  const canEdit = (fieldName: string) => canEditField(fieldName, isCaptain);
 
   const activeSchema = isCaptain ? captainSchema : adminSchema;
 
@@ -356,68 +320,7 @@ export default function WorkOrderForm({
 
     try {
       // 🛑 STAGE 1: COMPRESS
-      // Primary path: createImageBitmap with resize hints (Chrome 64+, Firefox 93+).
-      // Fallback path: browser-image-compression with useWebWorker:false, used when the
-      // primary throws — Samsung Internet / older Android Chrome silently ignore the resize
-      // options and decode the full 64 MP sensor image (~256 MB), causing an OOM crash.
-      // The fallback avoids a second memory arena (web worker) which is the other common
-      // cause of tab death on the A53.
-      let compressedBlob: Blob | null = null;
-
-      try {
-        addDebugLog("Stage 1: native bitmap resize...");
-        // Race against a timeout: on Samsung A53 (64 MP) createImageBitmap can hang
-        // indefinitely rather than throwing, leaving the UI locked with no upload.
-        const bitmapPromise = createImageBitmap(originalFile, {
-          resizeWidth: 1200,
-          resizeQuality: 'medium',
-        });
-        const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("bitmap_timeout")), 8000)
-        );
-        const bitmap = await Promise.race([bitmapPromise, timeoutPromise]);
-        addDebugLog(`Bitmap decoded: ${bitmap.width}x${bitmap.height}`);
-
-        // Safety: if the browser ignored resize hints and returned a full-size bitmap,
-        // clamp it here before drawing so the canvas stays at ≤1200 px.
-        const MAX_DIM = 1200;
-        const scale = Math.min(1, MAX_DIM / Math.max(bitmap.width, bitmap.height));
-        const targetW = Math.floor(bitmap.width * scale);
-        const targetH = Math.floor(bitmap.height * scale);
-
-        const canvas = document.createElement('canvas');
-        canvas.width = targetW;
-        canvas.height = targetH;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) throw new Error("Could not get canvas context");
-        ctx.drawImage(bitmap, 0, 0, targetW, targetH);
-
-        // Release bitmap memory immediately after drawing
-        bitmap.close();
-
-        compressedBlob = await new Promise<Blob | null>((resolve) =>
-          canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.75)
-        );
-        addDebugLog(`Native path blob: ${(compressedBlob?.size ?? 0 / 1024).toFixed(0)}KB`);
-
-      } catch (bitmapErr: any) {
-        addDebugLog(`Native path failed (${bitmapErr.message}) — using imageCompression fallback`);
-
-        // Fallback for Samsung A53 / browsers that OOM on createImageBitmap.
-        // useWebWorker:false is critical — the web worker spawns a second memory arena
-        // that exceeds the browser tab budget on low-RAM devices.
-        const imageCompression = (await import('browser-image-compression')).default;
-        const compressed = await imageCompression(originalFile, {
-          maxSizeMB: 0.4,
-          maxWidthOrHeight: 1200,
-          useWebWorker: false,
-          initialQuality: 0.75,
-        });
-        compressedBlob = compressed;
-        addDebugLog(`Fallback path blob: ${(compressedBlob.size / 1024).toFixed(0)}KB`);
-      }
-
-      if (!compressedBlob) throw new Error("Blob conversion failed");
+      const compressedBlob = await compressImage(originalFile, addDebugLog);
 
       // 🛑 STAGE 2: UPLOAD
       const formData = new FormData();

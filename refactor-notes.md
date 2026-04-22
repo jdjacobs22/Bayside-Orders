@@ -209,7 +209,7 @@ This ensures that if the page does loop back to `/`, the session-redirect effect
 
 ---
 
-### Photo capture OOM crash on Samsung A53 — `components/workOrderForm.tsx`
+### Photo capture OOM crash on Samsung A53 — `components/WorkOrderForm/index.tsx`
 
 **Symptom (iteration 1):** Taking a receipt photo on the Samsung A53 crashed the browser tab.
 
@@ -252,6 +252,14 @@ Three layers of defence:
    The import is dynamic (`await import('browser-image-compression')`) so the library is only loaded when the fallback is actually needed.
 
 The outer try/catch handles any remaining failures (canvas unavailable, upload error, etc.).
+
+**Symptom (iteration 3):** Tab still crashed with OOM on Samsung A53 despite the `Promise.race` timeout fix.
+
+**Root cause — iteration 3:**
+`Promise.race` cannot prevent the OOM. When `createImageBitmap(file)` is called, the browser allocates memory for the full decoded image *synchronously at call time* — before the returned Promise is awaited or the race is evaluated. On a 64MP file (~256 MB decoded), the tab crashes at that instant, before any timeout can fire.
+
+**Fix — iteration 3:**
+Added a file size gate before entering the `createImageBitmap` path. Files over **5 MB** (Samsung A53 64MP JPEGs are typically 15–25 MB) skip `createImageBitmap` entirely and go straight to the `browser-image-compression` fallback. `createImageBitmap` is only attempted for smaller files where the decoded size is safe. The `Promise.race` timeout guard is retained for the small-file path to handle any browser that hangs on decode.
 
 ---
 

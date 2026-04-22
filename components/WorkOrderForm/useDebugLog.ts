@@ -3,12 +3,12 @@
 import React from "react";
 
 export function useDebugLog() {
-  const [debugMode, setDebugMode] = React.useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("debug_mode_enabled") === "true";
-    }
-    return false;
-  });
+  const [debugMode, setDebugMode] = React.useState(false);
+
+  // Sync from localStorage after hydration to avoid server/client mismatch.
+  React.useEffect(() => {
+    setDebugMode(localStorage.getItem("debug_mode_enabled") === "true");
+  }, []);
 
   const [debugLogs, setDebugLogs] = React.useState<string[]>([]);
 

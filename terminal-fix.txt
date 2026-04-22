@@ -1,0 +1,52 @@
+TERMINAL FIX INSTRUCTIONS
+=========================
+
+WILL I LOSE MY SESSION CONTEXT?
+--------------------------------
+The export commands below are safe to run. They only change environment
+variables in your current shell. They do NOT close Claude Code, do NOT
+clear conversation history, and do NOT affect your session context.
+
+Your Claude Code session context is stored in Claude's memory on
+Anthropic's servers, not in your terminal. Closing or resetting the
+terminal window does NOT erase it.
+
+HOWEVER - if you close the Claude Code app or type /clear, the current
+conversation will end. The auto-compact summary (saved automatically)
+means key decisions and file changes are preserved for future sessions,
+but the full back-and-forth chat will be gone.
+
+HOW TO SAVE THIS SESSION BEFORE MAKING CHANGES
+------------------------------------------------
+Option 1 - Do nothing special. The session is already auto-saved via
+           Claude's compaction system. Future sessions will have a
+           summary of this work.
+
+Option 2 - Ask Claude to write a summary to a file right now:
+           Just say "Write a session summary to session-notes.txt"
+           and Claude will save the key points before you do anything.
+
+Option 3 - The file TESTING.md and all code changes already written
+           to disk are permanent regardless of what happens to the
+           terminal session.
+
+
+TERMINAL FIX COMMANDS (safe to run - will not affect Claude session)
+----------------------------------------------------------------------
+Run these in your terminal:
+
+  export LANG=en_US.UTF-8
+  export LC_ALL=en_US.UTF-8
+
+To make the fix permanent, run this once:
+
+  echo 'export LANG=en_US.UTF-8' >> ~/.zshrc
+  echo 'export LC_ALL=en_US.UTF-8' >> ~/.zshrc
+  source ~/.zshrc
+
+If that does not fix it, the problem may be a font issue:
+  - Open Terminal app
+  - Go to Preferences > Profiles > Text
+  - Make sure the font supports Unicode
+
+Or simply close and reopen your terminal window.
